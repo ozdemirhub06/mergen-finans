@@ -35,6 +35,20 @@ except:
 
 st.markdown("""
     <style>
+            /* --- YENİ NEON YEŞİL YÜKLEME (SPINNER) EKRANI --- */
+    [data-testid="stSpinner"] > div > div {
+        border-color: rgba(0, 255, 0, 0.1) !important;
+        border-top-color: #00ff00 !important;
+        width: 40px !important;
+        height: 40px !important;
+        border-width: 4px !important;
+    }
+    [data-testid="stSpinner"] > div > div:last-child {
+        color: #00ff00 !important;
+        font-family: 'Consolas', monospace !important;
+        font-size: 1.1em !important;
+        text-shadow: 0 0 8px rgba(0, 255, 0, 0.5) !important;
+    }
     .stAppDeployButton {display: none !important;}
     footer {display: none !important;}
     [data-testid="stDecoration"] {display: none !important;}

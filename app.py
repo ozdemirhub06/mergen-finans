@@ -35,61 +35,6 @@ except:
 
 st.markdown("""
     <style>
-            /* --- BULUT BEYAZINI EZEN SİBER KARANLIK --- */
-    [data-testid="stAppViewContainer"] {
-        background-color: #000000 !important;
-    }
-    
-    [data-testid="stHeader"] {
-        background-color: transparent !important;
-    }
-
-    /* --- METRİKLERİ (BAKİYELERİ) YEŞİL YAPMA --- */
-    [data-testid="stMetricValue"] {
-        color: #00FF00 !important;
-        text-shadow: 0 0 10px rgba(0, 255, 0, 0.4) !important;
-    }
-    
-    /* --- METRİK ETİKETLERİNİ (BAŞLIKLARI) BEYAZ/GRİ YAPMA --- */
-    [data-testid="stMetricLabel"] {
-        color: #A0A0A0 !important;
-    }
-
-    /* --- TEXT INPUT (GİRİŞ KUTULARI) KARARTMA --- */
-    div[data-baseweb="input"] > div {
-        background-color: #101010 !important;
-        border: 1px solid rgba(0, 255, 0, 0.3) !important;
-    }
-    div[data-baseweb="input"] input {
-        color: #00FF00 !important;
-    }
-
-    /* --- SELECTBOX (AÇILIR MENÜ) KARARTMA --- */
-    div[data-baseweb="select"] > div {
-        background-color: #101010 !important;
-        border: 1px solid rgba(0, 255, 0, 0.3) !important;
-    }
-    div[data-baseweb="select"] span {
-        color: #00FF00 !important;
-    }
-    /* Açılır menü listesini karartma */
-    ul[data-baseweb="menu"] {
-        background-color: #101010 !important;
-        border: 1px solid #00ff00 !important;
-    }
-    ul[data-baseweb="menu"] li {
-        color: #00ff00 !important;
-    }
-
-    /* --- TÜM BAŞLIK VE NORMAL YAZILARI BEYAZA ZORLAMA --- */
-    .stMarkdown p, h1, h2, h3, h4, h5, h6, label {
-        color: #e0e0e0 !important;
-    }
-    
-    /* Senin siber butonları bozan yazıları düzeltme */
-    button[kind="primary"] p {
-        color: #000000 !important;
-    }
     .stAppDeployButton {display: none !important;}
     footer {display: none !important;}
     [data-testid="stDecoration"] {display: none !important;}
@@ -302,25 +247,6 @@ st.markdown("""
         100% { box-shadow: -40px -60px 0 transparent, 60px -20px 0 transparent, -20px 60px 0 transparent; }
     }
     @keyframes slide-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-    /* --- STREAMLIT BULUT REKLAMLARINI VE BUTONLARINI KÖKTEN İMHA ETME --- */
-    
-    /* Sağ alttaki kırmızı Manage/Deploy butonu */
-    .stAppDeployButton { display: none !important; }
-    [data-testid="stAppDeployButton"] { display: none !important; }
-    [data-testid="manage-app-button"] { display: none !important; }
-    
-    /* Sağ üstteki Github, Fork ve 3 nokta menüsü */
-    [data-testid="stToolbar"] { display: none !important; }
-    #MainMenu { display: none !important; }
-    
-    /* Footer (En alttaki Streamlit yazısı) */
-    footer { display: none !important; }
-    
-    /* Streamlit'in link ve badge (etiket) zorlamaları */
-    a[href*="streamlit.io"] { display: none !important; }
-    div[class^="viewerBadge"] { display: none !important; }
-    div[class*="viewerBadge"] { display: none !important; }
-    #viewerBadgeToRender { display: none !important; }     
     </style>
             
 """, unsafe_allow_html=True)

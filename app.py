@@ -253,6 +253,29 @@ st.markdown("""
 
 warnings.filterwarnings("ignore")
 
+# --- STREAMLIT REKLAM VE BUTONLARINI YOK EDEN JS SUİKASTÇISI ---
+import streamlit.components.v1 as components
+components.html(
+    """
+    <script>
+        const doc = window.parent.document;
+        const hideStreamlitJunk = () => {
+            // İnatçı butonların ve reklamların tüm kimliklerini hedefliyoruz
+            const elements = doc.querySelectorAll('[data-testid="stAppDeployButton"], .stAppDeployButton, [data-testid="manage-app-button"], [data-testid="stToolbar"], a[href*="streamlit.io"], div[class^="viewerBadge"]');
+            elements.forEach(el => {
+                el.style.display = 'none';
+                el.style.visibility = 'hidden';
+                el.style.opacity = '0';
+            });
+        };
+        // Sayfa açılır açılmaz vur
+        hideStreamlitJunk();
+        // Streamlit inat edip sonradan yüklerse diye her yarım saniyede bir kafasına vurmaya devam et
+        setInterval(hideStreamlitJunk, 500);
+    </script>
+    """,
+    height=0, width=0
+)
 
 # --- 2. VERİTABANI VE YARDIMCI MOTORLAR ---
 

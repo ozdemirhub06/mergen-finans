@@ -35,6 +35,61 @@ except:
 
 st.markdown("""
     <style>
+            /* --- BULUT BEYAZINI EZEN SİBER KARANLIK --- */
+    [data-testid="stAppViewContainer"] {
+        background-color: #000000 !important;
+    }
+    
+    [data-testid="stHeader"] {
+        background-color: transparent !important;
+    }
+
+    /* --- METRİKLERİ (BAKİYELERİ) YEŞİL YAPMA --- */
+    [data-testid="stMetricValue"] {
+        color: #00FF00 !important;
+        text-shadow: 0 0 10px rgba(0, 255, 0, 0.4) !important;
+    }
+    
+    /* --- METRİK ETİKETLERİNİ (BAŞLIKLARI) BEYAZ/GRİ YAPMA --- */
+    [data-testid="stMetricLabel"] {
+        color: #A0A0A0 !important;
+    }
+
+    /* --- TEXT INPUT (GİRİŞ KUTULARI) KARARTMA --- */
+    div[data-baseweb="input"] > div {
+        background-color: #101010 !important;
+        border: 1px solid rgba(0, 255, 0, 0.3) !important;
+    }
+    div[data-baseweb="input"] input {
+        color: #00FF00 !important;
+    }
+
+    /* --- SELECTBOX (AÇILIR MENÜ) KARARTMA --- */
+    div[data-baseweb="select"] > div {
+        background-color: #101010 !important;
+        border: 1px solid rgba(0, 255, 0, 0.3) !important;
+    }
+    div[data-baseweb="select"] span {
+        color: #00FF00 !important;
+    }
+    /* Açılır menü listesini karartma */
+    ul[data-baseweb="menu"] {
+        background-color: #101010 !important;
+        border: 1px solid #00ff00 !important;
+    }
+    ul[data-baseweb="menu"] li {
+        color: #00ff00 !important;
+    }
+
+    /* --- TÜM BAŞLIK VE NORMAL YAZILARI BEYAZA ZORLAMA --- */
+    .stMarkdown p, h1, h2, h3, h4, h5, h6, label {
+        color: #e0e0e0 !important;
+    }
+    
+    /* Senin siber butonları bozan yazıları düzeltme */
+    button[kind="primary"] p {
+        color: #000000 !important;
+    }
     .stAppDeployButton {display: none !important;}
     footer {display: none !important;}
     [data-testid="stDecoration"] {display: none !important;}

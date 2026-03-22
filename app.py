@@ -315,6 +315,15 @@ st.markdown("""
     #viewerBadgeToRender {
         display: none !important;
     }
+            /* --- STREAMLIT "HOSTED WITH" REKLAMINI TAMAMEN YOK ETME --- */
+    a[href^="https://streamlit.io/cloud"] {
+        display: none !important;
+    }
+    
+    /* Alternatif reklam class'larını da ezelim */
+    [class^="viewerBadge"] {
+        display: none !important;
+    }
     </style>
             
 """, unsafe_allow_html=True)

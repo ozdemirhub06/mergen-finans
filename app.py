@@ -313,19 +313,21 @@ components.html(
 
 @st.cache_resource
 def init_pool():
-    # Hem Render hem Streamlit uyumlu akıllı şifre okuyucu
-    db_url = os.environ.get("DB_URL")
-    if not db_url: db_url = st.secrets["DB_URL"]
+    # Yeni Sunucu (Render) Uyumu
+    db_url = os.environ.get("DB_URL", "")
+    if not db_url:
+        try: db_url = st.secrets["DB_URL"]
+        except: pass
     return pool.ThreadedConnectionPool(1, 20, db_url)
 
 def get_db():
-    # Yeniden bağlanmak yerine, havuzdaki hazır ve açık bağlantılardan birini kapıyoruz
     try:
         return init_pool().getconn()
     except Exception:
-        # Havuzda anlık yoğunluk olursa acil durum yedeği
-        db_url = os.environ.get("DB_URL")
-        if not db_url: db_url = st.secrets["DB_URL"]
+        db_url = os.environ.get("DB_URL", "")
+        if not db_url:
+            try: db_url = st.secrets["DB_URL"]
+            except: pass
         return psycopg2.connect(db_url)
 
 def release_db(conn):

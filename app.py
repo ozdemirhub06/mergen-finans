@@ -302,6 +302,19 @@ st.markdown("""
         100% { box-shadow: -40px -60px 0 transparent, 60px -20px 0 transparent, -20px 60px 0 transparent; }
     }
     @keyframes slide-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+    /* --- SAĞ ALTTAKİ KIRMIZI STREAMLIT LOGOSUNU YOK ETME --- */
+    .stAppDeployButton, [data-testid="stAppDeployButton"] {
+        display: none !important;
+    }
+    div[class^="viewerBadge"] {
+        display: none !important;
+    }
+    div[class^="styles_viewerBadge"] {
+        display: none !important;
+    }
+    #viewerBadgeToRender {
+        display: none !important;
+    }
     </style>
             
 """, unsafe_allow_html=True)

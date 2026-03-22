@@ -313,8 +313,10 @@ components.html(
 
 @st.cache_resource
 def init_pool():
-    # 1 ile 20 arası sürekli açık bağlantı tutan bir havuz kuruyoruz
-    return pool.ThreadedConnectionPool(1, 20, st.secrets["DB_URL"])
+    # Hem Render hem Streamlit uyumlu akıllı şifre okuyucu
+    db_url = os.environ.get("DB_URL")
+    if not db_url: db_url = st.secrets["DB_URL"]
+    return pool.ThreadedConnectionPool(1, 20, db_url)
 
 def get_db():
     # Yeniden bağlanmak yerine, havuzdaki hazır ve açık bağlantılardan birini kapıyoruz
@@ -322,7 +324,9 @@ def get_db():
         return init_pool().getconn()
     except Exception:
         # Havuzda anlık yoğunluk olursa acil durum yedeği
-        return psycopg2.connect(st.secrets["DB_URL"])
+        db_url = os.environ.get("DB_URL")
+        if not db_url: db_url = st.secrets["DB_URL"]
+        return psycopg2.connect(db_url)
 
 def release_db(conn):
     # Bağlantıyı öldürmüyoruz (close yapmıyoruz), diğer işlemler için havuza geri bırakıyoruz

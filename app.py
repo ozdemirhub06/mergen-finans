@@ -35,7 +35,7 @@ except:
 
 st.markdown("""
     <style>
-            /* --- 1. BEYAZ ALT ÇUBUĞU VE REKLAMLARI KÖKÜNDEN YOK ETME --- */
+    /* --- 1. BEYAZ ALT ÇUBUĞU VE REKLAMLARI KÖKÜNDEN YOK ETME --- */
     footer, [data-testid="stFooter"] {
         display: none !important;
         visibility: hidden !important;
@@ -46,29 +46,7 @@ st.markdown("""
         opacity: 0 !important;
     }
 
-    /* --- 2. YENİ NESİL NEON YEŞİL YÜKLEME (SPINNER) EKRANI --- */
-    [data-testid="stSpinner"] {
-        color: #00FF00 !important;
-    }
-    [data-testid="stSpinner"] > div > div {
-        border-top-color: #00FF00 !important;
-        border-right-color: transparent !important;
-        border-bottom-color: transparent !important;
-        border-left-color: rgba(0, 255, 0, 0.2) !important;
-        width: 35px !important;
-        height: 35px !important;
-        border-width: 4px !important;
-    }
-    [data-testid="stSpinner"] p {
-        color: #00FF00 !important;
-        font-family: 'Consolas', monospace !important;
-        font-weight: bold !important;
-        font-size: 1.1em !important;
-        text-shadow: 0 0 8px rgba(0, 255, 0, 0.4) !important;
-        margin-left: 15px !important;
-    }
     .stAppDeployButton {display: none !important;}
-    footer {display: none !important;}
     [data-testid="stDecoration"] {display: none !important;}
     
     [data-testid="stHeader"] {
@@ -83,7 +61,7 @@ st.markdown("""
         font-size: 1.8rem !important;
     }
     
- /* --- SİDEBAR MENÜ DÜZENLEMESİ (BUZLU CAM VE SIFIR SCROLL) --- */
+    /* --- SİDEBAR MENÜ DÜZENLEMESİ (BUZLU CAM VE SIFIR SCROLL) --- */
     
     /* 1. KUSURSUZ BUZLU CAM (GLASSMORPHISM) SİDEBAR */
     
@@ -211,36 +189,8 @@ st.markdown("""
         color: #000000 !important;
         font-weight: 600 !important;
     }
-    /* --- SADE VE PROFESYONEL YÜKLEME EKRANI (SPINNER) --- */
-    
-    /* 1. Sağ üstteki koşan adamı tamamen gizliyoruz */
-    [data-testid="stStatusWidget"] {
-        visibility: hidden;
-    }
 
-    /* 2. Ekranın tam ortasına dönen şık, neon yeşil bir halka ekliyoruz */
-    [data-testid="stStatusWidget"]::after {
-        content: "";
-        visibility: visible;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        width: 50px;
-        height: 50px;
-        border: 4px solid rgba(0, 255, 0, 0.1); /* Soluk yeşil arka ray */
-        border-left-color: #00ff00; /* Parlak yeşil dönen başlık */
-        border-radius: 50%;
-        animation: pro-spin 0.8s linear infinite;
-        z-index: 99999;
-        box-shadow: 0 0 15px rgba(0, 255, 0, 0.2); /* Çok hafif, lüks bir parlama */
-    }
-
-    /* 3. Dönme Animasyonu */
-    @keyframes pro-spin {
-        0% { transform: translate(-50%, -50%) rotate(0deg); }
-        100% { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-       /* --- BAŞLIKLARIN YANINDAKİ ZİNCİR (LİNK) İKONUNU GİZLE --- */
+    /* --- BAŞLIKLARIN YANINDAKİ ZİNCİR (LİNK) İKONUNU GİZLE --- */
     h1 a, h2 a, h3 a, h4 a, h5 a, h6 a, a.header-anchor { display: none !important; }
     
     /* --- SİSTEM ASİSTANI (HAREKETLİ LOGO VE PARTİKÜLLER) --- */
@@ -279,25 +229,30 @@ st.markdown("""
         100% { box-shadow: -40px -60px 0 transparent, 60px -20px 0 transparent, -20px 60px 0 transparent; }
     }
     @keyframes slide-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-            /* --- YENİ SUNUCU İÇİN KESİN ÇÖZÜM: NEON YEŞİL YÜKLEME EKRANI --- */
-    
-    /* 1. Normal Spinner'lar (Veri Hesaplanıyor yazanlar) */
-    .stSpinner > div > div {
+
+    /* ==================================================================== */
+    /* --- YÜKLEME (SPINNER) EKRANI KESİN VE TEK ÇÖZÜMÜ (TEMİZLENDİ) --- */
+    /* ==================================================================== */
+
+    /* 1. Metin İçi Küçük Yükleme Çarkları (Veri Hesaplanıyor vs.) */
+    div[data-testid="stSpinner"] div[class*="spinner"] {
+        border-width: 4px !important;
+        border-color: rgba(0, 255, 0, 0.1) !important;
         border-top-color: #00FF00 !important;
         border-left-color: rgba(0, 255, 0, 0.2) !important;
-        border-right-color: transparent !important;
-        border-bottom-color: transparent !important;
     }
-    .stSpinner p, [data-testid="stSpinner"] p {
+    div[data-testid="stSpinner"] div[class*="stMarkdown"] p,
+    div[data-testid="stSpinner"] span,
+    [data-testid="stSpinner"] p {
         color: #00FF00 !important;
         font-family: 'Consolas', monospace !important;
         font-weight: bold !important;
-        text-shadow: 0 0 8px rgba(0, 255, 0, 0.4) !important;
+        text-shadow: 0 0 8px rgba(0, 255, 0, 0.5) !important;
     }
 
-    /* 2. Sağ üstteki koşma (Status) widget'ını merkeze alıp siber yapma */
+    /* 2. Sağ Üstteki Koşan Adamı İptal Edip, Merkeze Dev Neon Halka Ekleme */
     [data-testid="stStatusWidget"] {
-        visibility: hidden !important;
+        visibility: hidden !important; /* Ekranı bozmaması için sadece gizliyoruz, tamamen yok etmiyoruz ki ::after çalışsın */
     }
     [data-testid="stStatusWidget"]::after {
         content: "";
@@ -310,15 +265,15 @@ st.markdown("""
         border: 4px solid rgba(0, 255, 0, 0.1);
         border-left-color: #00ff00;
         border-radius: 50%;
-        animation: neon-spin 0.8s linear infinite;
+        animation: siber-spin 0.8s linear infinite;
         z-index: 99999;
         box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
     }
-    @keyframes neon-spin {
+    @keyframes siber-spin {
         0% { transform: translate(-50%, -50%) rotate(0deg); }
         100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
-    </style>
+</style>
             
 """, unsafe_allow_html=True)
 
@@ -1208,21 +1163,14 @@ f"</div></div>"
                         
                         st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
                 except Exception as e: st.error(f"İşlem hatası: {e}")
-# --- SİSTEM HAFIZASI VE BENİ HATIRLA KONTROLÜ ---
+
+    
+    # --- SİSTEM HAFIZASI KONTROLÜ ---
 if 'iceride_mi' not in st.session_state:
     st.session_state.iceride_mi = False
     st.session_state.aktif_kullanici = None
-    
-    # Uygulama açılırken "Beni Hatırla" dosyası var mı diye bakıyoruz
-    if os.path.exists("beni_hatirla.json"):
-        try:
-            with open("beni_hatirla.json", "r") as f:
-                veri = json.load(f)
-                st.session_state.aktif_kullanici = veri.get("kullanici_adi")
-                st.session_state.iceride_mi = True
-        except:
-            pass
 if not st.session_state.iceride_mi:
+    
     # --- GİRİŞ EKRANI SÜZÜLEN LOGO VE 360 DERECE PARTİKÜL EFEKTİ ---
     logo_b64, logo_mime = "", "png"
     for img_file in ["logo.png", "logo.jpg", "logo.ico"]:
@@ -1332,9 +1280,7 @@ if not st.session_state.iceride_mi:
                     if c.fetchone():
                         st.session_state.aktif_kullanici = k_adi_input
                         st.session_state.iceride_mi = True
-                        if beni_hatirla:
-                            with open("beni_hatirla.json", "w") as f: 
-                                json.dump({"kullanici_adi": k_adi_input}, f)
+                        
                         st.rerun()
                     else: 
                         st.error("Yetkilendirme Hatası: Kimlik bilgileri geçersiz.")

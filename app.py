@@ -35,19 +35,37 @@ except:
 
 st.markdown("""
     <style>
-            /* --- YENİ NEON YEŞİL YÜKLEME (SPINNER) EKRANI --- */
+            /* --- 1. BEYAZ ALT ÇUBUĞU VE REKLAMLARI KÖKÜNDEN YOK ETME --- */
+    footer, [data-testid="stFooter"] {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0px !important;
+    }
+    .viewerBadge_container__1QSob, .viewerBadge_link__1S137, [class^="viewerBadge"] {
+        display: none !important;
+        opacity: 0 !important;
+    }
+
+    /* --- 2. YENİ NESİL NEON YEŞİL YÜKLEME (SPINNER) EKRANI --- */
+    [data-testid="stSpinner"] {
+        color: #00FF00 !important;
+    }
     [data-testid="stSpinner"] > div > div {
-        border-color: rgba(0, 255, 0, 0.1) !important;
-        border-top-color: #00ff00 !important;
-        width: 40px !important;
-        height: 40px !important;
+        border-top-color: #00FF00 !important;
+        border-right-color: transparent !important;
+        border-bottom-color: transparent !important;
+        border-left-color: rgba(0, 255, 0, 0.2) !important;
+        width: 35px !important;
+        height: 35px !important;
         border-width: 4px !important;
     }
-    [data-testid="stSpinner"] > div > div:last-child {
-        color: #00ff00 !important;
+    [data-testid="stSpinner"] p {
+        color: #00FF00 !important;
         font-family: 'Consolas', monospace !important;
+        font-weight: bold !important;
         font-size: 1.1em !important;
-        text-shadow: 0 0 8px rgba(0, 255, 0, 0.5) !important;
+        text-shadow: 0 0 8px rgba(0, 255, 0, 0.4) !important;
+        margin-left: 15px !important;
     }
     .stAppDeployButton {display: none !important;}
     footer {display: none !important;}

@@ -302,28 +302,25 @@ st.markdown("""
         100% { box-shadow: -40px -60px 0 transparent, 60px -20px 0 transparent, -20px 60px 0 transparent; }
     }
     @keyframes slide-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
-    /* --- SAĞ ALTTAKİ KIRMIZI STREAMLIT LOGOSUNU YOK ETME --- */
-    .stAppDeployButton, [data-testid="stAppDeployButton"] {
-        display: none !important;
-    }
-    div[class^="viewerBadge"] {
-        display: none !important;
-    }
-    div[class^="styles_viewerBadge"] {
-        display: none !important;
-    }
-    #viewerBadgeToRender {
-        display: none !important;
-    }
-            /* --- STREAMLIT "HOSTED WITH" REKLAMINI TAMAMEN YOK ETME --- */
-    a[href^="https://streamlit.io/cloud"] {
-        display: none !important;
-    }
+    /* --- STREAMLIT BULUT REKLAMLARINI VE BUTONLARINI KÖKTEN İMHA ETME --- */
     
-    /* Alternatif reklam class'larını da ezelim */
-    [class^="viewerBadge"] {
-        display: none !important;
-    }
+    /* Sağ alttaki kırmızı Manage/Deploy butonu */
+    .stAppDeployButton { display: none !important; }
+    [data-testid="stAppDeployButton"] { display: none !important; }
+    [data-testid="manage-app-button"] { display: none !important; }
+    
+    /* Sağ üstteki Github, Fork ve 3 nokta menüsü */
+    [data-testid="stToolbar"] { display: none !important; }
+    #MainMenu { display: none !important; }
+    
+    /* Footer (En alttaki Streamlit yazısı) */
+    footer { display: none !important; }
+    
+    /* Streamlit'in link ve badge (etiket) zorlamaları */
+    a[href*="streamlit.io"] { display: none !important; }
+    div[class^="viewerBadge"] { display: none !important; }
+    div[class*="viewerBadge"] { display: none !important; }
+    #viewerBadgeToRender { display: none !important; }     
     </style>
             
 """, unsafe_allow_html=True)

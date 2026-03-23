@@ -48,6 +48,16 @@ st.markdown("""
 
     .stAppDeployButton {display: none !important;}
     [data-testid="stDecoration"] {display: none !important;}
+            /* --- ÜST ÇUBUĞU VE SİDEBAR AÇ/KAPA BUTONLARINI TAMAMEN İMHA ET (SABİT MENÜ) --- */
+    header[data-testid="stHeader"], 
+    [data-testid="collapsedControl"], 
+    [data-testid="stSidebarCollapsedControl"],
+    [data-testid="stSidebarCollapseButton"] {
+        display: none !important;
+        visibility: hidden !important;
+        width: 0px !important;
+        height: 0px !important;
+    }
             /* --- KAYBOLAN SİDEBAR BUTONUNU ZORLA GETİREN KOD --- */
     header { background: transparent !important; z-index: 99999 !important; }
     header button, [data-testid="collapsedControl"], [data-testid="stSidebarCollapsedControl"] {

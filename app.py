@@ -273,32 +273,34 @@ st.markdown("""
         0% { transform: translate(-50%, -50%) rotate(0deg); }
         100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
-            /* --- KAYBOLAN SİDEBAR AÇMA BUTONUNU NEON YEŞİL YAPMA (KESİN ÇÖZÜM) --- */
-    [data-testid="collapsedControl"] {
+           /* --- KAYBOLAN SİDEBAR BUTONUNA SİBER ŞOK (KESİN ÇÖZÜM 3.0) --- */
+    [data-testid="collapsedControl"], [data-testid="stSidebarCollapsedControl"] {
         display: flex !important;
-        position: fixed !important; /* İŞTE HAYAT KURTARAN ÇİVİ BU */
         visibility: visible !important;
-        z-index: 999999 !important;
-        background: rgba(0, 255, 0, 0.1) !important;
-        border-radius: 8px !important;
-        border: 1px solid rgba(0, 255, 0, 0.5) !important;
-        left: 15px !important;
+        opacity: 1 !important;
+        position: fixed !important;
         top: 15px !important;
+        left: 15px !important;
+        z-index: 9999999 !important;
+        background-color: rgba(10, 10, 10, 0.9) !important;
+        border: 1px solid #00FF00 !important;
+        border-radius: 8px !important;
         padding: 5px !important;
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.4) !important;
         transition: all 0.3s ease !important;
     }
-    [data-testid="collapsedControl"]:hover {
-        background: rgba(0, 255, 0, 0.3) !important;
-        box-shadow: 0 0 15px rgba(0, 255, 0, 0.6) !important;
-    }
-    [data-testid="collapsedControl"] svg {
+    [data-testid="collapsedControl"] svg, [data-testid="stSidebarCollapsedControl"] svg {
         fill: #00FF00 !important;
         color: #00FF00 !important;
         width: 24px !important;
         height: 24px !important;
     }
+    [data-testid="collapsedControl"]:hover, [data-testid="stSidebarCollapsedControl"]:hover {
+        background-color: rgba(0, 255, 0, 0.2) !important;
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.8) !important;
+    }
 </style>
-            
+               
 """, unsafe_allow_html=True)
 
 warnings.filterwarnings("ignore")
@@ -1192,6 +1194,15 @@ f"</div></div>"
 if 'iceride_mi' not in st.session_state:
     st.session_state.iceride_mi = False
     st.session_state.aktif_kullanici = None
+    # SİBER HAFIZA: Çerez dosyasını okur ve otomatik içeri alır
+    if os.path.exists("beni_hatirla.json"):
+        try:
+            with open("beni_hatirla.json", "r") as f:
+                data = json.load(f)
+                st.session_state.aktif_kullanici = data["kullanici_adi"]
+                st.session_state.iceride_mi = True
+        except: pass
+
 if not st.session_state.iceride_mi:
     
     # --- GİRİŞ EKRANI SÜZÜLEN LOGO VE 360 DERECE PARTİKÜL EFEKTİ ---
@@ -1304,6 +1315,11 @@ if not st.session_state.iceride_mi:
                         st.session_state.aktif_kullanici = k_adi_input
                         st.session_state.iceride_mi = True
                         
+                        # Eğer kutucuk işaretlendiyse kimliği diske yazar
+                        if beni_hatirla:
+                            with open("beni_hatirla.json", "w") as f:
+                                json.dump({"kullanici_adi": k_adi_input}, f)
+                                
                         st.rerun()
                     else: 
                         st.error("Yetkilendirme Hatası: Kimlik bilgileri geçersiz.")

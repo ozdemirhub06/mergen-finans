@@ -273,6 +273,27 @@ st.markdown("""
         0% { transform: translate(-50%, -50%) rotate(0deg); }
         100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
+            /* --- KAYBOLAN SİDEBAR AÇMA BUTONUNU NEON YEŞİL YAPMA (KESİN ÇÖZÜM) --- */
+    [data-testid="collapsedControl"] {
+        display: flex !important;
+        visibility: visible !important;
+        z-index: 99999 !important;
+        color: #00FF00 !important;
+        background: rgba(0, 255, 0, 0.05) !important;
+        border-radius: 6px !important;
+        border: 1px solid rgba(0, 255, 0, 0.3) !important;
+        transition: all 0.3s ease !important;
+        left: 15px !important;
+        top: 15px !important;
+    }
+    [data-testid="collapsedControl"]:hover {
+        background: rgba(0, 255, 0, 0.2) !important;
+        box-shadow: 0 0 12px rgba(0, 255, 0, 0.5) !important;
+    }
+    [data-testid="collapsedControl"] svg {
+        fill: #00FF00 !important;
+        color: #00FF00 !important;
+    }
 </style>
             
 """, unsafe_allow_html=True)

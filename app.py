@@ -49,11 +49,6 @@ st.markdown("""
     .stAppDeployButton {display: none !important;}
     [data-testid="stDecoration"] {display: none !important;}
     
-    [data-testid="stHeader"] {
-        background-color: #000000 !important; 
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; 
-        box-shadow: none !important;
-    }
     
     [data-testid="stMetricValue"] {
         font-family: 'Consolas', 'Courier New', monospace;
@@ -272,30 +267,6 @@ st.markdown("""
     @keyframes siber-spin {
         0% { transform: translate(-50%, -50%) rotate(0deg); }
         100% { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-    /* --- SİDEBAR BUTONU İÇİN SİBER BALYOZ (FOSFORLU YEŞİL) --- */
-    [data-testid="stHeader"] {
-        background: transparent !important;
-        z-index: 999998 !important;
-    }
-    div[data-testid="collapsedControl"], 
-    button[kind="header"] {
-        display: flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        position: fixed !important;
-        top: 12px !important;
-        left: 12px !important;
-        background-color: #00ff00 !important; /* Arka planını yemyeşil yapıyoruz */
-        border: 2px solid #00ff00 !important;
-        border-radius: 6px !important;
-        padding: 4px !important;
-        z-index: 999999 !important;
-    }
-    div[data-testid="collapsedControl"] svg, 
-    button[kind="header"] svg {
-        fill: #000000 !important; /* İçi siyah olsun ki yeşilde parlasın */
-        color: #000000 !important;
     }
 </style>
                

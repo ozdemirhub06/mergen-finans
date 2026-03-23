@@ -2641,7 +2641,7 @@ else:
                 tum_kategoriler = sorted(list(set(["Yemek", "Market", "Sigara", "Yurt Gideri", "Atıştırmalık", "Zaruri İhtiyaç", "Kişisel Bakım", "Telefon Faturası", "Ulaşım", "Eğitim", "Giyim", "Kahve", "Diğer"] + oz_kat)))
 
                 # --- HARCAMA TERMİNALİ TASARIMI ---
-                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #FF5252; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #FF5252;'></div><div style='color: #FF5252; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>HARCAMA İŞLEME TERMİNALİ</div></div>", unsafe_allow_html=True)
+                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #FF5252;'></div><div style='color: #FF5252; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>HARCAMA İŞLEME TERMİNALİ</div></div>", unsafe_allow_html=True)
 
                 with st.container(border=True):
                     st.markdown("<div style='background: rgba(255, 82, 82, 0.05); padding: 10px 15px; border-radius: 6px; border: 1px solid rgba(255, 82, 82, 0.2); margin-bottom: 20px; font-size: 0.85em; color: #e0e0e0;'>Günlük harcamalarınızı ve kart işlemlerinizi buradan sisteme kaydedin. Çıkışlar doğrudan seçtiğiniz kaynaktan düşülecektir.</div>", unsafe_allow_html=True)

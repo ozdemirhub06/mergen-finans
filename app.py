@@ -48,6 +48,16 @@ st.markdown("""
 
     .stAppDeployButton {display: none !important;}
     [data-testid="stDecoration"] {display: none !important;}
+            /* --- KAYBOLAN SİDEBAR BUTONUNU ZORLA GETİREN KOD --- */
+    header { background: transparent !important; z-index: 99999 !important; }
+    header button, [data-testid="collapsedControl"], [data-testid="stSidebarCollapsedControl"] {
+        visibility: visible !important;
+        display: inline-flex !important;
+    }
+    header svg, [data-testid="collapsedControl"] svg, [data-testid="stSidebarCollapsedControl"] svg {
+        fill: #00ff00 !important;
+        color: #00ff00 !important;
+    }
     
     
     [data-testid="stMetricValue"] {

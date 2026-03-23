@@ -273,25 +273,21 @@ st.markdown("""
         0% { transform: translate(-50%, -50%) rotate(0deg); }
         100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
-           /* --- KAYBOLAN SİDEBAR BUTONUNA SİBER ŞOK (KESİN ÇÖZÜM 3.0) --- */
-    /* --- SİDEBAR AÇMA/KAPAMA BUTONUNA MUTLAK MÜDAHALE (KESİN ÇÖZÜM 4.0) --- */
-    button[kind="header"], button[kind="headerNoPadding"] {
-        display: inline-flex !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        color: #00ff00 !important;
-        background-color: rgba(0, 255, 0, 0.1) !important;
-        border: 1px solid rgba(0, 255, 0, 0.5) !important;
-        border-radius: 8px !important;
-        margin: 10px !important;
-        z-index: 9999999 !important;
-        transition: all 0.3s ease !important;
+           /* --- SİDEBAR BUTONU (YALIN VE SIFIR HATA) --- */
+    [data-testid="stHeader"] {
+        background: transparent !important;
     }
-    button[kind="header"]:hover, button[kind="headerNoPadding"]:hover {
-        background-color: rgba(0, 255, 0, 0.3) !important;
-        box-shadow: 0 0 15px rgba(0, 255, 0, 0.6) !important;
+    [data-testid="stHeader"] button {
+        background-color: rgba(0, 255, 0, 0.05) !important;
+        border: 1px solid rgba(0, 255, 0, 0.3) !important;
+        border-radius: 6px !important;
+        margin-top: 10px !important;
+        margin-left: 10px !important;
     }
-    button[kind="header"] svg, button[kind="headerNoPadding"] svg {
+    [data-testid="stHeader"] button:hover {
+        background-color: rgba(0, 255, 0, 0.2) !important;
+    }
+    [data-testid="stHeader"] svg {
         fill: #00ff00 !important;
         color: #00ff00 !important;
     }

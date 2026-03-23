@@ -273,29 +273,29 @@ st.markdown("""
         0% { transform: translate(-50%, -50%) rotate(0deg); }
         100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
-     /* --- SİDEBAR AÇMA BUTONU KESİN VE NİHAİ ÇÖZÜM --- */
+    /* --- SİDEBAR BUTONU İÇİN SİBER BALYOZ (FOSFORLU YEŞİL) --- */
     [data-testid="stHeader"] {
-        background-color: transparent !important;
-        z-index: 99999 !important;
+        background: transparent !important;
+        z-index: 999998 !important;
     }
-    [data-testid="stHeader"] button, 
-    [data-testid="collapsedControl"], 
-    [data-testid="stSidebarCollapsedControl"] {
-        display: inline-flex !important;
+    div[data-testid="collapsedControl"], 
+    button[kind="header"] {
+        display: flex !important;
         visibility: visible !important;
-        background-color: rgba(10, 10, 10, 0.8) !important;
-        border: 1px solid #00FF00 !important;
-        border-radius: 8px !important;
-        color: #00FF00 !important;
+        opacity: 1 !important;
+        position: fixed !important;
+        top: 12px !important;
+        left: 12px !important;
+        background-color: #00ff00 !important; /* Arka planını yemyeşil yapıyoruz */
+        border: 2px solid #00ff00 !important;
+        border-radius: 6px !important;
+        padding: 4px !important;
         z-index: 999999 !important;
-        margin-top: 5px !important;
-        margin-left: 5px !important;
     }
-    [data-testid="stHeader"] svg, 
-    [data-testid="collapsedControl"] svg, 
-    [data-testid="stSidebarCollapsedControl"] svg {
-        fill: #00FF00 !important;
-        color: #00FF00 !important;
+    div[data-testid="collapsedControl"] svg, 
+    button[kind="header"] svg {
+        fill: #000000 !important; /* İçi siyah olsun ki yeşilde parlasın */
+        color: #000000 !important;
     }
 </style>
                

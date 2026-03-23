@@ -273,23 +273,29 @@ st.markdown("""
         0% { transform: translate(-50%, -50%) rotate(0deg); }
         100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
-           /* --- SİDEBAR BUTONU (YALIN VE SIFIR HATA) --- */
+     /* --- SİDEBAR AÇMA BUTONU KESİN VE NİHAİ ÇÖZÜM --- */
     [data-testid="stHeader"] {
-        background: transparent !important;
+        background-color: transparent !important;
+        z-index: 99999 !important;
     }
-    [data-testid="stHeader"] button {
-        background-color: rgba(0, 255, 0, 0.05) !important;
-        border: 1px solid rgba(0, 255, 0, 0.3) !important;
-        border-radius: 6px !important;
-        margin-top: 10px !important;
-        margin-left: 10px !important;
+    [data-testid="stHeader"] button, 
+    [data-testid="collapsedControl"], 
+    [data-testid="stSidebarCollapsedControl"] {
+        display: inline-flex !important;
+        visibility: visible !important;
+        background-color: rgba(10, 10, 10, 0.8) !important;
+        border: 1px solid #00FF00 !important;
+        border-radius: 8px !important;
+        color: #00FF00 !important;
+        z-index: 999999 !important;
+        margin-top: 5px !important;
+        margin-left: 5px !important;
     }
-    [data-testid="stHeader"] button:hover {
-        background-color: rgba(0, 255, 0, 0.2) !important;
-    }
-    [data-testid="stHeader"] svg {
-        fill: #00ff00 !important;
-        color: #00ff00 !important;
+    [data-testid="stHeader"] svg, 
+    [data-testid="collapsedControl"] svg, 
+    [data-testid="stSidebarCollapsedControl"] svg {
+        fill: #00FF00 !important;
+        color: #00FF00 !important;
     }
 </style>
                

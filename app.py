@@ -791,19 +791,18 @@ def t_arti_2_hesapla():
     return bugun, hedef_tarih
 
 def fon_takas_tarihi_hesapla(base_valor):
-    simdi = datetime.datetime.now()
-    hedef_tarih = simdi.date()
+    # KAYIT DEFTERİ MANTIĞI: Saat kuralı tamamen iptal edildi. Valör neyse o gün geçer!
+    bugun = datetime.date.today()
+    hedef_tarih = bugun
+    # İşlemi hafta sonu giriyorsan otomatik pazartesiye atar
     if hedef_tarih.weekday() >= 5:
         while hedef_tarih.weekday() >= 5: hedef_tarih += datetime.timedelta(days=1)
-        ek_gun = 0 
-    else:
-        ek_gun = 0 if simdi.hour < 13 or (simdi.hour == 13 and simdi.minute <= 30) else 1
-    toplam_is_gunu = base_valor + ek_gun
+    
     eklenen = 0
-    while eklenen < toplam_is_gunu:
+    while eklenen < base_valor:
         hedef_tarih += datetime.timedelta(days=1)
         if hedef_tarih.weekday() < 5: eklenen += 1
-    return simdi.date(), hedef_tarih
+    return bugun, hedef_tarih
 
 def asistan_motorunu_calistir(k_adi):
     # Kullanıcının sadece ilk ismini (veya kayıtlı değilse Yönetici adını) çekiyoruz
@@ -1330,6 +1329,15 @@ else:
     
     
     if 'motorlar_calisti' not in st.session_state:
+        # SİBER MAYMUNCUK: Takasta hapis kalan PPF paralarını anında serbest bırakır
+        conn = get_db()
+        try:
+            c = conn.cursor()
+            c.execute("UPDATE takas_bekleyen_islemler SET takas_tarihi = CURRENT_DATE - INTERVAL '1 day' WHERE durum = 'Bekliyor' AND varlik = 'TP2'")
+            conn.commit()
+        except: pass
+        finally: release_db(conn)
+
         takas_motorunu_calistir(k_adi)
         faiz_motorunu_calistir(k_adi)
         gecmis_harcamalari_dekonta_aktar(k_adi)
@@ -1345,6 +1353,7 @@ else:
             conn.commit()
         finally: release_db(conn)
         st.session_state.motorlar_calisti = True
+        
         # --- MERGEN ASİSTAN ARAYÜZÜ VE BUTONU ---
     @st.dialog("Sistem Bildirim Merkezi")
     def asistan_paneli_ac(k_adi):
@@ -2641,7 +2650,7 @@ else:
                 tum_kategoriler = sorted(list(set(["Yemek", "Market", "Sigara", "Yurt Gideri", "Atıştırmalık", "Zaruri İhtiyaç", "Kişisel Bakım", "Telefon Faturası", "Ulaşım", "Eğitim", "Giyim", "Kahve", "Diğer"] + oz_kat)))
 
                 # --- HARCAMA TERMİNALİ TASARIMI ---
-                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #FF5252;'></div><div style='color: #FF5252; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>HARCAMA İŞLEME TERMİNALİ</div></div>", unsafe_allow_html=True)
+                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff00;'></div><div style='color: #00ff00; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>HARCAMA İŞLEME TERMİNALİ</div></div>", unsafe_allow_html=True)
 
                 with st.container(border=True):
                     st.markdown("<div style='background: rgba(255, 82, 82, 0.05); padding: 10px 15px; border-radius: 6px; border: 1px solid rgba(255, 82, 82, 0.2); margin-bottom: 20px; font-size: 0.85em; color: #e0e0e0;'>Günlük harcamalarınızı ve kart işlemlerinizi buradan sisteme kaydedin. Çıkışlar doğrudan seçtiğiniz kaynaktan düşülecektir.</div>", unsafe_allow_html=True)

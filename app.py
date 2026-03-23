@@ -280,19 +280,30 @@ components.html(
     """
     <script>
         const doc = window.parent.document;
-        const hideStreamlitJunk = () => {
-            // İnatçı butonların ve reklamların tüm kimliklerini hedefliyoruz
-            const elements = doc.querySelectorAll('[data-testid="stAppDeployButton"], .stAppDeployButton, [data-testid="manage-app-button"], [data-testid="stToolbar"], a[href*="streamlit.io"], div[class^="viewerBadge"]');
-            elements.forEach(el => {
-                el.style.display = 'none';
-                el.style.visibility = 'hidden';
-                el.style.opacity = '0';
-            });
+        const siberMotor = () => {
+            // 1. Reklamları ve fazlalıkları yok et
+            const junk = doc.querySelectorAll('[data-testid="stAppDeployButton"], .stAppDeployButton, [data-testid="manage-app-button"], [data-testid="stToolbar"], a[href*="streamlit.io"], div[class^="viewerBadge"]');
+            junk.forEach(el => { el.style.display = 'none'; });
+
+            // 2. KAYBOLAN BUTONU BUL VE ZORLA YEŞİLE BOYA (KÖK ÇÖZÜM)
+            const sidebarBtn = doc.querySelector('[data-testid="collapsedControl"], [data-testid="stSidebarCollapsedControl"]');
+            if (sidebarBtn) {
+                // Butonu görünür yap
+                sidebarBtn.style.display = 'flex';
+                sidebarBtn.style.zIndex = '999999';
+                
+                // İçindeki ikonları zorla Neon Yeşil yap
+                const svgs = sidebarBtn.querySelectorAll('svg');
+                svgs.forEach(svg => {
+                    svg.style.fill = '#00ff00';
+                    svg.style.color = '#00ff00';
+                });
+            }
         };
-        // Sayfa açılır açılmaz vur
-        hideStreamlitJunk();
-        // Streamlit inat edip sonradan yüklerse diye her yarım saniyede bir kafasına vurmaya devam et
-        setInterval(hideStreamlitJunk, 500);
+        
+        siberMotor();
+        // React butonu silip baştan yaratsa bile, saniyede 2 kez tarayıp tekrar yeşile boyar
+        setInterval(siberMotor, 500);
     </script>
     """,
     height=0, width=0

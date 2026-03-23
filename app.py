@@ -274,30 +274,26 @@ st.markdown("""
         100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
            /* --- KAYBOLAN SİDEBAR BUTONUNA SİBER ŞOK (KESİN ÇÖZÜM 3.0) --- */
-    [data-testid="collapsedControl"], [data-testid="stSidebarCollapsedControl"] {
-        display: flex !important;
+    /* --- SİDEBAR AÇMA/KAPAMA BUTONUNA MUTLAK MÜDAHALE (KESİN ÇÖZÜM 4.0) --- */
+    button[kind="header"], button[kind="headerNoPadding"] {
+        display: inline-flex !important;
         visibility: visible !important;
         opacity: 1 !important;
-        position: fixed !important;
-        top: 15px !important;
-        left: 15px !important;
-        z-index: 9999999 !important;
-        background-color: rgba(10, 10, 10, 0.9) !important;
-        border: 1px solid #00FF00 !important;
+        color: #00ff00 !important;
+        background-color: rgba(0, 255, 0, 0.1) !important;
+        border: 1px solid rgba(0, 255, 0, 0.5) !important;
         border-radius: 8px !important;
-        padding: 5px !important;
-        box-shadow: 0 0 15px rgba(0, 255, 0, 0.4) !important;
+        margin: 10px !important;
+        z-index: 9999999 !important;
         transition: all 0.3s ease !important;
     }
-    [data-testid="collapsedControl"] svg, [data-testid="stSidebarCollapsedControl"] svg {
-        fill: #00FF00 !important;
-        color: #00FF00 !important;
-        width: 24px !important;
-        height: 24px !important;
+    button[kind="header"]:hover, button[kind="headerNoPadding"]:hover {
+        background-color: rgba(0, 255, 0, 0.3) !important;
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.6) !important;
     }
-    [data-testid="collapsedControl"]:hover, [data-testid="stSidebarCollapsedControl"]:hover {
-        background-color: rgba(0, 255, 0, 0.2) !important;
-        box-shadow: 0 0 20px rgba(0, 255, 0, 0.8) !important;
+    button[kind="header"] svg, button[kind="headerNoPadding"] svg {
+        fill: #00ff00 !important;
+        color: #00ff00 !important;
     }
 </style>
                

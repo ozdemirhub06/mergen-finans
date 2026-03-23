@@ -276,23 +276,26 @@ st.markdown("""
             /* --- KAYBOLAN SİDEBAR AÇMA BUTONUNU NEON YEŞİL YAPMA (KESİN ÇÖZÜM) --- */
     [data-testid="collapsedControl"] {
         display: flex !important;
+        position: fixed !important; /* İŞTE HAYAT KURTARAN ÇİVİ BU */
         visibility: visible !important;
-        z-index: 99999 !important;
-        color: #00FF00 !important;
-        background: rgba(0, 255, 0, 0.05) !important;
-        border-radius: 6px !important;
-        border: 1px solid rgba(0, 255, 0, 0.3) !important;
-        transition: all 0.3s ease !important;
+        z-index: 999999 !important;
+        background: rgba(0, 255, 0, 0.1) !important;
+        border-radius: 8px !important;
+        border: 1px solid rgba(0, 255, 0, 0.5) !important;
         left: 15px !important;
         top: 15px !important;
+        padding: 5px !important;
+        transition: all 0.3s ease !important;
     }
     [data-testid="collapsedControl"]:hover {
-        background: rgba(0, 255, 0, 0.2) !important;
-        box-shadow: 0 0 12px rgba(0, 255, 0, 0.5) !important;
+        background: rgba(0, 255, 0, 0.3) !important;
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.6) !important;
     }
     [data-testid="collapsedControl"] svg {
         fill: #00FF00 !important;
         color: #00FF00 !important;
+        width: 24px !important;
+        height: 24px !important;
     }
 </style>
             

@@ -48,36 +48,19 @@ st.markdown("""
 
     .stAppDeployButton {display: none !important;}
     [data-testid="stDecoration"] {display: none !important;}
-           /* --- ÜST ÇUBUK VE SİDEBAR BUTON KONTROLÜ (TEMİZ VE ÇALIŞAN HALİ) --- */
-    header[data-testid="stHeader"] {
+          /* --- ÜST ÇUBUK VE SİDEBAR BUTON KONTROLÜ (TEMİZ YAPI) --- */
+    [data-testid="stHeader"] {
         background: transparent !important;
         box-shadow: none !important;
         z-index: 99999 !important;
     }
     
-    /* 0 Piksel Hatasını Düzelten ve Boyutu Geri Veren Kod */
-    [data-testid="collapsedControl"], 
-    [data-testid="stSidebarCollapsedControl"],
-    [data-testid="stSidebarCollapseButton"] {
-        display: flex !important;
-        visibility: visible !important;
-        width: auto !important;
-        height: auto !important;
-        z-index: 999999 !important;
-    }
-
+    /* Sadece ikonun rengini neon yeşil yapıyoruz, boyutuna/görünürlüğüne dokunmuyoruz */
     [data-testid="collapsedControl"] svg, 
     [data-testid="stSidebarCollapsedControl"] svg,
     [data-testid="stSidebarCollapseButton"] svg {
         fill: #00ff00 !important;
         color: #00ff00 !important;
-    }
-    
-    
-    [data-testid="stMetricValue"] {
-        font-family: 'Consolas', 'Courier New', monospace;
-        font-weight: 600;
-        font-size: 1.8rem !important;
     }
     
     /* --- SİDEBAR MENÜ DÜZENLEMESİ (BUZLU CAM VE SIFIR SCROLL) --- */
@@ -304,30 +287,17 @@ components.html(
     """
     <script>
         const doc = window.parent.document;
-        const siberMotor = () => {
-            // 1. Reklamları ve fazlalıkları yok et
-            const junk = doc.querySelectorAll('[data-testid="stAppDeployButton"], .stAppDeployButton, [data-testid="manage-app-button"], [data-testid="stToolbar"], a[href*="streamlit.io"], div[class^="viewerBadge"]');
-            junk.forEach(el => { el.style.display = 'none'; });
-
-            // 2. KAYBOLAN BUTONU BUL VE ZORLA YEŞİLE BOYA (KÖK ÇÖZÜM)
-            const sidebarBtn = doc.querySelector('[data-testid="collapsedControl"], [data-testid="stSidebarCollapsedControl"]');
-            if (sidebarBtn) {
-                // Butonu görünür yap
-                sidebarBtn.style.display = 'flex';
-                sidebarBtn.style.zIndex = '999999';
-                
-                // İçindeki ikonları zorla Neon Yeşil yap
-                const svgs = sidebarBtn.querySelectorAll('svg');
-                svgs.forEach(svg => {
-                    svg.style.fill = '#00ff00';
-                    svg.style.color = '#00ff00';
-                });
-            }
+        const hideStreamlitJunk = () => {
+            // Sadece deploy butonları ve reklamları siler, menüye (Toolbar) asla dokunmaz
+            const elements = doc.querySelectorAll('[data-testid="stAppDeployButton"], .stAppDeployButton, [data-testid="manage-app-button"], a[href*="streamlit.io"], div[class^="viewerBadge"]');
+            elements.forEach(el => {
+                el.style.display = 'none';
+                el.style.visibility = 'hidden';
+                el.style.opacity = '0';
+            });
         };
-        
-        siberMotor();
-        // React butonu silip baştan yaratsa bile, saniyede 2 kez tarayıp tekrar yeşile boyar
-        setInterval(siberMotor, 500);
+        hideStreamlitJunk();
+        setInterval(hideStreamlitJunk, 500);
     </script>
     """,
     height=0, width=0

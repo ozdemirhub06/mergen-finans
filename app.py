@@ -384,19 +384,22 @@ def kullanici_bilgileri_sayfasi(k_adi):
     # =======================================================
     # GÜNCELLEME MODU
     # =======================================================
+    # =======================================================
+    # GÜNCELLEME MODU
+    # =======================================================
     if st.session_state[f'guncelle_mod_{k_adi}']:
         st.markdown("<div class='kart-baslik'>BİLGİLERİ GÜNCELLE</div>", unsafe_allow_html=True)
         yeni_isim = st.text_input("Ad Soyad", value=k_bilgi['isim_soyisim'] if k_bilgi['isim_soyisim'] else "")
         yeni_foto = st.file_uploader("Profil Görseli (Değiştirmeyecekseniz boş bırakın)", type=["png", "jpg", "jpeg"])
         
         c1, c2 = st.columns(2)
-        yeni_yas = c1.number_input("Yaşınız", value=st.session_state.get(f'{k_adi}_yas', 30), min_value=18, max_value=100)
-        yeni_meslek = c2.text_input("Mesleğiniz", value=st.session_state.get(f'{k_adi}_meslek', "Belirtilmemiş"))
-        yeni_gelir = st.number_input("Aylık Gelir (TL)", value=float(st.session_state.get(f'{k_adi}_gelir', 0.0)), step=1000.0)
+        yeni_yas = c1.number_input("Yaşınız", value=k_bilgi['yas'], min_value=18, max_value=100)
+        yeni_meslek = c2.text_input("Mesleğiniz", value=k_bilgi['meslek'])
+        yeni_gelir = st.number_input("Aylık Gelir (TL)", value=float(k_bilgi['aylik_gelir']), step=1000.0)
         
         st.markdown("<div class='kart-baslik' style='margin-top: 10px;'>HEDEF BİLGİLERİ</div>", unsafe_allow_html=True)
-        yeni_hedef_adi = st.text_input("Hedefiniz (Örn: Ev Peşinatı)", value=st.session_state.get(f'{k_adi}_hedef_adi', "Belirlenmedi"))
-        yeni_hedef_tutar = st.number_input("Hedeflenen Tutar (TL)", value=float(st.session_state.get(f'{k_adi}_hedef_tutar', 100000.0)), step=10000.0)
+        yeni_hedef_adi = st.text_input("Hedefiniz (Örn: Ev Peşinatı)", value=k_bilgi['hedef_adi'])
+        yeni_hedef_tutar = st.number_input("Hedeflenen Tutar (TL)", value=float(k_bilgi['hedef_tutar']), step=10000.0)
         
         st.markdown("<div class='kart-baslik' style='margin-top: 10px;'>ŞİFRE DEĞİŞİKLİĞİ</div>", unsafe_allow_html=True)
         y_eski_sifre = st.text_input("Mevcut Şifre", type="password")
@@ -417,14 +420,16 @@ def kullanici_bilgileri_sayfasi(k_adi):
                     if y_eski_sifre != mevcut_sifre: st.error("Mevcut şifreniz yanlış."); st.stop()
                     else: c.execute("UPDATE kullanicilar SET sifre = %s WHERE kullanici_adi = %s", (y_yeni_sifre, k_adi))
                 
+                # VERİLERİ KALICI OLARAK VERİTABANINA ÇİVİLİYORUZ
                 if yeni_foto is not None:
                     b64 = base64.b64encode(yeni_foto.getvalue()).decode()
-                    c.execute("UPDATE kullanicilar SET isim_soyisim = %s, profil_fotosu = %s WHERE kullanici_adi = %s", (yeni_isim, b64, k_adi))
+                    c.execute("UPDATE kullanicilar SET isim_soyisim = %s, profil_fotosu = %s, yas = %s, meslek = %s, aylik_gelir = %s, hedef_adi = %s, hedef_tutar = %s WHERE kullanici_adi = %s", 
+                              (yeni_isim, b64, yeni_yas, yeni_meslek, yeni_gelir, yeni_hedef_adi, yeni_hedef_tutar, k_adi))
                 else:
-                    c.execute("UPDATE kullanicilar SET isim_soyisim = %s WHERE kullanici_adi = %s", (yeni_isim, k_adi))
+                    c.execute("UPDATE kullanicilar SET isim_soyisim = %s, yas = %s, meslek = %s, aylik_gelir = %s, hedef_adi = %s, hedef_tutar = %s WHERE kullanici_adi = %s", 
+                              (yeni_isim, yeni_yas, yeni_meslek, yeni_gelir, yeni_hedef_adi, yeni_hedef_tutar, k_adi))
                 conn.commit()
-                st.session_state[f'{k_adi}_yas'], st.session_state[f'{k_adi}_meslek'], st.session_state[f'{k_adi}_gelir'] = yeni_yas, yeni_meslek, yeni_gelir
-                st.session_state[f'{k_adi}_hedef_adi'], st.session_state[f'{k_adi}_hedef_tutar'] = yeni_hedef_adi, yeni_hedef_tutar
+                
                 st.session_state[f'guncelle_mod_{k_adi}'] = False
                 st.rerun()
             except Exception as e: st.error(f"Hata: {e}")
@@ -500,11 +505,14 @@ def kullanici_bilgileri_sayfasi(k_adi):
             oran_vadeli = (nakit_vadeli / toplam_varlik * 100) if toplam_varlik > 0 else 0
             oran_nakit = ((nakit_yatirim + nakit_vadesiz) / toplam_varlik * 100) if toplam_varlik > 0 else 0
 
-        yas = st.session_state.get(f'{k_adi}_yas', 30)
-        meslek = st.session_state.get(f'{k_adi}_meslek', 'Belirtilmemiş')
-        gelir = st.session_state.get(f'{k_adi}_gelir', 0.0)
-        hedef_adi = st.session_state.get(f'{k_adi}_hedef_adi', 'Hedef Belirlenmedi')
-        hedef_tutar = st.session_state.get(f'{k_adi}_hedef_tutar', 100000.0)
+       # Bu satırları bul ve değiştir:
+        yas = k_bilgi['yas']
+        meslek = k_bilgi['meslek']
+        gelir = k_bilgi['aylik_gelir']
+        hedef_adi = k_bilgi['hedef_adi']
+        hedef_tutar = k_bilgi['hedef_tutar']
+        
+        # HTML Genişlik hatasını önlemek için güvenli oranlama
         
         # HTML Genişlik hatasını önlemek için güvenli oranlama
         oran_ham = (toplam_varlik / hedef_tutar) * 100 if hedef_tutar > 0 else 0
@@ -663,7 +671,12 @@ def kutuphane_hazirla():
             "ALTER TABLE kullanicilar ADD COLUMN profil_fotosu TEXT DEFAULT ''",
             "ALTER TABLE banka_hesaplari ADD COLUMN para_birimi TEXT DEFAULT 'TL'",
             "ALTER TABLE bakiyeler ADD COLUMN bakiye_usd REAL DEFAULT 0.0",
-            "ALTER TABLE islem_gecmisi ADD COLUMN para_birimi TEXT DEFAULT 'TL'"
+            "ALTER TABLE islem_gecmisi ADD COLUMN para_birimi TEXT DEFAULT 'TL'",
+            "ALTER TABLE kullanicilar ADD COLUMN yas INTEGER DEFAULT 30",
+            "ALTER TABLE kullanicilar ADD COLUMN meslek TEXT DEFAULT 'Belirtilmemiş'",
+            "ALTER TABLE kullanicilar ADD COLUMN aylik_gelir REAL DEFAULT 0.0",
+            "ALTER TABLE kullanicilar ADD COLUMN hedef_adi TEXT DEFAULT 'Hedef Belirlenmedi'",
+            "ALTER TABLE kullanicilar ADD COLUMN hedef_tutar REAL DEFAULT 100000.0"
         ]
         for q in sorgular:
             try: c.execute(q); conn.commit()
@@ -680,10 +693,20 @@ def kullanici_bilgileri_getir(k_adi):
     conn = get_db()
     try:
         c = conn.cursor()
-        c.execute("SELECT isim_soyisim, profil_fotosu FROM kullanicilar WHERE kullanici_adi = %s", (k_adi,))
+        c.execute("SELECT isim_soyisim, profil_fotosu, yas, meslek, aylik_gelir, hedef_adi, hedef_tutar FROM kullanicilar WHERE kullanici_adi = %s", (k_adi,))
         res = c.fetchone()
-        return {"isim_soyisim": res[0], "profil_fotosu": res[1]} if res else {"isim_soyisim": "", "profil_fotosu": ""}
-    except: return {"isim_soyisim": "", "profil_fotosu": ""}
+        if res:
+            return {
+                "isim_soyisim": res[0] or "", 
+                "profil_fotosu": res[1] or "", 
+                "yas": res[2] or 30, 
+                "meslek": res[3] or "Belirtilmemiş", 
+                "aylik_gelir": res[4] or 0.0, 
+                "hedef_adi": res[5] or "Hedef Belirlenmedi", 
+                "hedef_tutar": res[6] or 100000.0
+            }
+        return {"isim_soyisim": "", "profil_fotosu": "", "yas": 30, "meslek": "Belirtilmemiş", "aylik_gelir": 0.0, "hedef_adi": "Hedef Belirlenmedi", "hedef_tutar": 100000.0}
+    except: return {"isim_soyisim": "", "profil_fotosu": "", "yas": 30, "meslek": "Belirtilmemiş", "aylik_gelir": 0.0, "hedef_adi": "Hedef Belirlenmedi", "hedef_tutar": 100000.0}
     finally: release_db(conn)
 
 def bakiye_getir(k_adi):

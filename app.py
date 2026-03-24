@@ -48,26 +48,30 @@ st.markdown("""
 
     .stAppDeployButton {display: none !important;}
     [data-testid="stDecoration"] {display: none !important;}
-            /* --- ÜST ÇUBUĞU VE SİDEBAR AÇ/KAPA BUTONLARINI TAMAMEN İMHA ET (SABİT MENÜ) --- */
-    header[data-testid="stHeader"], 
+           /* --- ÜST ÇUBUK VE SİDEBAR BUTON KONTROLÜ (TEMİZ VE ÇALIŞAN HALİ) --- */
+    header[data-testid="stHeader"] {
+        background: transparent !important;
+        box-shadow: none !important;
+        z-index: 99999 !important;
+    }
+    
+    /* 0 Piksel Hatasını Düzelten ve Boyutu Geri Veren Kod */
     [data-testid="collapsedControl"], 
     [data-testid="stSidebarCollapsedControl"],
     [data-testid="stSidebarCollapseButton"] {
-        display: none !important;
-        visibility: hidden !important;
-        width: 0px !important;
-        height: 0px !important;
+        display: flex !important;
+        visibility: visible !important;
+        width: auto !important;
+        height: auto !important;
+        z-index: 999999 !important;
     }
-            /* --- KAYBOLAN SİDEBAR BUTONUNU ZORLA GETİREN KOD --- */
-    header { background: transparent !important; z-index: 99999 !important; }
-    header button, [data-testid="collapsedControl"], [data-testid="stSidebarCollapsedControl"] {
-        visibility: visible !important;
-        display: inline-flex !important;
-    }
-    header svg, [data-testid="collapsedControl"] svg, [data-testid="stSidebarCollapsedControl"] svg {
-        fill: #00ff00 !important;
-        color: #00ff00 !important;
-    }
+
+    [data-testid="collapsedControl"] svg, 
+    [data-testid="stSidebarCollapsedControl"] svg,
+    [data-testid="stSidebarCollapseButton"] svg {
+        fill: #00ff00 !important;
+        color: #00ff00 !important;
+    }
     
     
     [data-testid="stMetricValue"] {

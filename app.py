@@ -1366,6 +1366,9 @@ else:
     
     
     if 'motorlar_calisti' not in st.session_state:
+        # 1. ÖNCE VERİTABANINI GÜNCELLE (EKSİK SÜTUNLARI AÇAR)
+        kutuphane_hazirla()
+        
         # SİBER MAYMUNCUK: Takasta hapis kalan PPF paralarını anında serbest bırakır
         conn = get_db()
         try:

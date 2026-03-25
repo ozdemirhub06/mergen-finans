@@ -1,3 +1,4 @@
+
 import streamlit as st
 import psycopg2
 from psycopg2 import pool
@@ -3689,7 +3690,7 @@ else:
                 except: pass
                 return pd.DataFrame()
 
-            def cizgi_grafik_ciz(isim, kod, borsa_turu, periyot_str, ana_grafik=False):
+            def cizgi_grafik_ciz(isim, kod, borsa_turu, periyot_str, grafik_turu="Çizgi Grafik", ana_grafik=False):
                 try:
                     is_tefas = (borsa_turu == "FON (TEFAS)")
                     if is_tefas:
@@ -3719,9 +3720,7 @@ else:
                     degisim = ((son_f - ilk_f) / ilk_f) * 100
                     
                     # --- DİNAMİK RENK AYARI ---
-                    # Grafik çizgisi ve metinler için ana renk
                     t_renk = '#00ff00' if degisim >= 0 else '#FF5252' 
-                    # Grafik arka plan gradyanı için şeffaf renk (Yeşil veya Kırmızı)
                     b_renk = 'rgba(0,255,0,0.05)' if degisim >= 0 else 'rgba(255,82,82,0.05)'
                     
                     isaret = "+" if degisim >= 0 else ""
@@ -3742,15 +3741,26 @@ else:
                     """, unsafe_allow_html=True)
                     
                     # Plotly Grafiğini Dinamik Renkle Çiz
-                    fig = go.Figure(go.Scatter(x=x_ekseni, y=data[fiyat_sutunu], mode='lines', line=dict(color=t_renk, width=2)))
-                    min_v = data[fiyat_sutunu].min() * 0.99
-                    max_v = data[fiyat_sutunu].max() * 1.01
+                    if grafik_turu == "Mum Grafik" and not is_tefas:
+                        fig = go.Figure(go.Candlestick(
+                            x=x_ekseni, open=data['Open'], high=data['High'], low=data['Low'], close=data['Close'],
+                            increasing_line_color='#00ff00', decreasing_line_color='#FF5252',
+                            increasing_fillcolor='#00ff00', decreasing_fillcolor='#FF5252',
+                            line=dict(width=1.5), name='Fiyat'
+                        ))
+                        min_v = data['Low'].min() * 0.99
+                        max_v = data['High'].max() * 1.01
+                    else:
+                        fig = go.Figure(go.Scatter(x=x_ekseni, y=data[fiyat_sutunu], mode='lines', line=dict(color=t_renk, width=2.5)))
+                        min_v = data[fiyat_sutunu].min() * 0.99
+                        max_v = data[fiyat_sutunu].max() * 1.01
+
                     h = 320 if ana_grafik else 240
                     
                     fig.update_layout(
                         height=h, margin=dict(t=5, b=5, l=0, r=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", 
                         yaxis=dict(gridcolor='rgba(255, 255, 255, 0.05)', tickformat=".4f" if is_tefas else ".2f", range=[min_v, max_v]), 
-                        xaxis=dict(gridcolor='rgba(255, 255, 255, 0.0)', showline=False, type='category', nticks=5), 
+                        xaxis=dict(gridcolor='rgba(255, 255, 255, 0.0)', showline=False, type='category', nticks=5, rangeslider=dict(visible=False)), 
                         hovermode="x unified", font=dict(family="Consolas", color="gray", size=10), showlegend=False
                     )
                     st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
@@ -3879,12 +3889,13 @@ else:
                     if 'e_sec_state' not in st.session_state: st.session_state['e_sec_state'] = "Seçiniz..."
                     
                     endeksler = {"Seçiniz...": None, "BİST 100": "XU100.IS", "NASDAQ": "^IXIC", "S&P 500": "^GSPC", "Bitcoin (BTC)": "BTC-USD", "Ons Altın": "GC=F"}
-                    ce1, ce2 = st.columns([1.5, 1])
+                    ce1, ce2, ce3 = st.columns([1.5, 1, 1])
                     
                     def endeks_degisti(): st.session_state['e_sec_state'] = st.session_state['e_sec_widget']
                         
                     secilen_endeks = ce1.selectbox("Endeks", list(endeksler.keys()), key="e_sec_widget", label_visibility="collapsed", on_change=endeks_degisti)
                     end_per = ce2.selectbox("Zaman", ["1 Gün", "1 Hafta", "1 Ay", "3 Ay", "6 Ay", "1 Yıl", "Maks."], index=2, key="e_per", label_visibility="collapsed")
+                    end_tur = ce3.selectbox("Tür", ["Çizgi Grafik", "Mum Grafik"], key="e_tur", label_visibility="collapsed")
                     
                     if st.session_state['e_sec_state'] != "Seçiniz...":
                         st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
@@ -3895,7 +3906,7 @@ else:
                             st.session_state['e_sec_state'] = "Seçiniz..."
                             st.rerun()
                             
-                        cizgi_grafik_ciz(st.session_state['e_sec_state'], endeksler[st.session_state['e_sec_state']], "ENDEKS", end_per)
+                        cizgi_grafik_ciz(st.session_state['e_sec_state'], endeksler[st.session_state['e_sec_state']], "ENDEKS", end_per, end_tur)
 
             # --- BÖLÜM 2: AKTİF PORTFÖY GRAFİKLERİ ---
             st.markdown("<hr style='border-color: rgba(255,255,255,0.1); margin-top: 5px; margin-bottom: 15px;'>", unsafe_allow_html=True)
@@ -3927,9 +3938,16 @@ else:
                 for idx, (isim, kod, borsa_turu) in enumerate(portfoy_listesi):
                     with cols[idx % 2]:
                         with st.container(border=True):
-                            c_bos, c_per = st.columns([1.5, 1])
-                            varlik_periyot = c_per.selectbox("Periyot", ["Bugün", "1 Hafta", "1 Ay", "3 Ay", "6 Ay", "1 Yıl", "Maks."], index=1, key=f"g_varlik_{idx}", label_visibility="collapsed")
-                            cizgi_grafik_ciz(isim, kod, borsa_turu, varlik_periyot, ana_grafik=False)
+                            if borsa_turu == "FON (TEFAS)":
+                                c_bos, c_per = st.columns([1.5, 1])
+                                varlik_periyot = c_per.selectbox("Periyot", ["Bugün", "1 Hafta", "1 Ay", "3 Ay", "6 Ay", "1 Yıl", "Maks."], index=1, key=f"g_varlik_{idx}", label_visibility="collapsed")
+                                varlik_turu = "Çizgi Grafik"
+                            else:
+                                c_bos, c_per, c_tur = st.columns([0.5, 1, 1])
+                                varlik_periyot = c_per.selectbox("Periyot", ["Bugün", "1 Hafta", "1 Ay", "3 Ay", "6 Ay", "1 Yıl", "Maks."], index=1, key=f"g_varlik_{idx}", label_visibility="collapsed")
+                                varlik_turu = c_tur.selectbox("Tür", ["Çizgi Grafik", "Mum Grafik"], key=f"t_varlik_{idx}", label_visibility="collapsed")
+                            
+                            cizgi_grafik_ciz(isim, kod, borsa_turu, varlik_periyot, varlik_turu, ana_grafik=False)
             else:
                 st.info("Portföyünüzde şu an aktif (lotu sıfırdan büyük) bir borsa varlığı veya emtia bulunmuyor.")
                 

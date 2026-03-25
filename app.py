@@ -3634,7 +3634,7 @@ else:
     elif secilen_sayfa == "Piyasa Analiz":
         st.title("Piyasa ve Ekonomi Terminali")
         
-        t_grafik, t_gosterge, t_haber, t_makro = st.tabs(["Piyasa Grafikleri", "Teknik Göstergeler", "KAP ve Şirket Haberleri", "Makro Ekonomi"])
+        t_grafik, t_gosterge, t_kantitatif, t_makro = st.tabs(["Piyasa Grafikleri", "Teknik Göstergeler", "Kantitatif ve Temel Analiz", "Makro Ekonomi"])
 
         with t_grafik:
             conn = get_db()
@@ -4370,176 +4370,99 @@ else:
 
                                 except Exception as e:
                                     st.error(f"Sistem Hatası: Grafik çizilirken veya analiz edilirken bir sorun oluştu. {e}")
-        with t_haber:
-            st.markdown("##### KAP ve Şirket Haberleri")
-            st.caption("Resmi KAP bildirimleri doğrudan Kamuyu Aydınlatma Platformu'ndan, piyasa haberleri ise Yahoo Finance altyapısından çekilmektedir.")
+        with t_kantitatif:
+            st.markdown("##### Kurumsal Karne ve Temel Analiz")
+            st.caption("Seçilen varlığın bilançosuna, piyasa çarpanlarına ve kurumsal sağlık verilerine dayalı kantitatif analizini gerçekleştirin.")
+            
+            with st.container(border=True):
+                ca1, ca2, ca3 = st.columns([1, 2, 1])
+                f_borsa = ca1.selectbox("Piyasa", ["BİST", "NASDAQ", "KRİPTO", "EMTİA"], key="fund_borsa", label_visibility="collapsed")
+                f_kod = ca2.text_input("Varlık Kodu", placeholder="Örn: EREGL, AAPL, BTC", key="fund_kod", label_visibility="collapsed").upper()
+                
+                if ca3.button("TEMEL VERİLERİ ÇEK", type="primary", use_container_width=True, key="fund_btn"):
+                    if f_kod:
+                        st.session_state['fund_aktif_kod'] = f_kod.strip()
+                        st.session_state['fund_aktif_borsa'] = f_borsa
+                    else:
+                        st.warning("Lütfen analiz edilecek varlık kodunu girin.")
 
-            conn = get_db()
-            try:
-                df_h = pd.read_sql_query("SELECT varlik_adi, borsa FROM portfoy WHERE kullanici_adi = %s AND borsa != 'FON (TEFAS)' GROUP BY varlik_adi, borsa HAVING SUM(lot) > 0.01", conn, params=(k_adi,))
-            finally: 
-                release_db(conn)
-
-            if df_h.empty:
-                st.info("Haber akışını görmek için portföyünüzde aktif hisse senedi veya kripto bulunmalıdır.")
-            else:
-                kap_haberleri = []
-                piyasa_haberleri = []
-
-                with st.spinner("Resmi KAP veritabanı ve piyasa bülteni taranıyor..."):
-                    import requests
-                    import math
-
-                    # --- 1. DOĞRUDAN KAP VERİTABANI SORGUSU ---
-                    bist_varliklar = df_h[df_h['borsa'] == 'BİST']['varlik_adi'].tolist()
-                    if bist_varliklar:
-                        temiz_kodlar = [k.replace('.IS', '') for k in bist_varliklar]
-                        try:
-                            # KAP API'sine doğrudan son 15 günün sorgusunu atıyoruz
-                            kap_url = "https://www.kap.org.tr/tr/api/memberDisclosureQuery"
-                            bugun_tarih = datetime.datetime.now()
-                            gecmis_tarih = bugun_tarih - datetime.timedelta(days=15)
-                            payload = {
-                                "fromDate": gecmis_tarih.strftime("%Y-%m-%d"),
-                                "toDate": bugun_tarih.strftime("%Y-%m-%d"),
-                                "stockList": temiz_kodlar
-                            }
-                            headers = {"Content-Type": "application/json", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-                            
-                            r = requests.post(kap_url, json=payload, headers=headers, timeout=10)
-                            
-                            if r.status_code == 200:
-                                kap_data = r.json()
-                                for d in kap_data:
-                                    b_id = d.get('disclosureIndex', '')
-                                    b_baslik = d.get('title', 'Başlıksız Bildirim')
-                                    b_sirket = d.get('companyName', '')
-                                    b_kod = d.get('stockCodes', '')
-                                    tarih_str = d.get('publishDate', '')
-                                    
-                                    # Tarih formatı genelde "19.03.2026 14:30" şeklindedir
-                                    try:
-                                        tarih_dt = pd.to_datetime(tarih_str, format="%d.%m.%Y %H:%M")
-                                        zaman_ts = tarih_dt.timestamp()
-                                        zaman_st = tarih_dt.strftime('%d.%m.%Y %H:%M')
-                                    except:
-                                        zaman_ts = 0
-                                        zaman_st = tarih_str
-                                        
-                                    # Hangi varlığa ait olduğunu bul
-                                    ilgili_varlik = next((k for k in temiz_kodlar if k in b_kod), "BİST")
-                                    
-                                    kap_haberleri.append({
-                                        'varlik': ilgili_varlik,
-                                        'baslik': b_baslik,
-                                        'kaynak': 'KAP (Resmi Bildirim)',
-                                        'link': f"https://www.kap.org.tr/tr/Bildirim/{b_id}",
-                                        'zaman_str': zaman_st,
-                                        'zaman_sort': zaman_ts,
-                                        'renk': '#00ff00' # Senin neon yeşil
-                                    })
-                        except Exception:
-                            pass # KAP POST başarısız olursa sistem çökmesin diye sessizce atla
-
-                    # --- 2. TEK VE GÜVENİLİR KAYNAK: YAHOO FINANCE (PİYASA HABERLERİ) ---
-                    for _, r in df_h.iterrows():
-                        v, borsa = r['varlik_adi'], r['borsa']
-                        t_kod = v
-                        if borsa == "BİST" and ".IS" not in t_kod: t_kod += ".IS"
-                        elif borsa == "KRİPTO" and "-USD" not in t_kod: t_kod += "-USD"
-                        elif borsa == "EMTİA" and "=F" not in t_kod: t_kod += "=F"
+            if st.session_state.get('fund_aktif_kod'):
+                a_kod = st.session_state['fund_aktif_kod']
+                a_borsa = st.session_state['fund_aktif_borsa']
+                
+                if a_borsa == "BİST" and not a_kod.endswith(".IS"): a_kod += ".IS"
+                elif a_borsa == "KRİPTO" and not a_kod.endswith("-USD"): a_kod += "-USD"
+                elif a_borsa == "EMTİA" and "=F" not in a_kod: a_kod += "=F"
+                
+                st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 10px; margin-bottom: 15px;'>", unsafe_allow_html=True)
+                
+                with st.spinner("Kurumsal veritabanı taranıyor..."):
+                    try:
+                        ticker = yf.Ticker(a_kod)
+                        info = ticker.info
                         
-                        try:
-                            haberler = yf.Ticker(t_kod).news
-                            if haberler:
-                                for h in haberler[:8]: # Varlık başı 8 haber
-                                    title = h.get('title', 'Başlıksız Haber')
-                                    link = h.get('link', '#')
-                                    source = h.get('publisher', 'Yahoo Finance')
-                                    zaman_ts = h.get('providerPublishTime', 0)
-                                    
-                                    zaman_st = datetime.datetime.fromtimestamp(zaman_ts).strftime('%d.%m.%Y %H:%M') if zaman_ts else "Tarih Yok"
-                                    
-                                    piyasa_haberleri.append({
-                                        'varlik': v.replace('.IS', ''),
-                                        'baslik': title,
-                                        'kaynak': source,
-                                        'link': link,
-                                        'zaman_str': zaman_st,
-                                        'zaman_sort': zaman_ts,
-                                        'renk': '#00ff00' # Senin neon yeşil
-                                    })
-                        except: pass
+                        if not info or ('regularMarketPrice' not in info and 'currentPrice' not in info and 'previousClose' not in info):
+                             st.error("Sistem Hatası: Belirtilen varlığa ait temel analiz verisi bulunamadı.")
+                        else:
+                            # Veri Ayıklama
+                            fiyat = info.get('currentPrice') or info.get('regularMarketPrice') or info.get('previousClose')
+                            mcap = info.get('marketCap', 0)
+                            pe = info.get('trailingPE', 0)
+                            pb = info.get('priceToBook', 0)
+                            eps = info.get('trailingEps', 0)
+                            div_yield = (info.get('dividendYield', 0) * 100) if info.get('dividendYield') else 0.0
+                            high52 = info.get('fiftyTwoWeekHigh', 0)
+                            low52 = info.get('fiftyTwoWeekLow', 0)
+                            
+                            pb_str = "$" if a_borsa in ["NASDAQ", "KRİPTO", "EMTİA"] else "₺"
+                            
+                            # Formatlama
+                            def format_mcap(val):
+                                if val >= 1_000_000_000_000: return f"{val/1_000_000_000_000:.2f} Trilyon {pb_str}"
+                                elif val >= 1_000_000_000: return f"{val/1_000_000_000:.2f} Milyar {pb_str}"
+                                elif val >= 1_000_000: return f"{val/1_000_000:.2f} Milyon {pb_str}"
+                                return f"{val:,.0f} {pb_str}" if val > 0 else "Veri Yok"
 
-                # Tarihe göre en yeniden eskiye sıralama
-                kap_haberleri = sorted(kap_haberleri, key=lambda x: x['zaman_sort'], reverse=True)
-                piyasa_haberleri = sorted(piyasa_haberleri, key=lambda x: x['zaman_sort'], reverse=True)
-
-                # --- ARAYÜZ VE KATEGORİ SEÇİMİ ---
-                kategori = st.radio("Kategori Seçimi", ["Resmi KAP Bildirimleri", "Piyasa Haberleri"], horizontal=True, label_visibility="collapsed")
-                st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 5px; margin-bottom: 15px;'>", unsafe_allow_html=True)
-
-                aktif_liste = kap_haberleri if kategori == "Resmi KAP Bildirimleri" else piyasa_haberleri
-                state_key = "sayfa_kap" if kategori == "Resmi KAP Bildirimleri" else "sayfa_piyasa"
-
-                if not aktif_liste:
-                    st.warning(f"Bu kategori için sistemde güncel veri bulunamadı.")
-                else:
-                    sayfa_basina = 5
-                    toplam_sayfa = math.ceil(len(aktif_liste) / sayfa_basina)
-
-                    if state_key not in st.session_state:
-                        st.session_state[state_key] = 1
-
-                    if st.session_state[state_key] > toplam_sayfa:
-                        st.session_state[state_key] = toplam_sayfa
-                    if st.session_state[state_key] < 1:
-                        st.session_state[state_key] = 1
-
-                    baslangic_idx = (st.session_state[state_key] - 1) * sayfa_basina
-                    bitis_idx = baslangic_idx + sayfa_basina
-                    gosterilecek_haberler = aktif_liste[baslangic_idx:bitis_idx]
-
-                    for h in gosterilecek_haberler:
-                        kart_html = f"""
-                        <div style='border: 1px solid rgba(255,255,255,0.05); border-left: 4px solid {h['renk']}; border-radius: 8px; padding: 15px; background: rgba(10,10,10,0.6); margin-bottom: 12px; transition: transform 0.2s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.2);'>
-                            <div style='display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center;'>
-                                <div style='background: rgba(0, 255, 0, 0.05); padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(0, 255, 0, 0.2);'>
-                                    <span style='color: {h['renk']}; font-weight: bold; font-family: Consolas; font-size: 0.9em;'>{h['varlik']}</span>
+                            # Siber Gösterge Kartları
+                            def ciz_gosterge(baslik, deger, alt_metin, renk):
+                                return f"""
+                                <div style='border: 1px solid rgba(255,255,255,0.05); border-left: 3px solid {renk}; background: rgba(10,10,10,0.5); padding: 12px; border-radius: 4px; height: 100%;'>
+                                    <div style='color: gray; font-size: 0.8em; font-family: Consolas; margin-bottom: 5px; text-transform: uppercase;'>{baslik}</div>
+                                    <div style='color: white; font-size: 1.4em; font-weight: bold; font-family: Consolas;'>{deger}</div>
+                                    <div style='color: {renk}; font-size: 0.75em; font-family: Consolas; margin-top: 5px;'>{alt_metin}</div>
                                 </div>
-                                <span style='color: gray; font-size: 0.85em; font-family: Consolas;'>{h['zaman_str']}</span>
-                            </div>
-                            <div style='font-size: 1.1em; color: white; font-weight: 500; margin-bottom: 12px; line-height: 1.4; font-family: system-ui, -apple-system, sans-serif;'>{h['baslik']}</div>
-                            <div style='display: flex; justify-content: space-between; align-items: center;'>
-                                <span style='color: gray; font-size: 0.85em;'>Kaynak: <span style='color:{h['renk']}; font-weight: bold;'>{h['kaynak']}</span></span>
-                                <a href='{h['link']}' target='_blank' style='text-decoration: none; color: black; background: {h['renk']}; padding: 5px 12px; border-radius: 4px; font-size: 0.85em; font-weight: bold; transition: all 0.3s ease;'>{'Bildirime Git' if kategori == 'Resmi KAP Bildirimleri' else 'Habere Git'}</a>
-                            </div>
-                        </div>
-                        """
-                        st.markdown(kart_html, unsafe_allow_html=True)
+                                """
 
-                    # SAYFALAMA KONTROL PANELİ
-                    st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 15px; margin-bottom: 15px;'>", unsafe_allow_html=True)
-                    c_bos1, c_prev, c_page, c_next, c_bos2 = st.columns([2, 1.5, 2, 1.5, 2])
-                    
-                    with c_prev:
-                        if st.button("Önceki Sayfa", key=f"prev_{state_key}", use_container_width=True, disabled=(st.session_state[state_key] <= 1)):
-                            st.session_state[state_key] -= 1
-                            st.rerun()
+                            st.markdown(f"<div style='color: #00bcd4; font-size: 1.1em; font-weight: bold; margin-bottom: 10px; font-family: Consolas;'>[ {a_kod.replace('.IS','').replace('-USD','')} ] FİNANSAL ÇARPANLAR</div>", unsafe_allow_html=True)
                             
-                    with c_page:
-                        st.markdown(f"""
-                        <div style='text-align: center; padding: 6px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; background: rgba(20,20,20,0.5);'>
-                            <span style='color: gray; font-family: Consolas; font-size: 0.9em;'>SAYFA</span> 
-                            <span style='color: #00ff00; font-weight: bold; font-family: Consolas; font-size: 1.1em;'>{st.session_state[state_key]}</span> 
-                            <span style='color: gray; font-family: Consolas; font-size: 0.9em;'>/ {toplam_sayfa}</span>
-                        </div>
-                        """, unsafe_allow_html=True)
-                        
-                    with c_next:
-                        if st.button("Sonraki Sayfa", key=f"next_{state_key}", use_container_width=True, disabled=(st.session_state[state_key] >= toplam_sayfa)):
-                            st.session_state[state_key] += 1
-                            st.rerun() 
+                            c1, c2, c3 = st.columns(3)
+                            with c1:
+                                st.markdown(ciz_gosterge("Piyasa Değeri (Market Cap)", format_mcap(mcap), "Şirketin Toplam Büyüklüğü", "#00bcd4"), unsafe_allow_html=True)
+                                st.markdown("<br>", unsafe_allow_html=True)
+                                val_pe = f"{pe:.2f}" if pe > 0 else "N/A"
+                                st.markdown(ciz_gosterge("Fiyat / Kazanç (F/K)", val_pe, "Yatırımın Amortisman Süresi", "#ffb300" if pe > 20 else "#00ff00"), unsafe_allow_html=True)
+                            
+                            with c2:
+                                val_eps = f"{eps:.2f} {pb_str}" if eps else "N/A"
+                                st.markdown(ciz_gosterge("Hisse Başına Kâr (EPS)", val_eps, "Şirketin Net Kârlılık Gücü", "#00ff00" if eps and eps > 0 else "#FF5252"), unsafe_allow_html=True)
+                                st.markdown("<br>", unsafe_allow_html=True)
+                                val_pb = f"{pb:.2f}" if pb > 0 else "N/A"
+                                st.markdown(ciz_gosterge("Piyasa / Defter Değeri (PD/DD)", val_pb, "Özsermaye Çarpanı", "#ffb300" if pb > 5 else "#00ff00"), unsafe_allow_html=True)
+
+                            with c3:
+                                val_div = f"%{div_yield:.2f}" if div_yield > 0 else "N/A"
+                                st.markdown(ciz_gosterge("Temettü Verimi", val_div, "Yıllık Pasif Getiri Oranı", "#bb86fc"), unsafe_allow_html=True)
+                                st.markdown("<br>", unsafe_allow_html=True)
+                                if high52 > 0 and fiyat:
+                                    uzaklik = ((fiyat - high52) / high52) * 100
+                                    uzaklik_metin = f"%{abs(uzaklik):.1f} Uzaklıkta"
+                                else:
+                                    uzaklik_metin = "Veri Yok"
+                                val_high = f"{high52:,.2f} {pb_str}" if high52 > 0 else "N/A"
+                                st.markdown(ciz_gosterge("52 Haftalık Zirve", val_high, uzaklik_metin, "#FF5252"), unsafe_allow_html=True)
+
+                    except Exception as e:
+                        st.error(f"Sistem Hatası: Çarpanlar hesaplanırken hata oluştu. Lütfen geçerli bir borsa kodu girin.")
         with t_makro:
             st.info("Türkiye ve Dünya ekonomisi sıcak gelişme akışı, jeopolitik risk haritası bağlanıyor... (Kervan yolda düzülüyor)")
             # --- GİZLİ YÖNETİCİ PANELİ ---

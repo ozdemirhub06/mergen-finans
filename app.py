@@ -1,4 +1,3 @@
-
 import streamlit as st
 import psycopg2
 from psycopg2 import pool
@@ -3952,6 +3951,125 @@ else:
                 st.info("Portföyünüzde şu an aktif (lotu sıfırdan büyük) bir borsa varlığı veya emtia bulunmuyor.")
                 
         with t_gosterge:
+            
+            st.markdown("##### Seviye ve Formasyon Analizi")
+            st.caption("Belirlediğiniz herhangi bir varlık için matematiksel destek, direnç ve Fibonacci geri çekilme seviyelerini hesaplayın.")
+            
+            with st.container(border=True):
+                ca1, ca2, ca3 = st.columns([1, 2, 1])
+                s_borsa = ca1.selectbox("Piyasa Analizi", ["BİST", "NASDAQ", "KRİPTO", "EMTİA"], key="adv_borsa", label_visibility="collapsed")
+                s_kod = ca2.text_input("Varlık Kodu", placeholder="Örn: THYAO, AAPL, BTC", key="adv_kod", label_visibility="collapsed").upper()
+                
+                if ca3.button("SEVİYELERİ HESAPLA", type="primary", use_container_width=True):
+                    if s_kod:
+                        st.session_state['adv_aktif_kod'] = s_kod.strip()
+                        st.session_state['adv_aktif_borsa'] = s_borsa
+                    else:
+                        st.warning("Lütfen analiz edilecek varlık kodunu girin.")
+
+            if st.session_state.get('adv_aktif_kod'):
+                a_kod = st.session_state['adv_aktif_kod']
+                a_borsa = st.session_state['adv_aktif_borsa']
+                
+                # Borsa uzantılarını otomatik düzeltme
+                if a_borsa == "BİST" and not a_kod.endswith(".IS"): a_kod += ".IS"
+                elif a_borsa == "KRİPTO" and not a_kod.endswith("-USD"): a_kod += "-USD"
+                elif a_borsa == "EMTİA" and "=F" not in a_kod: a_kod += "=F"
+                
+                with st.spinner("Matematiksel modeller hesaplanıyor..."):
+                    try:
+                        df_adv = yf.Ticker(a_kod).history(period="1y", interval="1d").dropna(subset=['Close'])
+                        if df_adv.empty:
+                            st.error("Sistem Hatası: Belirtilen varlık için yeterli piyasa verisi bulunamadı.")
+                        else:
+                            son_kapanis = float(df_adv['Close'].iloc[-1])
+                            
+                            # 1. PIVOT HESAPLAMALARI (T-1 Verisine Göre)
+                            dun_high = float(df_adv['High'].iloc[-2]) if len(df_adv) > 1 else float(df_adv['High'].iloc[-1])
+                            dun_low = float(df_adv['Low'].iloc[-2]) if len(df_adv) > 1 else float(df_adv['Low'].iloc[-1])
+                            dun_close = float(df_adv['Close'].iloc[-2]) if len(df_adv) > 1 else float(df_adv['Close'].iloc[-1])
+                            
+                            pivot = (dun_high + dun_low + dun_close) / 3
+                            r1 = (2 * pivot) - dun_low
+                            s1 = (2 * pivot) - dun_high
+                            r2 = pivot + (dun_high - dun_low)
+                            s2 = pivot - (dun_high - dun_low)
+                            r3 = dun_high + 2 * (pivot - dun_low)
+                            s3 = dun_low - 2 * (dun_high - pivot)
+                            
+                            # 2. FIBONACCI HESAPLAMALARI (1 Yıllık Zirve/Dip)
+                            f_high = float(df_adv['High'].max())
+                            f_low = float(df_adv['Low'].min())
+                            diff = f_high - f_low
+                            
+                            fib_0 = f_high
+                            fib_236 = f_high - (0.236 * diff)
+                            fib_382 = f_high - (0.382 * diff)
+                            fib_500 = f_high - (0.500 * diff)
+                            fib_618 = f_high - (0.618 * diff)
+                            fib_786 = f_high - (0.786 * diff)
+                            fib_100 = f_low
+                            
+                            # PANELLERİ ÇİZ (NİZAMİ 2 SÜTUN)
+                            c_sol, c_sag = st.columns(2)
+                            
+                            with c_sol:
+                                with st.container(border=True):
+                                    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00bcd4; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00bcd4;'></div><div style='color: #00bcd4; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>DESTEK VE DİRENÇ SEVİYELERİ</div></div>", unsafe_allow_html=True)
+                                    st.markdown(f"<div style='color: gray; font-size: 0.85em; margin-bottom: 10px;'>Güncel Fiyat: <b style='color: white; font-size: 1.2em;'>{son_kapanis:,.2f}</b></div>", unsafe_allow_html=True)
+                                    
+                                    def satir_ciz(etiket, deger, renk):
+                                        bg_color = "rgba(0,255,0,0.05)" if renk == "#00ff00" else ("rgba(255,82,82,0.05)" if renk == "#FF5252" else "rgba(255,255,255,0.05)")
+                                        return f"<div style='display: flex; justify-content: space-between; padding: 8px 12px; margin-bottom: 4px; background: {bg_color}; border-left: 3px solid {renk}; border-radius: 4px;'><span style='color: gray; font-family: Consolas; font-size: 0.9em;'>{etiket}</span><span style='color: {renk}; font-family: Consolas; font-weight: bold;'>{deger:,.2f}</span></div>"
+                                        
+                                    html_pivot = ""
+                                    html_pivot += satir_ciz("DİRENÇ 3 (R3)", r3, "#FF5252")
+                                    html_pivot += satir_ciz("DİRENÇ 2 (R2)", r2, "#FF5252")
+                                    html_pivot += satir_ciz("DİRENÇ 1 (R1)", r1, "#FF5252")
+                                    html_pivot += satir_ciz("PIVOT NOKTASI", pivot, "#ffffff")
+                                    html_pivot += satir_ciz("DESTEK 1 (S1)", s1, "#00ff00")
+                                    html_pivot += satir_ciz("DESTEK 2 (S2)", s2, "#00ff00")
+                                    html_pivot += satir_ciz("DESTEK 3 (S3)", s3, "#00ff00")
+                                    
+                                    st.markdown(html_pivot, unsafe_allow_html=True)
+                                    
+                            with c_sag:
+                                with st.container(border=True):
+                                    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #bb86fc; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #bb86fc;'></div><div style='color: #bb86fc; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>FIBONACCI GERİ ÇEKİLME (1Y)</div></div>", unsafe_allow_html=True)
+                                    st.markdown(f"<div style='color: gray; font-size: 0.85em; margin-bottom: 10px;'>Zirve: <b style='color: white;'>{f_high:,.2f}</b> | Dip: <b style='color: white;'>{f_low:,.2f}</b></div>", unsafe_allow_html=True)
+                                    
+                                    html_fib = ""
+                                    fib_seviyeler = [
+                                        ("0.000 (Zirve)", fib_0, "#FF5252"),
+                                        ("0.236", fib_236, "#ffb300"),
+                                        ("0.382", fib_382, "#ffb300"),
+                                        ("0.500 (Orta)", fib_500, "#ffffff"),
+                                        ("0.618 (Altın Oran)", fib_618, "#00bcd4"),
+                                        ("0.786", fib_786, "#00bcd4"),
+                                        ("1.000 (Dip)", fib_100, "#00ff00")
+                                    ]
+                                    
+                                    farklar = [abs(son_kapanis - s[1]) for s in fib_seviyeler]
+                                    en_yakin_idx = farklar.index(min(farklar))
+                                    
+                                    for idx, (etiket, deger, renk) in enumerate(fib_seviyeler):
+                                        ok_isareti = " ◄" if idx == en_yakin_idx else ""
+                                        f_renk = "#ffffff" if ok_isareti else renk
+                                        b_color = "rgba(187, 134, 252, 0.15)" if ok_isareti else "rgba(255,255,255,0.02)"
+                                        border_l = f"3px solid {renk}" if ok_isareti else f"1px solid {renk}"
+                                        
+                                        html_fib += f"<div style='display: flex; justify-content: space-between; padding: 8px 12px; margin-bottom: 4px; background: {b_color}; border-left: {border_l}; border-radius: 4px;'><span style='color: gray; font-family: Consolas; font-size: 0.9em;'>FIB {etiket}</span><span style='color: {f_renk}; font-family: Consolas; font-weight: bold;'>{deger:,.2f}{ok_isareti}</span></div>"
+                                        
+                                    st.markdown(html_fib, unsafe_allow_html=True)
+                    except Exception as e:
+                        st.error(f"Sistem Hatası: Çarpanlar hesaplanırken hata oluştu. {e}")
+                
+                st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 15px; margin-bottom: 20px;'>", unsafe_allow_html=True)
+            
+            # --- PORTFÖY DÖNGÜSÜ BURADAN İTİBAREN DEVAM EDER ---
+            st.markdown("##### Portföy Teknik Analiz Raporları")
+            # conn = get_db()
+            # ... (Senin mevcut kodun buradan aşağı aynen devam edecek)
             st.markdown("##### Teknik Göstergeler ve Analiz Raporu")
             st.caption("Seçilen zaman aralığına göre aktif varlıkların grafiklerini ve sistemin ürettiği otomatik teknik analiz raporlarını inceleyin.")
             

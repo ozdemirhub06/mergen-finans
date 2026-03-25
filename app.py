@@ -4494,32 +4494,40 @@ else:
                             if mevsim_data:
                                 df_mevsim = pd.DataFrame(mevsim_data)
                                 
-                                # Görselleştirme: Plotly Bar Chart
+                                # Görselleştirme: Plotly Bar Chart (Siber Tasarım)
                                 fig_mevsim = go.Figure()
-                                renkler = ['#00ff00' if val >= 0 else '#FF5252' for val in df_mevsim['Ort. Getiri']]
+                                
+                                # İçleri şeffaf (cam gibi), dış çizgileri (border) tam neon renkler
+                                fill_colors = ['rgba(0, 255, 0, 0.15)' if val >= 0 else 'rgba(255, 82, 82, 0.15)' for val in df_mevsim['Ort. Getiri']]
+                                line_colors = ['#00ff00' if val >= 0 else '#FF5252' for val in df_mevsim['Ort. Getiri']]
                                 
                                 fig_mevsim.add_trace(go.Bar(
                                     x=df_mevsim['Ay'], 
                                     y=df_mevsim['Ort. Getiri'],
-                                    text=[f"%{val:.1f}<br>(Win: %{win:.0f})" for val, win in zip(df_mevsim['Ort. Getiri'], df_mevsim['Kazanma Oranı'])],
+                                    text=[f"%{val:.1f}" for val in df_mevsim['Ort. Getiri']],
                                     textposition='outside',
-                                    marker_color=renkler,
-                                    textfont=dict(color="white", size=10, family="Consolas")
+                                    customdata=[f"Kazanma Oranı: %{win:.0f}" for win in df_mevsim['Kazanma Oranı']],
+                                    hovertemplate="<b>%{x}</b><br>Ort. Getiri: %{text}<br>%{customdata}<extra></extra>",
+                                    marker_color=fill_colors,
+                                    marker_line_color=line_colors,
+                                    marker_line_width=1.5,
+                                    width=0.4, # Sütunları incelttik, zarif duracak
+                                    textfont=dict(color=line_colors, size=11, family="Consolas, monospace") # Yazı renkleri neon, font Consolas
                                 ))
                                 
                                 max_y = df_mevsim['Ort. Getiri'].max()
                                 min_y = df_mevsim['Ort. Getiri'].min()
-                                # Grafiğin üstten ve alttan kesilmemesi için marj bırakıyoruz
-                                y_range = [min_y * 1.5 if min_y < 0 else 0, max_y * 1.5 if max_y > 0 else 0]
+                                y_range = [min_y * 1.5 if min_y < 0 else min_y - 2, max_y * 1.5 if max_y > 0 else max_y + 2]
                                 
                                 fig_mevsim.update_layout(
-                                    height=300,
-                                    margin=dict(t=20, b=20, l=0, r=0),
+                                    height=320,
+                                    margin=dict(t=30, b=20, l=10, r=10),
                                     paper_bgcolor="rgba(0,0,0,0)",
                                     plot_bgcolor="rgba(0,0,0,0)",
-                                    xaxis=dict(showgrid=False, linecolor="gray", tickfont=dict(family="Consolas")),
-                                    yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)", zeroline=True, zerolinecolor="rgba(255,255,255,0.2)", range=y_range, tickfont=dict(family="Consolas")),
-                                    showlegend=False
+                                    xaxis=dict(showgrid=False, linecolor="rgba(255,255,255,0.1)", tickfont=dict(family="Consolas, monospace", color="gray")),
+                                    yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.03)", zeroline=True, zerolinecolor="rgba(255,255,255,0.2)", range=y_range, tickfont=dict(family="Consolas, monospace", color="gray")),
+                                    showlegend=False,
+                                    font=dict(family="Consolas, monospace") # Bütün grafiği Consolas'a zorluyoruz
                                 )
                                 
                                 with st.container(border=True):
@@ -4530,7 +4538,7 @@ else:
                                     en_kotu_ay = df_mevsim.loc[df_mevsim['Ort. Getiri'].idxmin()]
                                     
                                     st.markdown(f"""
-                                    <div style='display: flex; justify-content: space-between; padding: 12px; background: rgba(10,10,10,0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; margin-top: 10px; font-family: Consolas;'>
+                                    <div style='display: flex; justify-content: space-between; padding: 12px; background: rgba(10,10,10,0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; margin-top: 10px; font-family: Consolas, monospace;'>
                                         <div><span style='color: gray; font-size: 0.85em;'>Tarihsel En Güçlü Ay:</span> <b style='color: #00ff00; font-size: 1.1em;'>{en_iyi_ay['Ay']}</b> <span style='font-size: 0.85em; color: #d0d0d0;'>(Ort. Getiri: %{en_iyi_ay['Ort. Getiri']:.2f}, Yükselme İhtimali: %{en_iyi_ay['Kazanma Oranı']:.0f})</span></div>
                                         <div style='text-align: right;'><span style='color: gray; font-size: 0.85em;'>Tarihsel En Zayıf Ay:</span> <b style='color: #FF5252; font-size: 1.1em;'>{en_kotu_ay['Ay']}</b> <span style='font-size: 0.85em; color: #d0d0d0;'>(Ort. Getiri: %{en_kotu_ay['Ort. Getiri']:.2f})</span></div>
                                     </div>

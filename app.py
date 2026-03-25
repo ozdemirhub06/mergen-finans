@@ -4062,31 +4062,41 @@ else:
                                         
                                     st.markdown(html_fib, unsafe_allow_html=True)
 
-                            # --- YENİ EKLENEN AÇIKLAMA KUTUSU BURAYA GELECEK ---
+                          
+                           # --- DİNAMİK YORUM MOTORU BAŞLANGICI ---
+                            # Pivot Mantığı Hesabı
+                            if son_kapanis > pivot:
+                                trend_yonu = "<span style='color: #00ff00;'>Pozitif (Boğa)</span>"
+                                yaklasan_hedef = r1 if son_kapanis < r1 else (r2 if son_kapanis < r2 else r3)
+                                pivot_yorumu = f"Güncel fiyat ({son_kapanis:,.2f}), Pivot noktasının ({pivot:,.2f}) üzerinde seyretmektedir. Bu durum kısa vadeli momentumun {trend_yonu} olduğuna işaret eder. Alım iştahının devamı halinde ilk teknik direnç hedefi <b>{yaklasan_hedef:,.2f}</b> seviyesidir."
+                            else:
+                                trend_yonu = "<span style='color: #FF5252;'>Negatif (Ayı)</span>"
+                                yaklasan_hedef = s1 if son_kapanis > s1 else (s2 if son_kapanis > s2 else s3)
+                                pivot_yorumu = f"Güncel fiyat ({son_kapanis:,.2f}), Pivot noktasının ({pivot:,.2f}) altında baskılanmaktadır. Bu durum kısa vadeli momentumun {trend_yonu} olduğuna işaret eder. Satış baskısının sürmesi halinde izlenecek ilk destek noktası <b>{yaklasan_hedef:,.2f}</b> seviyesidir."
+
+                            # Fibonacci Mantığı Hesabı
+                            aktif_fib_isim = fib_seviyeler[en_yakin_idx][0]
+                            aktif_fib_deger = fib_seviyeler[en_yakin_idx][1]
+                            fib_konum = "üzerinde tutunmaya çalışıyor" if son_kapanis > aktif_fib_deger else "altında baskılanıyor"
+                            
+                            fib_yorumu = f"Orta/uzun vadeli (1Y) projeksiyonda varlık, <b>FIB {aktif_fib_isim}</b> seviyesine ({aktif_fib_deger:,.2f}) yakın işlem görmektedir. Fiyat anlık olarak bu majör seviyenin {fib_konum}. Bu bölgenin hacimli kırılımı, bir sonraki Fibonacci durağına kadar yeni bir trend bandı açabilir."
+
                             with st.container(border=True):
-                                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #FFC107; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #FFC107;'></div><div style='color: #FFC107; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>ANALİZ YORUMU VE EĞİTİM NOTLARI</div></div>", unsafe_allow_html=True)
+                                st.markdown(f"<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #FFC107; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #FFC107;'></div><div style='color: #FFC107; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>{a_kod} - AKTİF SEVİYE ANALİZİ</div></div>", unsafe_allow_html=True)
                                 
-                                st.markdown("""
-                                <div style='color: #CFD8DC; font-family: Consolas; font-size: 0.9em; line-height: 1.6; padding: 0 10px;'>
-                                <b>Matematiksel Seviyelerin Genel Yorumu:</b>
-                                <p style='margin-bottom: 10px;'>Yukarıdaki tablolar, arattığınız varlığın (örn: ASELS) fiyat hareketlerine dayalı olarak hesaplanan matematiksel olasılık noktalarını gösterir. Bu seviyeler, işlem stratejilerinizi belirlerken referans noktaları olarak kullanılır, ancak tek başlarına garanti bir alım-satım sinyali değildir.</p>
-                                <b style='color: #00bcd4;'>1. Destek ve Direnç Seviyeleri (Klasik Pivot):</b>
-                                <ul>
-                                    <li><b>Pivot Noktası (Beyaz):</b> Günlük veya haftalık eğilimin belirlendiği ana seviyedir. Fiyat pivotun üzerindeyse boğa (yükseliş), altındaysa ayı (düşüş) eğilimi baskın kabul edilir.</li>
-                                    <li><b>Direnç Seviyeleri (Kırmızı - R1, R2, R3):</b> Yükselen fiyatın karşılaşabileceği potansiyel 'tavan' noktalarıdır. Bu seviyelerde kâr realizasyonu (satış baskısı) gelebilir. R3'ün aşılması, aşırı alım bölgesine işaret edebilir.</li>
-                                    <li><b>Destek Seviyeleri (Yeşil - S1, S2, S3):</b> Düşen fiyatın karşılaşabileceği potansiyel 'taban' noktalarıdır. Bu seviyelerde yeni alıcılar (alım baskısı) devreye girebilir. S3'ün altına sarkılması, panik satışı ve aşırı satım bölgesine işaret edebilir.</li>
-                                </ul>
-                                <b style='color: #bb86fc;'>2. Fibonacci Geri Çekilme Seviyeleri (1Y):</b>
-                                <ul>
-                                    <li>Bu seviyeler, son 1 yıllık trendin (zirve ve dip) matematiksel oranlara göre nerelerde soluklanabileceğini gösterir.</li>
-                                    <li><b>Geri Çekilme Seviyeleri (Turuncu/Beyaz - 0.236, 0.382, 0.500):</b> Yükselen bir trendde, fiyatın bu seviyelerden sekmesi, ana trendin güçlü bir şekilde devam edeceğine dair sinyaldir. %50 (Orta Nokta) seviyesi, trendin gücünü test eden önemli bir psikolojik barajdır.</li>
-                                    <li><b>Altın Oran (Mavi - 0.618):</b> En kritik seviyedir. Fiyat buraya kadar çekilip sekmez ve altına sarkarsa, ana trendin değişme ihtimali yükselir (düşüş trendinin başlaması veya tam tersi). %61.8 ve %78.6 seviyeleri, trendin dip/zirve avcıları için önemli birer giriş noktası olabilir.</li>
-                                    <li>Fiyatın Fibonacci seviyeleriyle Klasik Destek/Direnç seviyelerinin kesiştiği noktalar, olasılığı en yüksek stratejik bölgelerdir.</li>
-                                </ul>
-                                <p style='margin-top: 15px; font-style: italic; color: #9E9E9E;'><b>Teknik Not:</b> Bu veriler geçmiş fiyat hareketlerine dayalıdır ve gelecekteki performansı garanti etmez. Stratejinizi oluştururken bu seviyeleri, hacim, diğer teknik göstergeler ve temel analiz verileriyle kombine etmeniz önerilir.</p>
+                                st.markdown(f"""
+                                <div style='color: #e0e0e0; font-family: Consolas, monospace; font-size: 0.95em; line-height: 1.6; padding: 5px 10px;'>
+                                    <div style='margin-bottom: 12px; border-left: 3px solid #00bcd4; padding-left: 10px; background: rgba(0, 188, 212, 0.05); padding-top: 5px; padding-bottom: 5px; border-radius: 0 4px 4px 0;'>
+                                        <span style='color: #00bcd4; font-weight: bold;'>[ PİVOT VE TREND DURUMU ]</span><br>
+                                        {pivot_yorumu}
+                                    </div>
+                                    <div style='margin-bottom: 5px; border-left: 3px solid #bb86fc; padding-left: 10px; background: rgba(187, 134, 252, 0.05); padding-top: 5px; padding-bottom: 5px; border-radius: 0 4px 4px 0;'>
+                                        <span style='color: #bb86fc; font-weight: bold;'>[ FIBONACCI PROJEKSİYONU ]</span><br>
+                                        {fib_yorumu}
+                                    </div>
                                 </div>
                                 """, unsafe_allow_html=True)
-                            # --- EKLENEN KISIM BİTİŞİ ---
+                            # --- DİNAMİK YORUM MOTORU BİTİŞİ ---
 
                     except Exception as e:
                         st.error(f"Sistem Hatası: Çarpanlar hesaplanırken hata oluştu. {e}")

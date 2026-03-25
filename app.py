@@ -4423,11 +4423,73 @@ else:
                                 elif val >= 1_000_000: return f"{val/1_000_000:.2f} Milyon {pb_str}"
                                 return f"{val:,.0f} {pb_str}" if val > 0 else "Veri Yok"
 
-                            # Siber Gösterge Kartları
-                            def ciz_gosterge(baslik, deger, alt_metin, renk):
+                            # --- SİBER TOOLTIP CSS MOTORU ---
+                            st.markdown("""
+                            <style>
+                            .siber-tooltip {
+                                position: relative;
+                                display: inline-block;
+                                cursor: help;
+                            }
+                            .siber-tooltip .siber-tooltiptext {
+                                visibility: hidden;
+                                width: 250px;
+                                background-color: rgba(15, 15, 15, 0.98);
+                                color: #e0e0e0;
+                                text-align: left;
+                                border-radius: 6px;
+                                padding: 12px;
+                                position: absolute;
+                                z-index: 9999;
+                                bottom: 130%;
+                                right: -10px;
+                                opacity: 0;
+                                transition: opacity 0.3s;
+                                border: 1px solid rgba(0, 255, 0, 0.3);
+                                font-family: 'Consolas', monospace;
+                                font-size: 0.95rem;
+                                box-shadow: 0px 8px 16px rgba(0,0,0,0.8);
+                                text-transform: none;
+                                line-height: 1.5;
+                                font-weight: normal;
+                                letter-spacing: 0px;
+                            }
+                            .siber-tooltip:hover .siber-tooltiptext {
+                                visibility: visible;
+                                opacity: 1;
+                            }
+                            .info-icon {
+                                width: 14px; 
+                                height: 14px; 
+                                border-radius: 50%; 
+                                border: 1px solid gray; 
+                                color: gray; 
+                                font-size: 10px; 
+                                display: flex; 
+                                align-items: center; 
+                                justify-content: center; 
+                                font-family: 'Consolas', monospace;
+                                transition: all 0.2s ease;
+                            }
+                            .siber-tooltip:hover .info-icon {
+                                border-color: #00ff00;
+                                color: #00ff00;
+                                background-color: rgba(0, 255, 0, 0.1);
+                            }
+                            </style>
+                            """, unsafe_allow_html=True)
+
+                            # Siber Gösterge Kartları (Tooltip Destekli)
+                            def ciz_gosterge(baslik, deger, alt_metin, renk, izahat):
                                 return f"""
-                                <div style='border: 1px solid rgba(255,255,255,0.05); border-left: 3px solid {renk}; background: rgba(10,10,10,0.5); padding: 12px; border-radius: 4px; height: 100%;'>
-                                    <div style='color: gray; font-size: 0.8em; font-family: Consolas; margin-bottom: 5px; text-transform: uppercase;'>{baslik}</div>
+                                <div style='border: 1px solid rgba(255,255,255,0.05); border-left: 3px solid {renk}; background: rgba(10,10,10,0.5); padding: 12px; border-radius: 4px; height: 100%; display: flex; flex-direction: column; justify-content: space-between;'>
+                                    <div style='display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px;'>
+                                        <div style='color: gray; font-size: 0.8em; font-family: Consolas; text-transform: uppercase;'>{baslik}</div>
+                                        <div class="siber-tooltip">
+                                            <div class="info-icon">i</div>
+                                            <span class="siber-tooltiptext"><span style='color:{renk}; font-weight:bold;'>{baslik}</span><br><br>{izahat}</span>
+                                        </div>
+                                    </div>
                                     <div style='color: white; font-size: 1.4em; font-weight: bold; font-family: Consolas;'>{deger}</div>
                                     <div style='color: {renk}; font-size: 0.75em; font-family: Consolas; margin-top: 5px;'>{alt_metin}</div>
                                 </div>
@@ -4436,22 +4498,30 @@ else:
                             st.markdown(f"<div style='color: #00bcd4; font-size: 1.1em; font-weight: bold; margin-bottom: 10px; font-family: Consolas;'>[ {a_kod.replace('.IS','').replace('-USD','')} ] FİNANSAL ÇARPANLAR</div>", unsafe_allow_html=True)
                             
                             c1, c2, c3 = st.columns(3)
+                            
+                            t_mcap = "Şirketin borsada işlem gören tüm hisselerinin güncel fiyat üzerinden hesaplanan toplam değeridir. Varlığın piyasa büyüklüğünü ve likidite hacmini ifade eder."
+                            t_pe = "Güncel hisse fiyatının, hisse başına net kâra bölünmesiyle hesaplanır. Teorik olarak mevcut kârlılıkla yatırımın kendini kaç yılda amorti edeceğini gösteren ana temel analiz çarpanıdır."
+                            t_eps = "Şirketin dönemlik net kârının, tedavüldeki toplam hisse senedi sayısına bölünmesiyle bulunur. İşletmenin pay başına ürettiği net ekonomik değeri ve kârlılık gücünü ölçer."
+                            t_pb = "Şirketin piyasa değerinin, bilançodaki özkaynaklarına (defter değeri) bölünmesiyle elde edilir. Hissenin muhasebe değerine kıyasla ne kadar primli veya iskontolu işlem gördüğünü belirtir."
+                            t_div = "Şirketin hisse başına ödediği son yıllık nakit temettü miktarının, güncel hisse fiyatına oranıdır. Varlığın yatırımcısına sağladığı düzenli pasif nakit akışı verimliliğini gösterir."
+                            t_h52 = "Varlığın son bir yıllık (52 hafta) periyotta işlem gördüğü en yüksek fiyat seviyesidir. İstatistiksel direnç ve momentum kırılımlarının tespiti için referans noktası olarak kullanılır."
+
                             with c1:
-                                st.markdown(ciz_gosterge("Piyasa Değeri (Market Cap)", format_mcap(mcap), "Şirketin Toplam Büyüklüğü", "#00bcd4"), unsafe_allow_html=True)
+                                st.markdown(ciz_gosterge("Piyasa Değeri (Market Cap)", format_mcap(mcap), "Şirketin Toplam Büyüklüğü", "#00bcd4", t_mcap), unsafe_allow_html=True)
                                 st.markdown("<br>", unsafe_allow_html=True)
                                 val_pe = f"{pe:.2f}" if pe > 0 else "N/A"
-                                st.markdown(ciz_gosterge("Fiyat / Kazanç (F/K)", val_pe, "Yatırımın Amortisman Süresi", "#ffb300" if pe > 20 else "#00ff00"), unsafe_allow_html=True)
+                                st.markdown(ciz_gosterge("Fiyat / Kazanç (F/K)", val_pe, "Yatırımın Amortisman Süresi", "#ffb300" if pe > 20 else "#00ff00", t_pe), unsafe_allow_html=True)
                             
                             with c2:
                                 val_eps = f"{eps:.2f} {pb_str}" if eps else "N/A"
-                                st.markdown(ciz_gosterge("Hisse Başına Kâr (EPS)", val_eps, "Şirketin Net Kârlılık Gücü", "#00ff00" if eps and eps > 0 else "#FF5252"), unsafe_allow_html=True)
+                                st.markdown(ciz_gosterge("Hisse Başına Kâr (EPS)", val_eps, "Şirketin Net Kârlılık Gücü", "#00ff00" if eps and eps > 0 else "#FF5252", t_eps), unsafe_allow_html=True)
                                 st.markdown("<br>", unsafe_allow_html=True)
                                 val_pb = f"{pb:.2f}" if pb > 0 else "N/A"
-                                st.markdown(ciz_gosterge("Piyasa / Defter Değeri (PD/DD)", val_pb, "Özsermaye Çarpanı", "#ffb300" if pb > 5 else "#00ff00"), unsafe_allow_html=True)
+                                st.markdown(ciz_gosterge("Piyasa / Defter Değeri (PD/DD)", val_pb, "Özsermaye Çarpanı", "#ffb300" if pb > 5 else "#00ff00", t_pb), unsafe_allow_html=True)
 
                             with c3:
                                 val_div = f"%{div_yield:.2f}" if div_yield > 0 else "N/A"
-                                st.markdown(ciz_gosterge("Temettü Verimi", val_div, "Yıllık Pasif Getiri Oranı", "#bb86fc"), unsafe_allow_html=True)
+                                st.markdown(ciz_gosterge("Temettü Verimi", val_div, "Yıllık Pasif Getiri Oranı", "#bb86fc", t_div), unsafe_allow_html=True)
                                 st.markdown("<br>", unsafe_allow_html=True)
                                 if high52 > 0 and fiyat:
                                     uzaklik = ((fiyat - high52) / high52) * 100
@@ -4459,7 +4529,7 @@ else:
                                 else:
                                     uzaklik_metin = "Veri Yok"
                                 val_high = f"{high52:,.2f} {pb_str}" if high52 > 0 else "N/A"
-                                st.markdown(ciz_gosterge("52 Haftalık Zirve", val_high, uzaklik_metin, "#FF5252"), unsafe_allow_html=True)
+                                st.markdown(ciz_gosterge("52 Haftalık Zirve", val_high, uzaklik_metin, "#FF5252", t_h52), unsafe_allow_html=True)
 
                     except Exception as e:
                         st.error(f"Sistem Hatası: Çarpanlar hesaplanırken hata oluştu. Lütfen geçerli bir borsa kodu girin.")

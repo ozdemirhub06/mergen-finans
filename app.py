@@ -4463,6 +4463,82 @@ else:
 
                     except Exception as e:
                         st.error(f"Sistem Hatası: Çarpanlar hesaplanırken hata oluştu. Lütfen geçerli bir borsa kodu girin.")
+                        st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 15px; margin-bottom: 20px;'>", unsafe_allow_html=True)
+                
+                # --- YENİ EKLENECEK MEVSİMSELLİK MOTORU (ADIM 2) ---
+                st.markdown("##### İstatistiksel Mevsimsellik Matrisi (Son 5 Yıl)")
+                st.caption("Algoritmik fonların kullandığı olasılık motoru: Varlığın son 5 yılda aylara göre sergilediği tarihsel performans ve yükselme ihtimali.")
+                
+                with st.spinner("Tarihsel veriler ve mevsimsel olasılıklar hesaplanıyor..."):
+                    try:
+                        # 5 yıllık aylık veriyi çekiyoruz
+                        df_aylik = yf.Ticker(a_kod).history(period="5y", interval="1mo")
+                        
+                        if not df_aylik.empty and len(df_aylik) > 12:
+                            df_aylik['Getiri'] = df_aylik['Close'].pct_change() * 100
+                            df_aylik = df_aylik.dropna()
+                            df_aylik['Ay'] = df_aylik.index.month
+                            
+                            ay_isimleri = {1:"Ocak", 2:"Şubat", 3:"Mart", 4:"Nisan", 5:"Mayıs", 6:"Haziran", 7:"Temmuz", 8:"Ağustos", 9:"Eylül", 10:"Ekim", 11:"Kasım", 12:"Aralık"}
+                            
+                            mevsim_data = []
+                            for ay in range(1, 13):
+                                ay_verisi = df_aylik[df_aylik['Ay'] == ay]
+                                if not ay_verisi.empty:
+                                    toplam_yil = len(ay_verisi)
+                                    pozitif_yil = len(ay_verisi[ay_verisi['Getiri'] > 0])
+                                    kazanma_orani = (pozitif_yil / toplam_yil) * 100
+                                    ort_getiri = ay_verisi['Getiri'].mean()
+                                    mevsim_data.append({"Ay": ay_isimleri[ay], "Kazanma Oranı": kazanma_orani, "Ort. Getiri": ort_getiri})
+                            
+                            if mevsim_data:
+                                df_mevsim = pd.DataFrame(mevsim_data)
+                                
+                                # Görselleştirme: Plotly Bar Chart
+                                fig_mevsim = go.Figure()
+                                renkler = ['#00ff00' if val >= 0 else '#FF5252' for val in df_mevsim['Ort. Getiri']]
+                                
+                                fig_mevsim.add_trace(go.Bar(
+                                    x=df_mevsim['Ay'], 
+                                    y=df_mevsim['Ort. Getiri'],
+                                    text=[f"%{val:.1f}<br>(Win: %{win:.0f})" for val, win in zip(df_mevsim['Ort. Getiri'], df_mevsim['Kazanma Oranı'])],
+                                    textposition='outside',
+                                    marker_color=renkler,
+                                    textfont=dict(color="white", size=10, family="Consolas")
+                                ))
+                                
+                                max_y = df_mevsim['Ort. Getiri'].max()
+                                min_y = df_mevsim['Ort. Getiri'].min()
+                                # Grafiğin üstten ve alttan kesilmemesi için marj bırakıyoruz
+                                y_range = [min_y * 1.5 if min_y < 0 else 0, max_y * 1.5 if max_y > 0 else 0]
+                                
+                                fig_mevsim.update_layout(
+                                    height=300,
+                                    margin=dict(t=20, b=20, l=0, r=0),
+                                    paper_bgcolor="rgba(0,0,0,0)",
+                                    plot_bgcolor="rgba(0,0,0,0)",
+                                    xaxis=dict(showgrid=False, linecolor="gray", tickfont=dict(family="Consolas")),
+                                    yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)", zeroline=True, zerolinecolor="rgba(255,255,255,0.2)", range=y_range, tickfont=dict(family="Consolas")),
+                                    showlegend=False
+                                )
+                                
+                                with st.container(border=True):
+                                    st.plotly_chart(fig_mevsim, use_container_width=True, config={'displayModeBar': False})
+                                    
+                                    # En iyi ve en kötü ay analizi
+                                    en_iyi_ay = df_mevsim.loc[df_mevsim['Ort. Getiri'].idxmax()]
+                                    en_kotu_ay = df_mevsim.loc[df_mevsim['Ort. Getiri'].idxmin()]
+                                    
+                                    st.markdown(f"""
+                                    <div style='display: flex; justify-content: space-between; padding: 12px; background: rgba(10,10,10,0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; margin-top: 10px; font-family: Consolas;'>
+                                        <div><span style='color: gray; font-size: 0.85em;'>Tarihsel En Güçlü Ay:</span> <b style='color: #00ff00; font-size: 1.1em;'>{en_iyi_ay['Ay']}</b> <span style='font-size: 0.85em; color: #d0d0d0;'>(Ort. Getiri: %{en_iyi_ay['Ort. Getiri']:.2f}, Yükselme İhtimali: %{en_iyi_ay['Kazanma Oranı']:.0f})</span></div>
+                                        <div style='text-align: right;'><span style='color: gray; font-size: 0.85em;'>Tarihsel En Zayıf Ay:</span> <b style='color: #FF5252; font-size: 1.1em;'>{en_kotu_ay['Ay']}</b> <span style='font-size: 0.85em; color: #d0d0d0;'>(Ort. Getiri: %{en_kotu_ay['Ort. Getiri']:.2f})</span></div>
+                                    </div>
+                                    """, unsafe_allow_html=True)
+                        else:
+                            st.info("Mevsimsellik analizi için yeterli tarihsel veri bulunamadı (En az 1 yıllık veri gereklidir).")
+                    except Exception as e:
+                        st.error(f"Sistem Hatası: Mevsimsellik motoru çalıştırılırken hata oluştu. {e}")
         with t_makro:
             st.info("Türkiye ve Dünya ekonomisi sıcak gelişme akışı, jeopolitik risk haritası bağlanıyor... (Kervan yolda düzülüyor)")
             # --- GİZLİ YÖNETİCİ PANELİ ---

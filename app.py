@@ -4441,30 +4441,11 @@ else:
                                 padding: 12px;
                                 position: absolute;
                                 z-index: 9999;
-                                bottom: 130%;# --- SİBER TOOLTIP CSS MOTORU ---
-                            st.markdown("""
-                            <style>
-                            .siber-tooltip {
-                                position: relative;
-                                display: inline-block;
-                                cursor: help;
-                            }
-                            .siber-tooltip .siber-tooltiptext {
-                                visibility: hidden;
-                                width: 250px;
-                                background-color: rgba(15, 15, 15, 0.98);
-                                color: #e0e0e0;
-                                text-align: left;
-                                border-radius: 6px;
-                                padding: 12px;
-                                position: absolute;
-                                z-index: 9999;
                                 bottom: 130%;
                                 right: -10px;
                                 opacity: 0;
                                 transition: opacity 0.3s;
                                 border: 1px solid rgba(0, 255, 0, 0.3);
-                                /* FONT BURADA UYGULAMANIN ORİJİNAL MODERN FONTUNA DÖNDÜRÜLDÜ */
                                 font-family: system-ui, -apple-system, sans-serif;
                                 font-size: 0.85rem;
                                 box-shadow: 0px 8px 16px rgba(0,0,0,0.8);
@@ -4497,43 +4478,6 @@ else:
                             }
                             </style>
                             """, unsafe_allow_html=True)
-                                right: -10px;
-                                opacity: 0;
-                                transition: opacity 0.3s;
-                                border: 1px solid rgba(0, 255, 0, 0.3);
-                                font-family: 'Consolas', monospace;
-                                font-size: 0.95rem;
-                                box-shadow: 0px 8px 16px rgba(0,0,0,0.8);
-                                text-transform: none;
-                                line-height: 1.5;
-                                font-weight: normal;
-                                letter-spacing: 0px;
-                            }
-                            .siber-tooltip:hover .siber-tooltiptext {
-                                visibility: visible;
-                                opacity: 1;
-                            }
-                            .info-icon {
-                                width: 14px; 
-                                height: 14px; 
-                                border-radius: 50%; 
-                                border: 1px solid gray; 
-                                color: gray; 
-                                font-size: 10px; 
-                                display: flex; 
-                                align-items: center; 
-                                justify-content: center; 
-                                font-family: 'Consolas', monospace;
-                                transition: all 0.2s ease;
-                            }
-                            .siber-tooltip:hover .info-icon {
-                                border-color: #00ff00;
-                                color: #00ff00;
-                                background-color: rgba(0, 255, 0, 0.1);
-                            }
-                            </style>
-                            """, unsafe_allow_html=True)
-
                             # Siber Gösterge Kartları (Tooltip Destekli)
                             def ciz_gosterge(baslik, deger, alt_metin, renk, izahat):
                                 return f"""

@@ -4061,6 +4061,33 @@ else:
                                         html_fib += f"<div style='display: flex; justify-content: space-between; padding: 8px 12px; margin-bottom: 4px; background: {b_color}; border-left: {border_l}; border-radius: 4px;'><span style='color: gray; font-family: Consolas; font-size: 0.9em;'>FIB {etiket}</span><span style='color: {f_renk}; font-family: Consolas; font-weight: bold;'>{deger:,.2f}{ok_isareti}</span></div>"
                                         
                                     st.markdown(html_fib, unsafe_allow_html=True)
+
+                            # --- YENİ EKLENEN AÇIKLAMA KUTUSU BURAYA GELECEK ---
+                            with st.container(border=True):
+                                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #FFC107; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #FFC107;'></div><div style='color: #FFC107; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>ANALİZ YORUMU VE EĞİTİM NOTLARI</div></div>", unsafe_allow_html=True)
+                                
+                                st.markdown("""
+                                <div style='color: #CFD8DC; font-family: Consolas; font-size: 0.9em; line-height: 1.6; padding: 0 10px;'>
+                                <b>Matematiksel Seviyelerin Genel Yorumu:</b>
+                                <p style='margin-bottom: 10px;'>Yukarıdaki tablolar, arattığınız varlığın (örn: ASELS) fiyat hareketlerine dayalı olarak hesaplanan matematiksel olasılık noktalarını gösterir. Bu seviyeler, işlem stratejilerinizi belirlerken referans noktaları olarak kullanılır, ancak tek başlarına garanti bir alım-satım sinyali değildir.</p>
+                                <b style='color: #00bcd4;'>1. Destek ve Direnç Seviyeleri (Klasik Pivot):</b>
+                                <ul>
+                                    <li><b>Pivot Noktası (Beyaz):</b> Günlük veya haftalık eğilimin belirlendiği ana seviyedir. Fiyat pivotun üzerindeyse boğa (yükseliş), altındaysa ayı (düşüş) eğilimi baskın kabul edilir.</li>
+                                    <li><b>Direnç Seviyeleri (Kırmızı - R1, R2, R3):</b> Yükselen fiyatın karşılaşabileceği potansiyel 'tavan' noktalarıdır. Bu seviyelerde kâr realizasyonu (satış baskısı) gelebilir. R3'ün aşılması, aşırı alım bölgesine işaret edebilir.</li>
+                                    <li><b>Destek Seviyeleri (Yeşil - S1, S2, S3):</b> Düşen fiyatın karşılaşabileceği potansiyel 'taban' noktalarıdır. Bu seviyelerde yeni alıcılar (alım baskısı) devreye girebilir. S3'ün altına sarkılması, panik satışı ve aşırı satım bölgesine işaret edebilir.</li>
+                                </ul>
+                                <b style='color: #bb86fc;'>2. Fibonacci Geri Çekilme Seviyeleri (1Y):</b>
+                                <ul>
+                                    <li>Bu seviyeler, son 1 yıllık trendin (zirve ve dip) matematiksel oranlara göre nerelerde soluklanabileceğini gösterir.</li>
+                                    <li><b>Geri Çekilme Seviyeleri (Turuncu/Beyaz - 0.236, 0.382, 0.500):</b> Yükselen bir trendde, fiyatın bu seviyelerden sekmesi, ana trendin güçlü bir şekilde devam edeceğine dair sinyaldir. %50 (Orta Nokta) seviyesi, trendin gücünü test eden önemli bir psikolojik barajdır.</li>
+                                    <li><b>Altın Oran (Mavi - 0.618):</b> En kritik seviyedir. Fiyat buraya kadar çekilip sekmez ve altına sarkarsa, ana trendin değişme ihtimali yükselir (düşüş trendinin başlaması veya tam tersi). %61.8 ve %78.6 seviyeleri, trendin dip/zirve avcıları için önemli birer giriş noktası olabilir.</li>
+                                    <li>Fiyatın Fibonacci seviyeleriyle Klasik Destek/Direnç seviyelerinin kesiştiği noktalar, olasılığı en yüksek stratejik bölgelerdir.</li>
+                                </ul>
+                                <p style='margin-top: 15px; font-style: italic; color: #9E9E9E;'><b>Teknik Not:</b> Bu veriler geçmiş fiyat hareketlerine dayalıdır ve gelecekteki performansı garanti etmez. Stratejinizi oluştururken bu seviyeleri, hacim, diğer teknik göstergeler ve temel analiz verileriyle kombine etmeniz önerilir.</p>
+                                </div>
+                                """, unsafe_allow_html=True)
+                            # --- EKLENEN KISIM BİTİŞİ ---
+
                     except Exception as e:
                         st.error(f"Sistem Hatası: Çarpanlar hesaplanırken hata oluştu. {e}")
                 

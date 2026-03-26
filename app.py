@@ -3146,21 +3146,48 @@ else:
                                     
                                 c2.markdown(f"<div style='text-align:right;'>{bakiye_html}</div>", unsafe_allow_html=True)
                                 c3.markdown(f"<div style='text-align:right;'><span style='font-size:0.8em;color:gray;'>Faiz</span><br><span style='font-weight:bold; font-size:1.2em;'>%{faiz}</span></div>", unsafe_allow_html=True)
-                        # --- VADELİ HESAP SİLME OPERASYONU ---
+                        # --- VADELİ HESAP GÜNCELLEME VE SİLME OPERASYONU ---
                         st.markdown("---")
-                        with st.expander("Vadeli Hesap Kaydını Sil"):
-                            svl = st.selectbox("Silinecek Hesap Seçimi:", vl_ler['hesap_adi'].tolist(), key=f"svl_delete_{sb}")
-                            if st.button("Kalıcı Olarak Sil", key=f"bsvl_final_{sb}", type="primary", use_container_width=True):
-                                conn = get_db()
-                                try:
-                                    c = conn.cursor()
-                                    c.execute("DELETE FROM islem_gecmisi WHERE kullanici_adi = %s AND detay LIKE %s", (k_adi, f"%{svl}%"))
-                                    c.execute("DELETE FROM banka_hesaplari WHERE kullanici_adi = %s AND hesap_adi = %s", (k_adi, svl))
-                                    conn.commit()
-                                    st.success(f"{svl} hesabı temizlendi.")
-                                    time.sleep(1)
-                                    st.rerun()
-                                finally: release_db(conn)
+                        c_guncelle, c_sil = st.columns(2)
+                        
+                        with c_guncelle:
+                            with st.expander("Faiz Oranını Güncelle"):
+                                g_hesap = st.selectbox("Hesap Seçimi:", vl_ler['hesap_adi'].tolist(), key=f"g_hesap_{sb}")
+                                if g_hesap:
+                                    aktif_faiz = float(vl_ler[vl_ler['hesap_adi'] == g_hesap]['faiz_orani'].values[0])
+                                else:
+                                    aktif_faiz = 0.0
+                                
+                                yeni_faiz = st.number_input("Yeni Brüt Faiz Oranı (%)", min_value=0.0, max_value=100.0, step=0.5, value=aktif_faiz, key=f"yfaiz_{sb}")
+                                
+                                if st.button("Faizi Güncelle", key=f"bguncelle_{sb}", type="primary", use_container_width=True):
+                                    conn = get_db()
+                                    try:
+                                        c = conn.cursor()
+                                        c.execute("UPDATE banka_hesaplari SET faiz_orani = %s WHERE kullanici_adi = %s AND hesap_adi = %s", (yeni_faiz, k_adi, g_hesap))
+                                        conn.commit()
+                                        st.success(f"Faiz %{yeni_faiz} olarak güncellendi!")
+                                        time.sleep(1)
+                                        st.rerun()
+                                    except Exception as e:
+                                        st.error(f"Güncelleme Hatası: {e}")
+                                    finally:
+                                        release_db(conn)
+
+                        with c_sil:
+                            with st.expander("Vadeli Hesap Kaydını Sil"):
+                                svl = st.selectbox("Silinecek Hesap Seçimi:", vl_ler['hesap_adi'].tolist(), key=f"svl_delete_{sb}")
+                                if st.button("Kalıcı Olarak Sil", key=f"bsvl_final_{sb}", type="primary", use_container_width=True):
+                                    conn = get_db()
+                                    try:
+                                        c = conn.cursor()
+                                        c.execute("DELETE FROM islem_gecmisi WHERE kullanici_adi = %s AND detay LIKE %s", (k_adi, f"%{svl}%"))
+                                        c.execute("DELETE FROM banka_hesaplari WHERE kullanici_adi = %s AND hesap_adi = %s", (k_adi, svl))
+                                        conn.commit()
+                                        st.success(f"{svl} hesabı temizlendi.")
+                                        time.sleep(1)
+                                        st.rerun()
+                                    finally: release_db(conn)
                     else: st.info("Kayıt yok.")
                 else: st.info("Sistem verisi güncelleniyor, lütfen sayfayı yenileyin.")
             

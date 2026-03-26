@@ -1772,11 +1772,49 @@ else:
                             </div>
                             """, unsafe_allow_html=True)
                             
-                        st.markdown(f"""
-                        <div style='text-align: right; padding-top: 10px;'>
-                            <span style='color: gray; font-size: 0.9em;'>Net Bekleyen Takas Bakiyesi:</span> <b style='color: #00ff00; font-size: 1.2em;'>{net_takas_tl:,.2f} TL</b>
-                        </div>
-                        """, unsafe_allow_html=True)
+                        # --- TAKASTAN ERKEN NAKİT ÇEKİM (AVANS) MOTORU ---
+                        st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin: 15px 0;'>", unsafe_allow_html=True)
+                        st.markdown("<span style='color: #00bcd4; font-weight: bold; font-size: 0.95em; font-family: Consolas;'>T+0 NAKİT AVANS (ERKEN ÇEKİM)</span>", unsafe_allow_html=True)
+                        st.caption("Takasta bekleyen bakiyenizi, kurum komisyonu karşılığında anında nakde (Yatırım Hesabı) çevirin.")
+                        
+                        with st.form("avans_form"):
+                            ca1, ca2 = st.columns(2)
+                            avans_tutar = ca1.number_input("Çekilecek Nakit Tutar (TL)", min_value=0.0, max_value=float(net_takas_tl), step=100.0)
+                            avans_komisyon = ca2.number_input("Kurum Komisyonu (TL)", min_value=0.0, step=10.0)
+                            
+                            if st.form_submit_button("Anında Nakde Çevir", type="primary", use_container_width=True):
+                                toplam_dusulecek = avans_tutar + avans_komisyon
+                                if toplam_dusulecek > net_takas_tl:
+                                    st.error("Hata: Çekilecek tutar ve komisyon toplamı, net takas bakiyesini aşamaz.")
+                                elif avans_tutar > 0:
+                                    conn = get_db()
+                                    try:
+                                        c = conn.cursor()
+                                        # 1. Yatırım Hesabına (Nakit Kasaya) Parayı Ekle
+                                        c.execute("UPDATE bakiyeler SET bakiye = bakiye + %s WHERE kullanici_adi = %s", (avans_tutar, k_adi))
+                                        c.execute("UPDATE hesaplar SET bakiye = bakiye + %s WHERE kullanici_adi = %s AND hesap_adi = 'Yatırım Hesabı'", (avans_tutar, k_adi))
+                                        
+                                        # 2. Takastan Düşmek İçin Negatif Kayıt At (En geç takas tarihinde çözülmek üzere)
+                                        c.execute("SELECT MAX(takas_tarihi) FROM takas_bekleyen_islemler WHERE kullanici_adi = %s AND durum = 'Bekliyor' AND islem_yonu = 'SATIM'", (k_adi,))
+                                        max_t_res = c.fetchone()
+                                        hedef_tarih = max_t_res[0] if max_t_res and max_t_res[0] else datetime.date.today()
+                                        
+                                        c.execute("INSERT INTO takas_bekleyen_islemler (kullanici_adi, varlik, tutar, islem_tarihi, takas_tarihi, islem_yonu) VALUES (%s, %s, %s, %s, %s, 'SATIM')", 
+                                                  (k_adi, 'Erken Çekim Avansı', -toplam_dusulecek, datetime.date.today(), hedef_tarih))
+                                        
+                                        # 3. İşlem Geçmişine Kaydet
+                                        c.execute("INSERT INTO islem_gecmisi (kullanici_adi, islem_tipi, detay, tutar) VALUES (%s, 'NAKİT AVANS (+)', 'Takastan Erken Çekim', %s)", (k_adi, avans_tutar))
+                                        if avans_komisyon > 0:
+                                            c.execute("INSERT INTO islem_gecmisi (kullanici_adi, islem_tipi, detay, tutar) VALUES (%s, 'KOMİSYON GİDERİ (-)', 'Erken Çekim Komisyonu', %s)", (k_adi, -avans_komisyon))
+                                            c.execute("INSERT INTO harcamalar (kullanici_adi, kategori, aciklama, tutar, kaynak_hesap) VALUES (%s, 'Banka Kesintisi', 'Takas Erken Çekim Komisyonu', %s, 'Yatırım Hesabı')", (k_adi, avans_komisyon))
+                                            
+                                        conn.commit()
+                                        st.session_state.islem_bildirimi = {"mesaj": f"{avans_tutar:,.2f} TL başarıyla nakde çevrildi."}
+                                    except Exception as e:
+                                        st.error(f"Sistem Hatası: {e}")
+                                    finally:
+                                        release_db(conn)
+                                    st.rerun()
 
             st.markdown("---")
             st.markdown("##### Piyasa Endeksleri")

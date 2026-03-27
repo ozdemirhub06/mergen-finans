@@ -452,7 +452,7 @@ def kullanici_bilgileri_sayfasi(k_adi):
                 nakit_vadeli = c.fetchone()[0] or 0.0
 
                 # Varlıklar
-                c.execute('SELECT varlik_adi, borsa, SUM(lot), AVG(maliyet) FROM portfoy WHERE kullanici_adi = %s GROUP BY varlik_adi, borsa HAVING SUM(lot) > 0', (k_adi,))
+                c.execute('SELECT varlik_adi, borsa, SUM(lot), SUM(lot * maliyet) / SUM(lot) FROM portfoy WHERE kullanici_adi = %s GROUP BY varlik_adi, borsa HAVING SUM(lot) > 0', (k_adi,))
                 aktif_portfoy = c.fetchall()
                 c.execute("SELECT maden_turu, SUM(miktar), AVG(ortalama_maliyet) FROM emtia_portfoy WHERE kullanici_adi = %s GROUP BY maden_turu HAVING SUM(miktar) > 0", (k_adi,))
                 aktif_emtia = c.fetchall()
@@ -1562,7 +1562,7 @@ else:
             conn = get_db()
             try:
                 # 1. Güncel Portföy Verisi
-                df_guncel = pd.read_sql_query('SELECT varlik_adi as "VARLIK", borsa as "BORSA", SUM(lot) as "LOT", AVG(maliyet) as "ORT_MALIYET" FROM portfoy WHERE kullanici_adi = %s GROUP BY varlik_adi, borsa HAVING SUM(lot) > 0.0001', conn, params=(k_adi,))
+                df_guncel = pd.read_sql_query('SELECT varlik_adi as "VARLIK", borsa as "BORSA", SUM(lot) as "LOT", SUM(lot * maliyet) / SUM(lot) as "ORT_MALIYET" FROM portfoy WHERE kullanici_adi = %s GROUP BY varlik_adi, borsa HAVING SUM(lot) > 0.0001', conn, params=(k_adi,))
                 
                 # 2. Kapanan Pozisyonlar Verisi
                 sorgu_kapanan = """
@@ -1855,7 +1855,7 @@ else:
             st.markdown("---")
             
             conn = get_db()
-            df_p = pd.read_sql_query('SELECT varlik_adi as "VARLIK", borsa as "BORSA", SUM(lot) as "LOT", AVG(maliyet) as "ORT_MALIYET" FROM portfoy WHERE kullanici_adi = %s GROUP BY varlik_adi, borsa HAVING SUM(lot) > 0.0001', conn, params=(k_adi,))
+            df_p = pd.read_sql_query('SELECT varlik_adi as "VARLIK", borsa as "BORSA", SUM(lot) as "LOT", SUM(lot * maliyet) / SUM(lot) as "ORT_MALIYET" FROM portfoy WHERE kullanici_adi = %s GROUP BY varlik_adi, borsa HAVING SUM(lot) > 0.0001', conn, params=(k_adi,))
             df_emtia = pd.read_sql_query("SELECT maden_turu, SUM(miktar) as miktar, SUM(miktar * ortalama_maliyet) as toplam_maliyet FROM emtia_portfoy WHERE kullanici_adi = %s GROUP BY maden_turu HAVING SUM(miktar) > 0.001", conn, params=(k_adi,))
             release_db(conn)
             
@@ -2098,6 +2098,8 @@ else:
 
             # --- 4. AKILLI KÂR/ZARAR OPTİMİZASYON MOTORU ---
             st.markdown("---")
+            # --- 4. AKILLI KÂR/ZARAR OPTİMİZASYON MOTORU ---
+            st.markdown("---")
             with st.expander(" Kâr-Zarar Optimizasyonu"):
                     st.info("Ekranda görünen kâr veya zarar rakamında hata varsa, buraya olması gereken GERÇEK kâr/zarar miktarınızı yazın. Sistem tersine mühendislik yaparak doğru alış maliyetinizi hesaplayıp veritabanını güncelleyecektir.")
                     if not df_p.empty:
@@ -2112,13 +2114,13 @@ else:
                         # Anlık Fiyatı ve Çarpanı Bul
                         opt_fiyat = tefas_fiyat_cek(opt_secim) if opt_borsa == "FON (TEFAS)" else hizli_fiyat_cek(opt_secim)[0]
                         if not opt_fiyat: opt_fiyat = secilen_r['ORT_MALIYET']
-                        opt_carpan = anlik_dolar if opt_borsa in ["NASDAQ", "S&P 500", "KRİPTO", "EMTİA"] else 1.0
+                        opt_carpan = anlik_dolar if opt_borsa in ["NASDAQ", "S&P 500", "KRİPTO", "EMTİA", "ETF"] else 1.0
                         
                         hedef_kar_tl = c_opt2.number_input("Gerçek Kâr / Zarar Tutarı (TL)", value=0.0, step=10.0, format="%.2f")
                         st.caption("Uyarı: Eğer varlıktan zarardaysanız tutarın başına eksi (-) koyarak yazın. Örn: -450")
                         
                         if st.button("Optimizasyonu Başlat", type="primary", use_container_width=True):
-                            # --- TERSİNE MÜHENDİSLİK MATEMATİĞİ ---
+                            # --- KUSURSUZ TERSİNE MÜHENDİSLİK MATEMATİĞİ ---
                             guncel_deger_tl = float(opt_lot * opt_fiyat * opt_carpan)
                             hedef_toplam_maliyet_tl = float(guncel_deger_tl - hedef_kar_tl)
                             yeni_birim_maliyet = float(hedef_toplam_maliyet_tl / (opt_lot * opt_carpan))
@@ -2126,9 +2128,11 @@ else:
                             conn = get_db()
                             try:
                                 c = conn.cursor()
-                                c.execute("UPDATE portfoy SET maliyet = %s WHERE kullanici_adi = %s AND varlik_adi = %s AND lot > 0", (yeni_birim_maliyet, k_adi, opt_secim))
+                                # ESKİ PARÇALI KAYITLARI SİLİP TEK VE TEMİZ BİR SATIR (KONSOLİDE) OLARAK YAZIYORUZ
+                                c.execute("DELETE FROM portfoy WHERE kullanici_adi = %s AND varlik_adi = %s", (k_adi, opt_secim))
+                                c.execute("INSERT INTO portfoy (kullanici_adi, varlik_adi, lot, maliyet, borsa) VALUES (%s, %s, %s, %s, %s)", (k_adi, opt_secim, opt_lot, yeni_birim_maliyet, opt_borsa))
                                 conn.commit()
-                                st.success(f"Düzeltme Başarılı! Yeni Birim Maliyet: {yeni_birim_maliyet:,.4f} olarak ayarlandı.")
+                                st.success(f"Düzeltme Başarılı! Tüm parçalı alımlar birleştirildi. Yeni Birim Maliyet: {yeni_birim_maliyet:,.6f} olarak ayarlandı.")
                                 time.sleep(1.5)
                                 st.rerun()
                             except Exception as e:

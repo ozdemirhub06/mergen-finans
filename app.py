@@ -2127,10 +2127,10 @@ else:
                             
                             conn = get_db()
                             try:
-                                c = conn.cursor()
+                                cc = conn.cursor()
                                 # ESKİ PARÇALI KAYITLARI SİLİP TEK VE TEMİZ BİR SATIR (KONSOLİDE) OLARAK YAZIYORUZ
                                 c.execute("DELETE FROM portfoy WHERE kullanici_adi = %s AND varlik_adi = %s", (k_adi, opt_secim))
-                                c.execute("INSERT INTO portfoy (kullanici_adi, varlik_adi, lot, maliyet, borsa) VALUES (%s, %s, %s, %s, %s)", (k_adi, opt_secim, opt_lot, yeni_birim_maliyet, opt_borsa))
+                                c.execute("INSERT INTO portfoy (kullanici_adi, varlik_adi, lot, maliyet, borsa) VALUES (%s, %s, %s, %s, %s)", (k_adi, opt_secim, float(opt_lot), float(yeni_birim_maliyet), opt_borsa))
                                 conn.commit()
                                 st.success(f"Düzeltme Başarılı! Tüm parçalı alımlar birleştirildi. Yeni Birim Maliyet: {yeni_birim_maliyet:,.6f} olarak ayarlandı.")
                                 time.sleep(1.5)

@@ -1689,16 +1689,10 @@ else:
                 
             anlik_dolar = doviz_kuru_cek("USD")
             
-            # --- AKILLI MAHSUPLAŞMA (NETTING) MANTIĞI ---
-            # Eğer eksi bakiyeye düştüysek, bunu takastaki parandan kullanılmış avans olarak sayarız.
-            kullanilan_avans = 0.0
-            if nakit_tl < 0:
-                kullanilan_avans = abs(nakit_tl)
-                net_takas_tl = brut_takas_tl + nakit_tl # nakit eksi olduğu için takastan düşer
-                nakit_tl = 0.0 # Kasada eksi para görünmez, sıfırlanır
-            else:
-                net_takas_tl = brut_takas_tl
-                
+            # --- GERÇEK TAKAS MANTIĞI ---
+            # Nakit asla eksiye düşmez, yeni alımlar doğrudan takas gücünden eksilir.
+            nakit_tl = max(0.0, nakit_tl)
+            net_takas_tl = brut_takas_tl
             alim_gucu_tl = nakit_tl + net_takas_tl
             toplam_nakit_tl = alim_gucu_tl + (nakit_usd * anlik_dolar)
 
@@ -1755,27 +1749,19 @@ else:
                             t_tarih = pd.to_datetime(r_t['takas_tarihi']).strftime('%d.%m.%Y')
                             i_tarih = pd.to_datetime(r_t['islem_tarihi']).strftime('%d.%m.%Y')
                             
+                            # Eksi ve Artı değerleri şık gösterme motoru (Hata Düzeltildi)
+                            t_renk = "#00ff00" if r_t['tutar'] >= 0 else "#FF5252"
+                            t_isaret = "+" if r_t['tutar'] >= 0 else ""
+                            isim_renk = "#00ff00" if r_t['tutar'] >= 0 else "#ffb300"
+                            
                             st.markdown(f"""
                             <div style='display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 8px 0; align-items: center;'>
-                                <div><b style='color: #00ff00;'>{r_t['varlik']}</b> <span style='color: gray; font-size: 0.85em;'>(Satış: {i_tarih})</span></div>
+                                <div><b style='color: {isim_renk};'>{r_t['varlik']}</b> <span style='color: gray; font-size: 0.85em;'>(Kayıt: {i_tarih})</span></div>
                                 <div style='color: gray; font-size: 0.85em; font-family: monospace;'>Hesaba Geçiş: {t_tarih}</div>
-                                <div><b style='color: #4CAF50; font-size: 1.05em;'>+ {r_t['tutar']:,.2f} TL</b></div>
+                                <div><b style='color: {t_renk}; font-size: 1.05em;'>{t_isaret}{r_t['tutar']:,.2f} TL</b></div>
                             </div>
                             """, unsafe_allow_html=True)
                             
-                        if kullanilan_avans > 0:
-                            st.markdown(f"""
-                            <div style='display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 8px 0; align-items: center; background-color: rgba(255, 82, 82, 0.05);'>
-                                <div><b style='color: #FF5252;'>Yeni Alımlarda Kullanılan (Avans)</b></div>
-                                <div style='color: gray; font-size: 0.85em; font-family: monospace;'>Anında Düşüldü</div>
-                                <div><b style='color: #FF5252; font-size: 1.05em;'>- {kullanilan_avans:,.2f} TL</b></div>
-                            </div>
-                            """, unsafe_allow_html=True)
-                            
-                        # --- TAKASTAN ERKEN NAKİT ÇEKİM (AVANS) MOTORU ---
-                        st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin: 15px 0;'>", unsafe_allow_html=True)
-                        st.markdown("<span style='color: #00bcd4; font-weight: bold; font-size: 0.95em; font-family: Consolas;'>T+0 NAKİT AVANS (ERKEN ÇEKİM)</span>", unsafe_allow_html=True)
-                        st.caption("Takasta bekleyen bakiyenizi, kurum komisyonu karşılığında anında nakde (Yatırım Hesabı) çevirin.")
                         
                         with st.form("avans_form"):
                             ca1, ca2 = st.columns(2)
@@ -1794,7 +1780,7 @@ else:
                                         c.execute("UPDATE bakiyeler SET bakiye = bakiye + %s WHERE kullanici_adi = %s", (avans_tutar, k_adi))
                                         c.execute("UPDATE hesaplar SET bakiye = bakiye + %s WHERE kullanici_adi = %s AND hesap_adi = 'Yatırım Hesabı'", (avans_tutar, k_adi))
                                         
-                                        # 2. Takastan Düşmek İçin Negatif Kayıt At (En geç takas tarihinde çözülmek üzere)
+                                        # 2. Takastan Düşmek İçin Negatif Kayıt At
                                         c.execute("SELECT MAX(takas_tarihi) FROM takas_bekleyen_islemler WHERE kullanici_adi = %s AND durum = 'Bekliyor' AND islem_yonu = 'SATIM'", (k_adi,))
                                         max_t_res = c.fetchone()
                                         hedef_tarih = max_t_res[0] if max_t_res and max_t_res[0] else datetime.date.today()
@@ -1809,7 +1795,7 @@ else:
                                             c.execute("INSERT INTO harcamalar (kullanici_adi, kategori, aciklama, tutar, kaynak_hesap) VALUES (%s, 'Banka Kesintisi', 'Takas Erken Çekim Komisyonu', %s, 'Yatırım Hesabı')", (k_adi, avans_komisyon))
                                             
                                         conn.commit()
-                                        st.session_state.islem_bildirimi = {"mesaj": f"{avans_tutar:,.2f} TL başarıyla nakde çevrildi."}
+                                        st.session_state.islem_bildirimi = {"mesaj": f"{avans_tutar:,.2f} TL başarıyla çekildi."}
                                     except Exception as e:
                                         st.error(f"Sistem Hatası: {e}")
                                     finally:
@@ -2258,10 +2244,23 @@ else:
                                             if islem_tutari_baz > alim_gucu_tl: 
                                                 st.error(f"Yetersiz Bakiye! Alım Gücünüz: {alim_gucu_tl:,.2f} TL, Gereken: {islem_tutari_baz:,.2f} TL"); st.stop()
                                             else:
-                                                c.execute("UPDATE bakiyeler SET bakiye = bakiye - %s WHERE kullanici_adi = %s", (islem_tutari_baz, k_adi))
-                                                c.execute("UPDATE hesaplar SET bakiye = bakiye - %s WHERE kullanici_adi = %s AND hesap_adi = 'Yatırım Hesabı'", (islem_tutari_baz, k_adi))
-                                        
-                                        c.execute("INSERT INTO islem_gecmisi (kullanici_adi, islem_tipi, detay, tutar) VALUES (%s, 'BORSA ALIM', %s, %s)", (k_adi, f"{v_lot:.8f} lot {ticker} ({islem_tutari_baz:,.2f} {'USD' if is_usd_market else 'TL'})", -islem_tutari_tl))
+                                                if m_tl >= islem_tutari_baz:
+                                                    # Nakit Kasa Yeterliyse Direkt Düş
+                                                    c.execute("UPDATE bakiyeler SET bakiye = bakiye - %s WHERE kullanici_adi = %s", (islem_tutari_baz, k_adi))
+                                                    c.execute("UPDATE hesaplar SET bakiye = bakiye - %s WHERE kullanici_adi = %s AND hesap_adi = 'Yatırım Hesabı'", (islem_tutari_baz, k_adi))
+                                                else:
+                                                    # Nakit Yetmiyorsa: Kasayı 0 yap, Kalanı Takastan (-) Düş (Eksi Bakiye İptali)
+                                                    kalan_islem = islem_tutari_baz - m_tl
+                                                    if m_tl > 0:
+                                                        c.execute("UPDATE bakiyeler SET bakiye = bakiye - %s WHERE kullanici_adi = %s", (m_tl, k_adi))
+                                                        c.execute("UPDATE hesaplar SET bakiye = 0.0 WHERE kullanici_adi = %s AND hesap_adi = 'Yatırım Hesabı'", (k_adi,))
+                                                    
+                                                    c.execute("SELECT MAX(takas_tarihi) FROM takas_bekleyen_islemler WHERE kullanici_adi = %s AND durum = 'Bekliyor' AND islem_yonu = 'SATIM'", (k_adi,))
+                                                    max_t = c.fetchone()
+                                                    h_tarih = max_t[0] if max_t and max_t[0] else datetime.date.today()
+                                                    c.execute("INSERT INTO takas_bekleyen_islemler (kullanici_adi, varlik, tutar, islem_tarihi, takas_tarihi, islem_yonu) VALUES (%s, 'Yeni Alım (Takas Kullanımı)', %s, CURRENT_DATE, %s, 'SATIM')", (k_adi, -kalan_islem, h_tarih))
+
+                                                c.execute("INSERT INTO islem_gecmisi (kullanici_adi, islem_tipi, detay, tutar) VALUES (%s, 'BORSA ALIM', %s, %s)", (k_adi, f"{v_lot:.8f} lot {ticker} ({islem_tutari_baz:,.2f} {'USD' if is_usd_market else 'TL'})", -islem_tutari_tl))
                                         
                                         if komisyon_usd > 0:
                                             c.execute("INSERT INTO islem_gecmisi (kullanici_adi, islem_tipi, detay, tutar) VALUES (%s, 'KOMİSYON GİDERİ (-)', %s, %s)", (k_adi, f"{ticker} ABD Borsa Alım Komisyonu ({komisyon_usd} USD)", -komisyon_tl))
@@ -2628,14 +2627,30 @@ else:
         except: pass
         finally: release_db(conn)
         # --- YAPIŞTIRILACAK KOD BİTİŞİ ---
-        # Arka plan senkronizasyonu (Portföy kasası ile Banka kasasını eşitler)
+        # Arka plan senkronizasyonu ve Eksi Bakiye (Borç) Düzeltici Motor
         conn = get_db()
         try:
             c = conn.cursor()
             c.execute("SELECT bakiye FROM hesaplar WHERE kullanici_adi = %s AND hesap_adi = 'Yatırım Hesabı'", (k_adi,))
             gercek_bakiye = c.fetchone()
             if gercek_bakiye:
-                c.execute("UPDATE banka_hesaplari SET bakiye = %s WHERE kullanici_adi = %s AND hesap_adi = 'Yatırım Hesabı'", (gercek_bakiye[0], k_adi))
+                aktif_nakit = gercek_bakiye[0]
+                
+                # EĞER KASA EKSİDEYSE, SIFIRLA VE TAKASTAN DÜŞ (Gerçek Midas Mantığı)
+                if aktif_nakit < 0:
+                    eksi_tutar = abs(aktif_nakit)
+                    c.execute("UPDATE hesaplar SET bakiye = 0.0 WHERE kullanici_adi = %s AND hesap_adi = 'Yatırım Hesabı'", (k_adi,))
+                    c.execute("UPDATE bakiyeler SET bakiye = bakiye + %s WHERE kullanici_adi = %s", (eksi_tutar, k_adi))
+                    
+                    c.execute("SELECT MAX(takas_tarihi) FROM takas_bekleyen_islemler WHERE kullanici_adi = %s AND durum = 'Bekliyor' AND islem_yonu = 'SATIM'", (k_adi,))
+                    mt_res = c.fetchone()
+                    h_tar = mt_res[0] if mt_res and mt_res[0] else datetime.date.today()
+                    
+                    c.execute("INSERT INTO takas_bekleyen_islemler (kullanici_adi, varlik, tutar, islem_tarihi, takas_tarihi, islem_yonu) VALUES (%s, 'Geçmiş Alımlara Mahsuplaşma', %s, CURRENT_DATE, %s, 'SATIM')", (k_adi, -eksi_tutar, h_tar))
+                    conn.commit()
+                    aktif_nakit = 0.0
+
+                c.execute("UPDATE banka_hesaplari SET bakiye = %s WHERE kullanici_adi = %s AND hesap_adi = 'Yatırım Hesabı'", (aktif_nakit, k_adi))
                 conn.commit()
         except: pass
         finally: release_db(conn)

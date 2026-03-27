@@ -1077,7 +1077,7 @@ def akilli_hisse_analiz_motoru(key_prefix):
         st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff00;'></div><div style='color: #00ff00; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>QUANT ANALİZ RADARI</div></div>", unsafe_allow_html=True)
         c1, c2, c3 = st.columns([1, 1.5, 1])
         # WIDGET KEY'LERİ DEĞİŞTİRİLDİ (ÇAKIŞMA HATASI GİDERİLDİ)
-        secili_borsa = c1.selectbox("Piyasa", ["BİST", "NASDAQ", "KRİPTO"], key=f"q_ui_borsa_{key_prefix}", label_visibility="collapsed")
+        secili_borsa = c1.selectbox("Piyasa", ["BİST", "NASDAQ", "S&P 500", "KRİPTO"], key=f"q_ui_borsa_{key_prefix}", label_visibility="collapsed")
         hisse_kodu = c2.text_input("Varlık Kodu", key=f"q_ui_kod_{key_prefix}", placeholder="Örn: THYAO", label_visibility="collapsed").upper()
         
         if c3.button("ANALİZ ET", key=f"q_btn_{key_prefix}", type="primary", use_container_width=True):
@@ -3860,7 +3860,7 @@ else:
                     st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff00;'></div><div style='color: #00ff00; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>QUANT ANALİZ RADARI</div></div>", unsafe_allow_html=True)
                     
                     c1, c2, c3 = st.columns([1.2, 1.5, 1.3])
-                    secili_borsa = c1.selectbox("Piyasa", ["BİST", "NASDAQ", "KRİPTO"], key="q_borsa", label_visibility="collapsed")
+                    secili_borsa = c1.selectbox("Piyasa", ["BİST", "NASDAQ", "S&P 500", "KRİPTO"], key="q_borsa", label_visibility="collapsed")
                     hisse_kodu = c2.text_input("Varlık Kodu", key="q_kod", placeholder="Örn: THYAO", label_visibility="collapsed").upper()
                     
                     if c3.button("ANALİZ ET", key="q_btn", type="primary", use_container_width=True):
@@ -4041,7 +4041,7 @@ else:
             
             with st.container(border=True):
                 ca1, ca2, ca3 = st.columns([1, 2, 1])
-                s_borsa = ca1.selectbox("Piyasa Analizi", ["BİST", "NASDAQ", "KRİPTO", "EMTİA"], key="adv_borsa", label_visibility="collapsed")
+                s_borsa = ca1.selectbox("Piyasa Analizi", ["BİST", "NASDAQ", "S&P 500", "KRİPTO", "EMTİA"], key="adv_borsa", label_visibility="collapsed")
                 s_kod = ca2.text_input("Varlık Kodu", placeholder="Örn: THYAO, AAPL, BTC", key="adv_kod", label_visibility="collapsed").upper()
                 
                 if ca3.button("SEVİYELERİ HESAPLA", type="primary", use_container_width=True):
@@ -4460,7 +4460,7 @@ else:
             
             with st.container(border=True):
                 ca1, ca2, ca3 = st.columns([1, 2, 1])
-                f_borsa = ca1.selectbox("Piyasa", ["BİST", "NASDAQ", "KRİPTO", "EMTİA"], key="fund_borsa", label_visibility="collapsed")
+                f_borsa = ca1.selectbox("Piyasa", ["BİST", "NASDAQ", "S&P 500", "KRİPTO", "EMTİA"], key="fund_borsa", label_visibility="collapsed")
                 f_kod = ca2.text_input("Varlık Kodu", placeholder="Örn: EREGL, AAPL, BTC", key="fund_kod", label_visibility="collapsed").upper()
                 
                 if ca3.button("TEMEL VERİLERİ ÇEK", type="primary", use_container_width=True, key="fund_btn"):

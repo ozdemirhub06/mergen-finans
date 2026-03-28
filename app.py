@@ -1580,7 +1580,83 @@ else:
         # --- MERGEN ASİSTAN ARAYÜZÜ VE BUTONU ---
     @st.dialog("Sistem Bildirim Merkezi")
     def asistan_paneli_ac(k_adi):
-        st.markdown("<span style='color: #00ff00; font-weight: bold; font-size: 1.1em;'>Sistem Analizleri ve Bildirimler</span>", unsafe_allow_html=True)
+        # 1. BAŞLIK VE YENİ HESAP MAKİNESİ MODÜLÜ
+        st.markdown("<span style='color: #00ff00; font-weight: bold; font-size: 1.1em;'>Sistem Analizleri ve Araçlar</span>", unsafe_allow_html=True)
+        
+        with st.expander("🧮 Siber Hesap Makinesi"):
+            hesap_makinesi_html = """
+            <!DOCTYPE html>
+            <html>
+            <head>
+            <style>
+                body { background-color: transparent; font-family: Consolas, monospace; display: flex; justify-content: center; margin: 0; color: white; user-select: none; }
+                .calc { background: rgba(15,15,15,0.9); border: 1px solid rgba(0,255,0,0.3); border-radius: 8px; padding: 15px; width: 100%; box-shadow: inset 0 0 20px rgba(0,255,0,0.05); }
+                .display { background: rgba(5,5,5,0.9); border: 1px solid rgba(0,255,0,0.2); border-radius: 4px; height: 45px; text-align: right; padding: 10px; font-size: 1.6em; margin-bottom: 15px; color: #00ff00; text-shadow: 0 0 8px rgba(0,255,0,0.4); overflow: hidden; white-space: nowrap; letter-spacing: 2px; }
+                .keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+                button { background: rgba(25,25,25,0.9); border: 1px solid rgba(255,255,255,0.05); color: white; padding: 12px 0; font-size: 1.3em; border-radius: 4px; cursor: pointer; transition: all 0.1s; font-family: Consolas, monospace; font-weight: bold; }
+                button:active { transform: scale(0.95); background: rgba(0,255,0,0.2); }
+                .op { color: #00bcd4; background: rgba(0, 188, 212, 0.05); border-color: rgba(0, 188, 212, 0.2); }
+                .clear { color: #FF5252; background: rgba(255, 82, 82, 0.05); border-color: rgba(255, 82, 82, 0.2); }
+                .eq { background: rgba(0,255,0,0.15); color: #00ff00; border-color: rgba(0,255,0,0.4); box-shadow: 0 0 10px rgba(0,255,0,0.2); }
+            </style>
+            </head>
+            <body>
+                <div class="calc">
+                    <div class="display" id="screen">0</div>
+                    <div class="keys">
+                        <button class="clear" onclick="clr()">C</button>
+                        <button class="op" onclick="add('(')">(</button>
+                        <button class="op" onclick="add(')')">)</button>
+                        <button class="op" onclick="add('/')">÷</button>
+                        
+                        <button onclick="add('7')">7</button>
+                        <button onclick="add('8')">8</button>
+                        <button onclick="add('9')">9</button>
+                        <button class="op" onclick="add('*')">×</button>
+                        
+                        <button onclick="add('4')">4</button>
+                        <button onclick="add('5')">5</button>
+                        <button onclick="add('6')">6</button>
+                        <button class="op" onclick="add('-')">-</button>
+                        
+                        <button onclick="add('1')">1</button>
+                        <button onclick="add('2')">2</button>
+                        <button onclick="add('3')">3</button>
+                        <button class="op" onclick="add('+')">+</button>
+                        
+                        <button onclick="add('0')">0</button>
+                        <button onclick="add('.')">.</button>
+                        <button class="clear" onclick="back()">⌫</button>
+                        <button class="eq" onclick="calc()">=</button>
+                    </div>
+                </div>
+                <script>
+                    let s = document.getElementById('screen');
+                    let expr = '0';
+                    function update() { s.innerText = expr; }
+                    function add(v) { if(expr === '0' && v !== '.') expr = v; else expr += v; update(); }
+                    function clr() { expr = '0'; update(); }
+                    function back() { expr = expr.slice(0, -1); if(expr === '') expr = '0'; update(); }
+                    function calc() {
+                        try {
+                            let res = eval(expr);
+                            expr = (Math.round(res * 10000) / 10000).toString();
+                            update();
+                        } catch(e) {
+                            s.innerText = 'Hata';
+                            setTimeout(clr, 1200);
+                        }
+                    }
+                </script>
+            </body>
+            </html>
+            """
+            import streamlit.components.v1 as components
+            components.html(hesap_makinesi_html, height=340)
+
+        st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin: 10px 0;'>", unsafe_allow_html=True)
+        
+        # 2. BİLDİRİMLER KISMI (Eski Kodlar Aynen Korundu)
         conn = get_db()
         try:
             c = conn.cursor()

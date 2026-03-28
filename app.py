@@ -4002,7 +4002,7 @@ else:
     elif secilen_sayfa == "Piyasa Analiz":
         st.title("Piyasa ve Ekonomi Terminali")
         
-        t_grafik, t_gosterge, t_kantitatif, t_makro = st.tabs(["Piyasa Grafikleri", "Teknik Göstergeler", "Kantitatif ve Temel Analiz", "Makro Ekonomi"])
+        t_grafik, t_gosterge, t_kantitatif, t_varlik = st.tabs(["Piyasa Grafikleri", "Teknik Göstergeler", "Kantitatif ve Temel Analiz", "Varlık Takibi"])
 
         with t_grafik:
             conn = get_db()
@@ -4987,8 +4987,162 @@ else:
                             st.info("Mevsimsellik analizi için yeterli tarihsel veri bulunamadı (En az 1 yıllık veri gereklidir).")
                     except Exception as e:
                         st.error(f"Sistem Hatası: Mevsimsellik motoru çalıştırılırken hata oluştu. {e}")
-        with t_makro:
-            st.info("Türkiye ve Dünya ekonomisi sıcak gelişme akışı, jeopolitik risk haritası bağlanıyor... (Kervan yolda düzülüyor)")
+        with t_varlik:
+            st.markdown("##### Varlık ve Performans Takip Terminali")
+
+            import plotly.graph_objects as go
+            import pandas as pd
+            import numpy as np
+
+            # --- 1. GEÇMİŞ VERİ SİMÜLASYONU ---
+            # Not: Sistemde henüz günlük bakiye kaydı tutulmadığı için çizgi grafikler algoritmik simüle edilmiştir. 
+            # Pasta grafikler ise direkt veritabanındaki anlık varlıklarına göre çizilir.
+            dates = pd.date_range(end=pd.Timestamp.now(), periods=30, freq='D')
+            df_varlik = pd.DataFrame({
+                'Tarih': dates,
+                'Toplam_Varlik': np.linspace(10000, 15000, 30) + np.random.normal(0, 200, 30),
+                'Toplam_Kar': np.linspace(0, 2500, 30) + np.random.normal(0, 100, 30),
+                'Borsa_Artis': np.linspace(5000, 7500, 30) + np.random.normal(0, 150, 30),
+                'Faiz_Artis': np.linspace(2000, 2200, 30),
+                'PPF_Artis': np.linspace(3000, 3400, 30) + np.random.normal(0, 20, 30)
+            })
+
+            # --- 2. GERÇEK PASTA GRAFİK VERİLERİ (Anlık Veritabanından) ---
+            conn = get_db()
+            try:
+                c = conn.cursor()
+                c.execute("SELECT SUM(bakiye) FROM hesaplar WHERE kullanici_adi = %s AND hesap_adi = 'Yatırım Hesabı'", (k_adi,))
+                nakit_yatirim = c.fetchone()[0] or 0.0
+                c.execute("SELECT SUM(bakiye) FROM banka_hesaplari WHERE kullanici_adi = %s AND hesap_turu = 'Vadesiz'", (k_adi,))
+                nakit_vadesiz = c.fetchone()[0] or 0.0
+                c.execute("SELECT SUM(bakiye) FROM banka_hesaplari WHERE kullanici_adi = %s AND hesap_turu = 'Vadeli'", (k_adi,))
+                nakit_vadeli = c.fetchone()[0] or 0.0
+
+                c.execute('SELECT varlik_adi, borsa, SUM(lot), SUM(lot * maliyet) / SUM(lot) FROM portfoy WHERE kullanici_adi = %s GROUP BY varlik_adi, borsa HAVING SUM(lot) > 0', (k_adi,))
+                aktif_portfoy = c.fetchall()
+
+                c.execute("SELECT maden_turu, SUM(miktar), AVG(ortalama_maliyet) FROM emtia_portfoy WHERE kullanici_adi = %s GROUP BY maden_turu HAVING SUM(miktar) > 0", (k_adi,))
+                aktif_emtia = c.fetchall()
+            finally:
+                release_db(conn)
+
+            usd_kur = doviz_kuru_cek("USD")
+            eur_kur = doviz_kuru_cek("EUR")
+
+            guncel_hisse_degeri = 0.0
+            for varlik, borsa, lot, maliyet in aktif_portfoy:
+                fiyat = tefas_fiyat_cek(varlik) if borsa == "FON (TEFAS)" else hizli_fiyat_cek(varlik)[0]
+                if not fiyat: fiyat = maliyet
+                carpan = usd_kur if borsa in ["NASDAQ", "S&P 500", "KRİPTO", "EMTİA", "ETF"] or "-USD" in varlik else (eur_kur if "EUR" in borsa or ".DE" in varlik else 1.0)
+                guncel_hisse_degeri += (fiyat * float(lot) * carpan)
+
+            guncel_emtia_degeri = 0.0
+            for maden, miktar, ort_maliyet in aktif_emtia:
+                fiyat = emtia_fiyat_hesapla(maden, usd_kur)
+                if not fiyat: fiyat = ort_maliyet
+                guncel_emtia_degeri += (float(miktar) * fiyat)
+
+            toplam_nakit = nakit_yatirim + nakit_vadesiz
+            toplam_varlik_reel = guncel_hisse_degeri + guncel_emtia_degeri + toplam_nakit + nakit_vadeli
+
+            oran_hisse = (guncel_hisse_degeri / toplam_varlik_reel * 100) if toplam_varlik_reel > 0 else 0
+            oran_emtia = (guncel_emtia_degeri / toplam_varlik_reel * 100) if toplam_varlik_reel > 0 else 0
+            oran_vadeli = (nakit_vadeli / toplam_varlik_reel * 100) if toplam_varlik_reel > 0 else 0
+            oran_vadesiz = (toplam_nakit / toplam_varlik_reel * 100) if toplam_varlik_reel > 0 else 0
+
+            varlik_dagilimi = {'Borsa / Fon': oran_hisse, 'Emtia': oran_emtia, 'Vadeli Mevduat': oran_vadeli, 'Vadesiz Nakit': oran_vadesiz}
+            varlik_dagilimi = {k: v for k, v in varlik_dagilimi.items() if v > 0}
+
+            # Kâr Dağılımı (Şimdilik Simülasyon)
+            kar_dagilimi = {'Borsa / Fon': 65, 'Vadeli Mevduat': 15, 'Emtia': 20}
+
+            # --- 3. GRAFİK TASARIM ŞABLONU (Kurumsal Tema) ---
+            def apply_neon_layout_v(fig, title=""):
+                fig.update_layout(
+                    title=dict(text=title, font=dict(color='#00ff00', size=14)),
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    font=dict(color='#d0d0d0', family='Consolas, monospace', size=10),
+                    margin=dict(l=10, r=10, t=40, b=10),
+                    xaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)', fixedrange=True, zeroline=False),
+                    yaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.05)', fixedrange=True, zeroline=False),
+                    dragmode=False,
+                    hovermode="x unified",
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
+                )
+                return fig
+
+            # --- ARAYÜZ DÜZENİ ---
+            col1, col2 = st.columns(2)
+            with col1:
+                with st.container(border=True):
+                    fig_toplam = go.Figure()
+                    fig_toplam.add_trace(go.Scatter(x=df_varlik['Tarih'], y=df_varlik['Toplam_Varlik'], mode='lines', line=dict(color='#00ff00', width=2), fill='tozeroy', fillcolor='rgba(0,255,0,0.05)', name='Varlık'))
+                    fig_toplam = apply_neon_layout_v(fig_toplam, "Toplam Varlık Büyümesi")
+                    fig_toplam.update_layout(height=250)
+                    st.plotly_chart(fig_toplam, use_container_width=True, config={'displayModeBar': False})
+
+            with col2:
+                with st.container(border=True):
+                    fig_kar = go.Figure()
+                    fig_kar.add_trace(go.Scatter(x=df_varlik['Tarih'], y=df_varlik['Toplam_Kar'], mode='lines', line=dict(color='#00bcd4', width=2), fill='tozeroy', fillcolor='rgba(0,188,212,0.05)', name='Kâr'))
+                    fig_kar = apply_neon_layout_v(fig_kar, "Toplam Kâr Artışı")
+                    fig_kar.update_layout(height=250)
+                    st.plotly_chart(fig_kar, use_container_width=True, config={'displayModeBar': False})
+
+            st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 15px; margin-bottom: 15px;'>", unsafe_allow_html=True)
+            st.markdown("<h5 style='color: #00ff00; text-align: center; padding-bottom: 10px;'>Dağılım Analizi</h5>", unsafe_allow_html=True)
+
+            col3, col4 = st.columns(2)
+            neon_colors = ['#00ff00', '#00bcd4', '#ffeb3b', '#ff5252']
+
+            with col3:
+                with st.container(border=True):
+                    if varlik_dagilimi:
+                        fig_varlik_pie = go.Figure(data=[go.Pie(labels=list(varlik_dagilimi.keys()), values=list(varlik_dagilimi.values()), hole=.5, marker=dict(colors=neon_colors, line=dict(color='#0a0a0a', width=2)))])
+                        fig_varlik_pie = apply_neon_layout_v(fig_varlik_pie, "Güncel Varlık Dağılımı")
+                        fig_varlik_pie.update_layout(height=250, showlegend=False)
+                        fig_varlik_pie.update_traces(textposition='outside', textinfo='label+percent')
+                        st.plotly_chart(fig_varlik_pie, use_container_width=True, config={'displayModeBar': False})
+                    else:
+                        st.info("Veri bulunamadı.")
+
+            with col4:
+                with st.container(border=True):
+                    fig_kar_pie = go.Figure(data=[go.Pie(labels=list(kar_dagilimi.keys()), values=list(kar_dagilimi.values()), hole=.5, marker=dict(colors=['#00ff00', '#ffeb3b', '#00bcd4'], line=dict(color='#0a0a0a', width=2)))])
+                    fig_kar_pie = apply_neon_layout_v(fig_kar_pie, "Kâr Kaynağı Dağılımı")
+                    fig_kar_pie.update_layout(height=250, showlegend=False)
+                    fig_kar_pie.update_traces(textposition='outside', textinfo='label+percent')
+                    st.plotly_chart(fig_kar_pie, use_container_width=True, config={'displayModeBar': False})
+
+            st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 15px; margin-bottom: 15px;'>", unsafe_allow_html=True)
+            st.markdown("<h5 style='color: #00ff00; text-align: center; padding-bottom: 10px;'>Alt Kategori Büyüme Raporları</h5>", unsafe_allow_html=True)
+
+            tab_vborsa, tab_vfaiz, tab_vppf = st.tabs(["Borsa İşlemleri", "Faiz / Vadeli", "PPF Fonları"])
+
+            with tab_vborsa:
+                with st.container(border=True):
+                    fig_borsa = go.Figure()
+                    fig_borsa.add_trace(go.Scatter(x=df_varlik['Tarih'], y=df_varlik['Borsa_Artis'], mode='lines', line=dict(color='#ffeb3b', width=2)))
+                    fig_borsa = apply_neon_layout_v(fig_borsa, "Borsa Kaynaklı Varlık Artışı")
+                    fig_borsa.update_layout(height=280)
+                    st.plotly_chart(fig_borsa, use_container_width=True, config={'displayModeBar': False})
+
+            with tab_vfaiz:
+                with st.container(border=True):
+                    fig_faiz = go.Figure()
+                    fig_faiz.add_trace(go.Scatter(x=df_varlik['Tarih'], y=df_varlik['Faiz_Artis'], mode='lines', line=dict(color='#ff5252', width=2)))
+                    fig_faiz = apply_neon_layout_v(fig_faiz, "Faiz Kaynaklı Varlık Artışı")
+                    fig_faiz.update_layout(height=280)
+                    st.plotly_chart(fig_faiz, use_container_width=True, config={'displayModeBar': False})
+
+            with tab_vppf:
+                with st.container(border=True):
+                    fig_ppf = go.Figure()
+                    fig_ppf.add_trace(go.Scatter(x=df_varlik['Tarih'], y=df_varlik['PPF_Artis'], mode='lines', line=dict(color='#9c27b0', width=2)))
+                    fig_ppf = apply_neon_layout_v(fig_ppf, "PPF Kaynaklı Varlık Artışı")
+                    fig_ppf.update_layout(height=280)
+                    st.plotly_chart(fig_ppf, use_container_width=True, config={'displayModeBar': False})
             # --- GİZLİ YÖNETİCİ PANELİ ---
     elif secilen_sayfa == "Yönetici Paneli" and k_adi in ADMIN_KULLANICILAR:
         st.title("Sistem Yönetim ve Güvenlik Terminali")

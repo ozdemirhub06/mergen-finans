@@ -1583,7 +1583,7 @@ else:
         # 1. BAŞLIK VE YENİ HESAP MAKİNESİ MODÜLÜ
         st.markdown("<span style='color: #00ff00; font-weight: bold; font-size: 1.1em;'>Sistem Analizleri ve Araçlar</span>", unsafe_allow_html=True)
         
-        with st.expander("🧮 Siber Hesap Makinesi"):
+        with st.expander("Hesap Makinesi"):
             hesap_makinesi_html = """
             <!DOCTYPE html>
             <html>

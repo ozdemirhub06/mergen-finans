@@ -80,7 +80,8 @@ st.markdown("""
             right: auto !important; 
             width: 85px !important;  /* Mobilde yazıya orantılı küçültüldü */
             height: 85px !important;
-            margin: 20px auto -30px auto !important; /* Tam ortaya hizalar ve 'Mergen Finans' yazısının tepesine oturtur */
+            margin: 10px auto -65px auto !important; /* Eksi değeri artırarak logoyu yazının dibine kadar çektik */
+            z-index: 9999 !important;
         }
         
         /* Mobilde ekranı boğan ve formu tıklanmaz yapan dev partikül patlamasını iptal eder */

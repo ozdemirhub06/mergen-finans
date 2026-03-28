@@ -1652,7 +1652,7 @@ else:
             </html>
             """
             import streamlit.components.v1 as components
-            components.html(hesap_makinesi_html, height=340)
+            components.html(hesap_makinesi_html, height=430)
 
         st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin: 10px 0;'>", unsafe_allow_html=True)
         

@@ -4994,27 +4994,51 @@ else:
             import pandas as pd
             import numpy as np
 
-            # --- 1. GEÇMİŞ VERİ SİMÜLASYONU (1 YILLIK SİBER MOTOR) ---
-            bugun = pd.Timestamp.now()
-            dates = pd.date_range(end=bugun, periods=365, freq='D')
-            
-            # Rastgele Yürüyüş (Random Walk) ile jilet gibi organik grafikler
-            np.random.seed(42) 
-            v_trend = np.linspace(8000, 25000, 365) + np.cumsum(np.random.normal(0, 150, 365))
-            k_trend = np.linspace(-500, 4500, 365) + np.cumsum(np.random.normal(0, 80, 365))
-            
-            df_varlik = pd.DataFrame({
-                'Tarih': dates,
-                'Toplam_Varlik': v_trend,
-                'Toplam_Kar': k_trend,
-                'Borsa_Artis': v_trend * 0.50,
-                'Faiz_Artis': v_trend * 0.15,
-                'PPF_Artis': v_trend * 0.10
-            })
+            # --- 1. GERÇEK GEÇMİŞ VERİ MOTORU (KULLANICI İŞLEM GEÇMİŞİ) ---
+            conn = get_db()
+            try:
+                # Kullanıcının bugüne kadar yaptığı tüm işlemleri tarih bazında gruplayıp çekiyoruz
+                query = """
+                    SELECT 
+                        DATE(tarih) as islem_tarihi,
+                        SUM(CASE WHEN islem_tipi LIKE 'FAİZ GETİRİSİ%%' THEN tutar ELSE 0 END) as faiz_kazanci,
+                        SUM(CASE WHEN islem_tipi LIKE 'BORSA ALIM%%' OR islem_tipi LIKE 'MADEN ALIM%%' OR islem_tipi LIKE 'FON ALIM%%' THEN ABS(tutar) ELSE 0 END) as gunluk_yatirim,
+                        SUM(CASE WHEN islem_tipi LIKE 'BORSA SATIM%%' OR islem_tipi LIKE 'MADEN SATIM%%' OR islem_tipi LIKE 'FON SATIM%%' THEN ABS(tutar) ELSE 0 END) as gunluk_satis
+                    FROM islem_gecmisi 
+                    WHERE kullanici_adi = %s
+                    GROUP BY DATE(tarih)
+                    ORDER BY DATE(tarih) ASC
+                """
+                df_gecmis = pd.read_sql_query(query, conn, params=(k_adi,))
+            finally:
+                release_db(conn)
+
+            bugun = pd.Timestamp.today().normalize()
+
+            if not df_gecmis.empty:
+                df_gecmis['Tarih'] = pd.to_datetime(df_gecmis['islem_tarihi'])
+                baslangic_tarihi = df_gecmis['Tarih'].min()
+                
+                # İlk günden bugüne kadar aradaki boş günleri doldur
+                tam_tarihler = pd.date_range(start=baslangic_tarihi, end=bugun, freq='D')
+                df_varlik = df_gecmis.set_index('Tarih').reindex(tam_tarihler).fillna(0).reset_index()
+                df_varlik.rename(columns={'index': 'Tarih'}, inplace=True)
+
+                # Günlük verileri kümülatif (birikimli) toplama dönüştür
+                df_varlik['Faiz_Artis'] = df_varlik['faiz_kazanci'].cumsum()
+                df_varlik['Borsa_Artis'] = (df_varlik['gunluk_yatirim'] - df_varlik['gunluk_satis']).cumsum()
+                df_varlik['PPF_Artis'] = df_varlik['Borsa_Artis'] * 0.1 # Alt dağılım için baz
+                
+                # Toplam Varlık ve Kâr Trendi
+                df_varlik['Toplam_Varlik'] = df_varlik['Borsa_Artis'] + df_varlik['Faiz_Artis']
+                df_varlik['Toplam_Kar'] = df_varlik['Faiz_Artis'] 
+            else:
+                # Hiç işlem yoksa sıfırdan çizgi oluştur
+                df_varlik = pd.DataFrame({'Tarih': [bugun - pd.Timedelta(days=1), bugun], 'Toplam_Varlik': [0, 0], 'Toplam_Kar': [0, 0], 'Borsa_Artis': [0, 0], 'Faiz_Artis': [0, 0], 'PPF_Artis': [0, 0]})
 
             # --- 2. ZAMAN FİLTRESİ ---
             c_filtre, c_bos = st.columns([1, 4])
-            z_secim = c_filtre.selectbox("Analiz Periyodu:", ["1 Hafta", "1 Ay", "3 Ay", "6 Ay", "1 Yıl", "Tümü"], index=2, label_visibility="collapsed")
+            z_secim = c_filtre.selectbox("Analiz Periyodu:", ["1 Hafta", "1 Ay", "3 Ay", "6 Ay", "1 Yıl", "Tümü"], index=5, label_visibility="collapsed")
             
             if z_secim == "1 Hafta": delta = pd.Timedelta(days=7)
             elif z_secim == "1 Ay": delta = pd.DateOffset(months=1)
@@ -5025,11 +5049,11 @@ else:
             
             df_f = df_varlik[df_varlik['Tarih'] >= (bugun - delta)]
 
-            # --- 3. GERÇEK PASTA GRAFİK VERİLERİ (Anlık Veritabanından) ---
+            # --- 3. GERÇEK PASTA GRAFİK VERİLERİ VE CANLI FİYATLAR ---
             conn = get_db()
             try:
                 c = conn.cursor()
-                c.execute("SELECT SUM(bakiye) FROM hesaplar WHERE hesap_adi = 'Yatırım Hesabı' AND kullanici_adi = %s", (k_adi,))
+                c.execute("SELECT SUM(bakiye) FROM hesaplar WHERE kullanici_adi = %s AND hesap_adi = 'Yatırım Hesabı'", (k_adi,))
                 nakit_yatirim = c.fetchone()[0] or 0.0
                 c.execute("SELECT SUM(bakiye) FROM banka_hesaplari WHERE kullanici_adi = %s AND hesap_turu = 'Vadesiz'", (k_adi,))
                 nakit_vadesiz = c.fetchone()[0] or 0.0
@@ -5041,27 +5065,49 @@ else:
 
                 c.execute("SELECT maden_turu, SUM(miktar), AVG(ortalama_maliyet) FROM emtia_portfoy WHERE kullanici_adi = %s GROUP BY maden_turu HAVING SUM(miktar) > 0", (k_adi,))
                 aktif_emtia = c.fetchall()
+                
+                # Gerçek kâr hesaplaması için geçmiş veriler
+                c.execute("SELECT SUM(CASE WHEN lot < 0 THEN ABS(lot) * maliyet ELSE 0 END) - SUM(CASE WHEN lot > 0 THEN lot * maliyet ELSE 0 END) FROM portfoy WHERE kullanici_adi = %s GROUP BY varlik_adi, borsa HAVING ABS(SUM(lot)) <= 0.0001 AND COUNT(lot) > 1", (k_adi,))
+                kapananlar = c.fetchall()
+                realize_kar = sum([x[0] for x in kapananlar]) if kapananlar else 0.0
+                
+                c.execute("SELECT SUM(tutar) FROM islem_gecmisi WHERE kullanici_adi = %s AND islem_tipi = 'FAİZ GETİRİSİ (+)'", (k_adi,))
+                toplam_faiz = c.fetchone()[0] or 0.0
+                c.execute("SELECT SUM(tutar) FROM islem_gecmisi WHERE kullanici_adi = %s AND islem_tipi = 'STOPAJ VERGİSİ (-)'", (k_adi,))
+                toplam_stopaj = c.fetchone()[0] or 0.0
+                c.execute("SELECT SUM(tutar) FROM islem_gecmisi WHERE kullanici_adi = %s AND islem_tipi = 'KOMİSYON GİDERİ (-)'", (k_adi,))
+                toplam_komisyon = c.fetchone()[0] or 0.0
             finally:
                 release_db(conn)
 
             usd_kur = doviz_kuru_cek("USD")
             eur_kur = doviz_kuru_cek("EUR")
 
-            guncel_hisse_degeri = 0.0
+            guncel_hisse_degeri, maliyet_hisse = 0.0, 0.0
             for varlik, borsa, lot, maliyet in aktif_portfoy:
                 fiyat = tefas_fiyat_cek(varlik) if borsa == "FON (TEFAS)" else hizli_fiyat_cek(varlik)[0]
                 if not fiyat: fiyat = maliyet
                 carpan = usd_kur if borsa in ["NASDAQ", "S&P 500", "KRİPTO", "EMTİA", "ETF"] or "-USD" in varlik else (eur_kur if "EUR" in borsa or ".DE" in varlik else 1.0)
                 guncel_hisse_degeri += (fiyat * float(lot) * carpan)
+                maliyet_hisse += (float(maliyet) * float(lot) * carpan)
 
-            guncel_emtia_degeri = 0.0
+            guncel_emtia_degeri, maliyet_emtia = 0.0, 0.0
             for maden, miktar, ort_maliyet in aktif_emtia:
                 fiyat = emtia_fiyat_hesapla(maden, usd_kur)
                 if not fiyat: fiyat = ort_maliyet
                 guncel_emtia_degeri += (float(miktar) * fiyat)
+                maliyet_emtia += (float(miktar) * float(ort_maliyet))
 
             toplam_nakit = nakit_yatirim + nakit_vadesiz
             toplam_varlik_reel = guncel_hisse_degeri + guncel_emtia_degeri + toplam_nakit + nakit_vadeli
+
+            unrealize_kar = (guncel_hisse_degeri - maliyet_hisse) + (guncel_emtia_degeri - maliyet_emtia)
+            gercek_net_kazanc = unrealize_kar + realize_kar + toplam_faiz + toplam_stopaj + toplam_komisyon
+
+            # --- GRAFİĞİN SON GÜNÜNÜ CANLI RAKAMLARA MÜHÜRLE ---
+            if not df_f.empty:
+                df_f.iloc[-1, df_f.columns.get_loc('Toplam_Varlik')] = toplam_varlik_reel
+                df_f.iloc[-1, df_f.columns.get_loc('Toplam_Kar')] = gercek_net_kazanc
 
             oran_hisse = (guncel_hisse_degeri / toplam_varlik_reel * 100) if toplam_varlik_reel > 0 else 0
             oran_emtia = (guncel_emtia_degeri / toplam_varlik_reel * 100) if toplam_varlik_reel > 0 else 0
@@ -5071,19 +5117,20 @@ else:
             varlik_dagilimi = {'Borsa / Fon': oran_hisse, 'Emtia': oran_emtia, 'Vadeli Mevduat': oran_vadeli, 'Vadesiz Nakit': oran_vadesiz}
             varlik_dagilimi = {k: v for k, v in varlik_dagilimi.items() if v > 0}
 
-            kar_dagilimi = {'Borsa / Fon': 65, 'Vadeli Mevduat': 15, 'Emtia': 20}
+            kar_dagilimi = {'Borsa / Fon': max(0, unrealize_kar), 'Realize/Faiz': max(0, realize_kar + toplam_faiz)}
+            kar_dagilimi = {k: v for k, v in kar_dagilimi.items() if v > 0}
 
-            # --- 4. SİBER GRAFİK MOTORU (REFERANS TASARIM) ---
+            # --- 4. SİBER GRAFİK MOTORU (EKSENLER VE GERÇEKÇİ ÇİZİM) ---
             def draw_neon_area_chart(df, y_col, color_hex, title):
-                guncel_deger = df[y_col].iloc[-1]
-                ilk_deger = df[y_col].iloc[0]
+                guncel_deger = df[y_col].iloc[-1] if not df.empty else 0.0
+                ilk_deger = df[y_col].iloc[0] if not df.empty else 0.0
                 degisim = guncel_deger - ilk_deger
                 degisim_oran = (degisim / ilk_deger) * 100 if ilk_deger != 0 else 0
                 
                 isaret = "+" if degisim >= 0 else ""
                 degisim_renk = "#00ff00" if degisim >= 0 else "#FF5252"
                 
-                # HTML KPI Kartı (Dev Rakamlar, Temiz Font)
+                # HTML KPI Kartı (Dev Rakamlar)
                 html_card = f"""
                 <div style='padding: 15px 15px 5px 15px;'>
                     <div style='color: gray; font-size: 0.85em; font-family: Consolas; text-transform: uppercase; letter-spacing: 1px;'>{title}</div>
@@ -5093,7 +5140,7 @@ else:
                 """
                 st.markdown(html_card, unsafe_allow_html=True)
                 
-                # Plotly Çizimi (Sıfır Çerçeve, Şeffaf Arka Plan)
+                # Plotly Çizimi
                 fig = go.Figure()
                 fig.add_trace(go.Scatter(
                     x=df['Tarih'], y=df[y_col], 
@@ -5105,12 +5152,23 @@ else:
                 ))
                 
                 fig.update_layout(
-                    height=160,
-                    margin=dict(l=0, r=0, t=10, b=0),
+                    height=200, 
+                    margin=dict(l=10, r=10, t=10, b=10),
                     plot_bgcolor='rgba(0,0,0,0)',
                     paper_bgcolor='rgba(0,0,0,0)',
-                    xaxis=dict(showgrid=False, visible=False, fixedrange=True),
-                    yaxis=dict(showgrid=True, gridcolor='rgba(255,255,255,0.03)', fixedrange=True, side='right', tickfont=dict(color='gray', size=10, family='Consolas')),
+                    xaxis=dict(
+                        showgrid=True, visible=True, fixedrange=True,
+                        gridcolor='rgba(255,255,255,0.05)',
+                        tickfont=dict(color='gray', size=10, family='Consolas'),
+                        showline=True, linecolor='rgba(255,255,255,0.2)'
+                    ),
+                    yaxis=dict(
+                        showgrid=True, visible=True, fixedrange=True, 
+                        gridcolor='rgba(255,255,255,0.05)', side='right', 
+                        tickfont=dict(color='gray', size=10, family='Consolas'),
+                        rangemode='tozero', # Y eksenini kesin olarak 0'dan başlatır
+                        showline=True, linecolor='rgba(255,255,255,0.2)'
+                    ),
                     dragmode=False,
                     hovermode="x unified",
                     showlegend=False
@@ -5131,58 +5189,64 @@ else:
 
             st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 15px; margin-bottom: 15px;'>", unsafe_allow_html=True)
             
-            # --- PASTA GRAFİKLER (REFERANS TASARIM) ---
+            # --- PASTA GRAFİKLER (HARCAMA SEKMESİ TASARIMI) ---
             col3, col4 = st.columns(2)
+            siber_renkler = ['#00ff00', '#00cc00', '#009900', '#4d4d4d', '#262626', '#808080']
+
             with col3:
-                with st.container(border=True):
-                    st.markdown("<div style='color: gray; font-size: 0.85em; font-family: Consolas; text-transform: uppercase; letter-spacing: 1px; padding: 10px 0 0 10px;'>GÜNCEL VARLIK DAĞILIMI</div>", unsafe_allow_html=True)
+                with st.container(border=True, height=360):
+                    st.markdown("<span style='color: #00ff00; font-weight: bold;'>Güncel Varlık Dağılımı</span>", unsafe_allow_html=True)
                     if varlik_dagilimi:
-                        fig_varlik_pie = go.Figure(data=[go.Pie(labels=list(varlik_dagilimi.keys()), values=list(varlik_dagilimi.values()), hole=.6, marker=dict(colors=['#00ff00', '#00bcd4', '#ffeb3b', '#ff5252'], line=dict(color='#0a0a0a', width=3)))])
-                        fig_varlik_pie.update_layout(height=240, margin=dict(l=10, r=10, t=20, b=10), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', showlegend=False, dragmode=False)
-                        fig_varlik_pie.update_traces(textposition='outside', textinfo='label+percent', textfont=dict(color='white', family='Consolas'))
+                        fig_varlik_pie = go.Figure(data=[go.Pie(
+                            labels=list(varlik_dagilimi.keys()), values=list(varlik_dagilimi.values()), hole=.6, 
+                            marker=dict(colors=siber_renkler, line=dict(color='#050505', width=3))
+                        )])
+                        fig_varlik_pie.update_traces(textposition='inside', textinfo='label+percent', textfont=dict(size=13, color='white', family='Consolas'))
+                        fig_varlik_pie.update_layout(dragmode=False, height=300, margin=dict(l=0, r=0, t=15, b=10), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
                         st.plotly_chart(fig_varlik_pie, use_container_width=True, config={'displayModeBar': False})
                     else:
                         st.info("Veri bulunamadı.")
 
             with col4:
-                with st.container(border=True):
-                    st.markdown("<div style='color: gray; font-size: 0.85em; font-family: Consolas; text-transform: uppercase; letter-spacing: 1px; padding: 10px 0 0 10px;'>KÂR KAYNAĞI DAĞILIMI</div>", unsafe_allow_html=True)
-                    fig_kar_pie = go.Figure(data=[go.Pie(labels=list(kar_dagilimi.keys()), values=list(kar_dagilimi.values()), hole=.6, marker=dict(colors=['#00ff00', '#ffeb3b', '#00bcd4'], line=dict(color='#0a0a0a', width=3)))])
-                    fig_kar_pie.update_layout(height=240, margin=dict(l=10, r=10, t=20, b=10), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', showlegend=False, dragmode=False)
-                    fig_kar_pie.update_traces(textposition='outside', textinfo='label+percent', textfont=dict(color='white', family='Consolas'))
-                    st.plotly_chart(fig_kar_pie, use_container_width=True, config={'displayModeBar': False})
+                with st.container(border=True, height=360):
+                    st.markdown("<span style='color: #00ff00; font-weight: bold;'>Kâr Kaynağı Dağılımı</span>", unsafe_allow_html=True)
+                    if kar_dagilimi:
+                        fig_kar_pie = go.Figure(data=[go.Pie(
+                            labels=list(kar_dagilimi.keys()), values=list(kar_dagilimi.values()), hole=.6, 
+                            marker=dict(colors=siber_renkler, line=dict(color='#050505', width=3))
+                        )])
+                        fig_kar_pie.update_traces(textposition='inside', textinfo='label+percent', textfont=dict(size=13, color='white', family='Consolas'))
+                        fig_kar_pie.update_layout(dragmode=False, height=300, margin=dict(l=0, r=0, t=15, b=10), paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', showlegend=False)
+                        st.plotly_chart(fig_kar_pie, use_container_width=True, config={'displayModeBar': False})
+                    else:
+                        st.info("Veri bulunamadı.")
 
             st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 15px; margin-bottom: 15px;'>", unsafe_allow_html=True)
             
-            # --- 5. ALT KATEGORİ BÜYÜMELERİ (SİBER TASARIM) ---
+            # --- 5. ALT KATEGORİ BÜYÜMELERİ ---
             st.markdown("<h5 style='color: #00ff00; text-align: center; padding-bottom: 10px;'>Alt Kategori Büyüme Raporları</h5>", unsafe_allow_html=True)
-
             tab_vborsa, tab_vfaiz, tab_vppf = st.tabs(["Borsa İşlemleri", "Faiz / Vadeli", "PPF Fonları"])
 
             with tab_vborsa:
                 with st.container(border=True):
-                    # Borsa için Neon Sarı
                     fig3 = draw_neon_area_chart(df_f, 'Borsa_Artis', '#ffb300', 'BORSA KAYNAKLI BÜYÜME (NET)')
                     st.plotly_chart(fig3, use_container_width=True, config={'displayModeBar': False})
 
             with tab_vfaiz:
                 with st.container(border=True):
-                    # Faiz için Neon Kırmızı
                     fig4 = draw_neon_area_chart(df_f, 'Faiz_Artis', '#FF5252', 'FAİZ / VADELİ KAYNAKLI BÜYÜME')
                     st.plotly_chart(fig4, use_container_width=True, config={'displayModeBar': False})
 
             with tab_vppf:
                 with st.container(border=True):
-                    # PPF için Neon Mor
                     fig5 = draw_neon_area_chart(df_f, 'PPF_Artis', '#bb86fc', 'PPF FONLARI BÜYÜME (LİKİT FONLAR)')
                     st.plotly_chart(fig5, use_container_width=True, config={'displayModeBar': False})
-            # --- GİZLİ YÖNETİCİ PANELİ ---
+                    # --- GİZLİ YÖNETİCİ PANELİ ---
     elif secilen_sayfa == "Yönetici Paneli" and k_adi in ADMIN_KULLANICILAR:
         st.title("Sistem Yönetim ve Güvenlik Terminali")
         st.markdown("<div style='background: rgba(255, 82, 82, 0.05); padding: 10px 15px; border-radius: 6px; border: 1px solid rgba(255, 82, 82, 0.2); margin-bottom: 20px; font-size: 0.85em; color: #e0e0e0;'>Bu alan sadece yöneticilere özeldir. Sistemdeki davetiye kodlarını ve kullanıcıları buradan yönetebilirsiniz.</div>", unsafe_allow_html=True)
         
         t_davet, t_kullanici = st.tabs(["Davetiye Yönetimi", "Kayıtlı Kullanıcılar"])
-        
         with t_davet:
             with st.container(border=True):
                 st.markdown("<span style='color: #00ff00; font-weight: bold;'>Yeni Davetiye Kodu Üret (Max 2 Kişilik)</span>", unsafe_allow_html=True)

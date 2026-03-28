@@ -13,6 +13,8 @@ import os
 import time
 import base64
 import json
+import streamlit.components.v1 as components
+
 
 
 # --- 1. MİMARİ VE PROFESYONEL ARAYÜZ ---
@@ -33,24 +35,39 @@ except:
         initial_sidebar_state="expanded"
     )
 
-st.markdown("""
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-    <meta name="theme-color" content="#0a0a0a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Mergen Finans">
-    <meta name="mobile-web-app-capable" content="yes">
-    
-    <link rel="manifest" href="data:application/manifest+json,{
-      %22name%22:%22Mergen%20Finans%22,
-      %22short_name%22:%22Mergen%22,
-      %22start_url%22:%22/%22,
-      %22display%22:%22standalone%22,
-      %22background_color%22:%22#0a0a0a%22,
-      %22theme_color%22:%22#0a0a0a%22,
-      %22icons%22:[{%22src%22:%22https://i.ibb.co/bX1b0G1/logo.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]
-    }">
+# --- PWA VE MOBİL KİMLİK (GÜVENLİ ENJEKSİYON) ---
+components.html(
+    """
+    <script>
+        const doc = window.parent.document;
+        const head = doc.head || doc.getElementsByTagName('head')[0];
+        
+        const metas = [
+            {'name': 'viewport', 'content': 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0'},
+            {'name': 'theme-color', 'content': '#0a0a0a'},
+            {'name': 'apple-mobile-web-app-capable', 'content': 'yes'},
+            {'name': 'apple-mobile-web-app-status-bar-style', 'content': 'black-translucent'},
+            {'name': 'apple-mobile-web-app-title', 'content': 'Mergen Finans'},
+            {'name': 'mobile-web-app-capable', 'content': 'yes'}
+        ];
 
+        metas.forEach(meta => {
+            let el = doc.createElement('meta');
+            el.name = meta.name;
+            el.content = meta.content;
+            head.appendChild(el);
+        });
+
+        const manifest = doc.createElement('link');
+        manifest.rel = 'manifest';
+        manifest.href = 'data:application/manifest+json,{"name":"Mergen Finans","short_name":"Mergen","start_url":"/","display":"standalone","background_color":"#0a0a0a","theme_color":"#0a0a0a","icons":[{"src":"https://i.ibb.co/bX1b0G1/logo.png","sizes":"512x512","type":"image/png"}]}';
+        head.appendChild(manifest);
+    </script>
+    """,
+    height=0, width=0
+)
+
+st.markdown("""
     <style>
     /* --- MOBİL UYGULAMA OPTİMİZASYONLARI --- */
     html, body {

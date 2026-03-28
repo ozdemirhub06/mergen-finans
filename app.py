@@ -73,6 +73,20 @@ st.markdown("""
     /* --- MOBİL EKRANLAR İÇİN ÖZEL DARALTMA (SİBER NEFES) --- */
     /* ======================================================= */
     @media (max-width: 768px) {
+            /* --- MOBİL İÇİN ÖZEL LOGO KONUMLANDIRMASI --- */
+        .giris-logo-anim {
+            position: relative !important; 
+            bottom: auto !important; 
+            right: auto !important; 
+            width: 85px !important;  /* Mobilde yazıya orantılı küçültüldü */
+            height: 85px !important;
+            margin: 20px auto -30px auto !important; /* Tam ortaya hizalar ve 'Mergen Finans' yazısının tepesine oturtur */
+        }
+        
+        /* Mobilde ekranı boğan ve formu tıklanmaz yapan dev partikül patlamasını iptal eder */
+        .giris-logo-anim::before, .giris-logo-anim::after {
+            display: none !important; 
+        }
         /* 1. Sidebar'ı Ciddi Şekilde İnceltiyoruz */
         [data-testid="stSidebar"] {
             min-width: 230px !important;
@@ -109,6 +123,54 @@ st.markdown("""
         /* 6. Form Kutuları ve Düğmeleri Daraltıyoruz */
         button { min-height: 36px !important; padding: 2px 10px !important; }
         .st-emotion-cache-1n76uvr { gap: 0.5rem !important; } /* Yan yana duran butonları sıkıştırır */
+            /* ======================================================= */
+    /* --- GİRİŞ EKRANI LOGO DÜZENLEME (ORTA VE ÜST) --- */
+    /* ======================================================= */
+
+    /* 1. Yanlış yerdeki (eski) logoyu kaldırıyoruz */
+    /* (Uygulamanızda logoyu sağ alt köşeye sabitleyen mevcut CSS'i silmeniz gerekir. Genellikle şöyle görünür:) */
+    /* div[data-testid="stApp"] img { position: fixed; bottom: 20px; right: 20px; ... } */
+    /* Veya pseudo-element ile yapılmışsa (::after/::before), o pseudo-element kodunu silmelisiniz. */
+
+    /* Not: Bu kısmı mevcut CSS kodunuzu inceleyerek manuel olarak silmeniz en doğrusudur. Genellikle stil bloğunun sonlarında, 'stApp' pseudo-elementi veya 'fixed' pozisyonlu bir resim seçicisi olarak bulunur. */
+
+
+    /* 2. Yeni Logo Pozisyonu ve Boyutu (Mergen Finans başlığının hemen üstü) */
+    
+    /* "Mergen Finans" başlığını (muhtemelen h1) hedefleyip logoyu :before ile ekliyoruz */
+    h1 {
+        text-align: center !important; /* Başlığın ortalanmış olduğundan emin oluyoruz */
+        display: flex !important; /* Logo ve metni dikey olarak hizalamak için flex kullanıyoruz */
+        flex-direction: column !important; /* Dikey dizilim */
+        align-items: center !important; /* Yatay ortalama */
+    }
+
+    h1::before {
+        content: "";
+        display: block;
+        /* Animasyonlu logonun URL'si (Gif formatında olduğunu varsayıyorum) */
+        background-image: url('https://raw.githubusercontent.com/ozdemirhub06/mergen-proje/main/logo.gif');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        
+        /* Boyutlandırma (Başlık yazısına orantılı küçültülmüş) */
+        /* Masaüstünde 120px, mobilde 80px gibi bir boyut iyi olur */
+        width: 120px !important; 
+        height: 120px !important; 
+        
+        /* Konumlandırma */
+        margin: 0 auto 15px auto !important; /* Metinle arasına 15px boşluk bırakıyoruz ve ortalıyoruz */
+    }
+
+    /* 3. Mobilde Logo Boyutunu Daha da Küçültmek (Nefes aldırmak için) */
+    @media (max-width: 768px) {
+        h1::before {
+            width: 80px !important;
+            height: 80px !important;
+            margin: 0 auto 10px auto !important;
+        }
+    }
     }
     /* --- MOBİL UYGULAMA OPTİMİZASYONLARI --- */
     html, body {

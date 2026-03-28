@@ -69,6 +69,47 @@ components.html(
 
 st.markdown("""
     <style>
+            /* ======================================================= */
+    /* --- MOBİL EKRANLAR İÇİN ÖZEL DARALTMA (SİBER NEFES) --- */
+    /* ======================================================= */
+    @media (max-width: 768px) {
+        /* 1. Sidebar'ı Ciddi Şekilde İnceltiyoruz */
+        [data-testid="stSidebar"] {
+            min-width: 230px !important;
+            max-width: 230px !important;
+        }
+        
+        /* 2. Ana Ekran Kenar Boşluklarını Kısıyoruz (Daha fazla alan) */
+        .block-container {
+            padding-top: 1.5rem !important;
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+            padding-bottom: 1rem !important;
+        }
+        
+        /* 3. Başlıkları ve Metinleri Telefona Göre Ufaltıyoruz */
+        h1 { font-size: 1.4rem !important; }
+        h2 { font-size: 1.2rem !important; }
+        h3 { font-size: 1.1rem !important; }
+        h4 { font-size: 1.0rem !important; }
+        h5 { font-size: 0.95rem !important; }
+        
+        /* 4. Siber Kartların İç Boşluklarını (Padding) Daraltıyoruz */
+        .bilgi-karti { padding: 10px !important; }
+        div[style*="padding: 15px;"] { padding: 10px !important; }
+        div[style*="padding: 20px;"] { padding: 12px !important; }
+        
+        /* 5. Ekrandan Taşan Dev Fiyat Puntolarını Eziyoruz */
+        [style*="font-size: 1.6em"] { font-size: 1.2em !important; }
+        [style*="font-size: 1.4em"] { font-size: 1.1em !important; }
+        [style*="font-size: 1.35em"] { font-size: 1.05em !important; }
+        [style*="font-size: 1.2em"] { font-size: 1.0em !important; }
+        [style*="font-size: 2.2em"] { font-size: 1.5em !important; } /* Quant Skor gibi dev puntolar */
+        
+        /* 6. Form Kutuları ve Düğmeleri Daraltıyoruz */
+        button { min-height: 36px !important; padding: 2px 10px !important; }
+        .st-emotion-cache-1n76uvr { gap: 0.5rem !important; } /* Yan yana duran butonları sıkıştırır */
+    }
     /* --- MOBİL UYGULAMA OPTİMİZASYONLARI --- */
     html, body {
         touch-action: pan-x pan-y; /* Çift tıklamayla yanlışlıkla yakınlaştırmayı engeller */

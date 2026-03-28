@@ -1630,7 +1630,7 @@ else:
                         <button class="eq" onclick="calc()">=</button>
                     </div>
                 </div>
-                <script>
+               <script>
                     let s = document.getElementById('screen');
                     let expr = '0';
                     function update() { s.innerText = expr; }
@@ -1647,6 +1647,28 @@ else:
                             setTimeout(clr, 1200);
                         }
                     }
+                    
+                    // --- KLAVYE DİNLEME MOTORU ---
+                    document.addEventListener('keydown', function(event) {
+                        const key = event.key;
+                        // Rakamlar ve işlemler (+, -, *, /, vb.)
+                        if (/[0-9\.\+\-\*\/\(\)]/.test(key)) {
+                            add(key);
+                        } 
+                        // Enter veya Eşittir (=) tuşu ile hesaplama
+                        else if (key === 'Enter' || key === '=') {
+                            event.preventDefault(); // Enter'ın sayfayı kaydırmasını engeller
+                            calc();
+                        } 
+                        // Backspace ile tek tek silme
+                        else if (key === 'Backspace') {
+                            back();
+                        } 
+                        // Delete veya klavyedeki 'C' harfi ile tamamen sıfırlama
+                        else if (key === 'Delete' || key.toLowerCase() === 'c') {
+                            clr();
+                        }
+                    });
                 </script>
             </body>
             </html>

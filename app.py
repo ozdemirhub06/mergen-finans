@@ -47,7 +47,8 @@ components.html(
         // 1. APPLE (iOS) İÇİN ÖZEL İKON ZORLAMASI (Beyaz Kutu Sorununu Çözer)
         const appleIcon = doc.createElement('link');
         appleIcon.rel = 'apple-touch-icon';
-        appleIcon.href = 'https://raw.githubusercontent.com/ozdemirhub06/mergen-proje/main/logo.png'; 
+        // Senin orijinal çalışan logo linkin:
+        appleIcon.href = 'https://i.ibb.co/bX1b0G1/logo.png'; 
         head.appendChild(appleIcon);
 
         // 2. TAM EKRAN VE ADRES ÇUBUĞU GİZLEME METALARINI EKLİYORUZ
@@ -70,7 +71,7 @@ components.html(
         // 3. ANDROID VE GENEL PWA MANİFESTİ
         const manifest = doc.createElement('link');
         manifest.rel = 'manifest';
-        manifest.href = 'data:application/manifest+json,{"name":"Mergen Finans","short_name":"Mergen","start_url":"/","display":"standalone","background_color":"#0a0a0a","theme_color":"#0a0a0a","icons":[{"src":"https://raw.githubusercontent.com/ozdemirhub06/mergen-proje/main/logo.png","sizes":"512x512","type":"image/png"}]}';
+        manifest.href = 'data:application/manifest+json,{"name":"Mergen Finans","short_name":"Mergen","start_url":"/","display":"standalone","background_color":"#0a0a0a","theme_color":"#0a0a0a","icons":[{"src":"https://i.ibb.co/bX1b0G1/logo.png","sizes":"512x512","type":"image/png"}]}';
         head.appendChild(manifest);
     </script>
     """,

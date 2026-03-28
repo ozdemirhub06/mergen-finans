@@ -35,13 +35,22 @@ except:
         initial_sidebar_state="expanded"
     )
 
-# --- PWA VE MOBİL KİMLİK (GÜVENLİ ENJEKSİYON) ---
+
+# --- PWA VE MOBİL KİMLİK (GÜVENLİ VE iOS UYUMLU ENJEKSİYON) ---
+import streamlit.components.v1 as components
 components.html(
     """
     <script>
         const doc = window.parent.document;
         const head = doc.head || doc.getElementsByTagName('head')[0];
         
+        // 1. APPLE (iOS) İÇİN ÖZEL İKON ZORLAMASI (Beyaz Kutu Sorununu Çözer)
+        const appleIcon = doc.createElement('link');
+        appleIcon.rel = 'apple-touch-icon';
+        appleIcon.href = 'https://raw.githubusercontent.com/ozdemirhub06/mergen-proje/main/logo.png'; 
+        head.appendChild(appleIcon);
+
+        // 2. TAM EKRAN VE ADRES ÇUBUĞU GİZLEME METALARINI EKLİYORUZ
         const metas = [
             {'name': 'viewport', 'content': 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0'},
             {'name': 'theme-color', 'content': '#0a0a0a'},
@@ -58,9 +67,10 @@ components.html(
             head.appendChild(el);
         });
 
+        // 3. ANDROID VE GENEL PWA MANİFESTİ
         const manifest = doc.createElement('link');
         manifest.rel = 'manifest';
-        manifest.href = 'data:application/manifest+json,{"name":"Mergen Finans","short_name":"Mergen","start_url":"/","display":"standalone","background_color":"#0a0a0a","theme_color":"#0a0a0a","icons":[{"src":"https://i.ibb.co/bX1b0G1/logo.png","sizes":"512x512","type":"image/png"}]}';
+        manifest.href = 'data:application/manifest+json,{"name":"Mergen Finans","short_name":"Mergen","start_url":"/","display":"standalone","background_color":"#0a0a0a","theme_color":"#0a0a0a","icons":[{"src":"https://raw.githubusercontent.com/ozdemirhub06/mergen-proje/main/logo.png","sizes":"512x512","type":"image/png"}]}';
         head.appendChild(manifest);
     </script>
     """,
@@ -124,6 +134,32 @@ st.markdown("""
         /* 6. Form Kutuları ve Düğmeleri Daraltıyoruz */
         button { min-height: 36px !important; padding: 2px 10px !important; }
         .st-emotion-cache-1n76uvr { gap: 0.5rem !important; } /* Yan yana duran butonları sıkıştırır */
+        /* 7. SİDEBAR: Profil Fotoğrafını Küçült ve Ortala */
+        [data-testid="stSidebar"] img {
+            max-width: 110px !important;
+            max-height: 110px !important;
+            margin: 0 auto !important;
+            display: block !important;
+        }
+        
+        /* 8. SİDEBAR: İsim, Tarih ve Ufak Yazıları Daralt */
+        [data-testid="stSidebar"] h4 {
+            font-size: 1.1rem !important;
+            margin-top: 5px !important;
+        }
+        [data-testid="stSidebar"] .stMarkdown p {
+            font-size: 0.85rem !important;
+        }
+        
+        /* 9. SİDEBAR: Ana Menü Butonlarını İncelt */
+        [data-testid="stSidebar"] div[role="radiogroup"] label {
+            padding: 6px 10px !important;
+            margin-bottom: 3px !important;
+            min-height: 35px !important;
+        }
+        [data-testid="stSidebar"] div[role="radiogroup"] label p {
+            font-size: 0.85rem !important;
+        }
             /* ======================================================= */
     /* --- GİRİŞ EKRANI LOGO DÜZENLEME (ORTA VE ÜST) --- */
     /* ======================================================= */
@@ -742,6 +778,7 @@ def kullanici_bilgileri_sayfasi(k_adi):
                     )
                     
                     fig.update_layout(
+                        dragmode=False,
                         height=180, 
                         margin=dict(t=15, b=15, l=15, r=15), 
                         paper_bgcolor="rgba(0,0,0,0)", 
@@ -1323,7 +1360,7 @@ f"</div></div>"
                         colors = ['rgba(0, 255, 0, 0.4)' if row['Close'] >= row['Open'] else 'rgba(255, 82, 82, 0.4)' for _, row in df_chart.iterrows()]
                         fig.add_trace(go.Bar(x=x_vals, y=df_chart['Volume'], marker_color=colors, name='Hacim'), row=2, col=1)
 
-                        fig.update_layout(height=320, margin=dict(t=5,b=0,l=0,r=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", xaxis_rangeslider_visible=False, showlegend=False, font=dict(family="Consolas", color="gray", size=10))
+                        fig.update_layout(dragmode=False,height=320, margin=dict(t=5,b=0,l=0,r=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", xaxis_rangeslider_visible=False, showlegend=False, font=dict(family="Consolas", color="gray", size=10))
                         fig.update_xaxes(showgrid=True, gridcolor='rgba(255,255,255,0.05)', type='category', nticks=6, row=2, col=1)
                         fig.update_yaxes(showgrid=True, gridcolor='rgba(255,255,255,0.05)', side='right', tickformat=".2f", row=1, col=1)
                         fig.update_yaxes(showgrid=False, side='right', showticklabels=False, row=2, col=1)
@@ -2203,6 +2240,7 @@ else:
                                 pull=[0.02] * len(df_dagilim) # Dilimleri birbirinden milimetrik ayırarak 3D hissi verdik
                             )
                             fig.update_layout(
+                                dragmode=False,
                                 height=320, 
                                 margin=dict(t=20, b=20, l=20, r=20), 
                                 paper_bgcolor="rgba(0,0,0,0)", 
@@ -3045,6 +3083,7 @@ else:
                                 marker=dict(line=dict(color='#050505', width=3))
                             )
                             fig.update_layout(
+                                dragmode=False,
                                 height=330, # Kutunun içine tam sığar
                                 margin=dict(t=10, b=10, l=0, r=0), 
                                 paper_bgcolor="rgba(0,0,0,0)", 
@@ -3144,12 +3183,13 @@ else:
                                 hoverinfo="x+y"
                             )
                             fig_bar.update_layout(
+                                dragmode=False,
                                 height=280,
                                 paper_bgcolor="rgba(0,0,0,0)",
                                 plot_bgcolor="rgba(0,0,0,0)",
                                 margin=dict(t=30, b=10, l=0, r=0),
                                 xaxis=dict(showgrid=False, showline=True, linecolor='rgba(255, 255, 255, 0.2)', color='gray', title='', tickangle=0),
-                                yaxis=dict(showgrid=True, visible=True, showline=True, gridcolor='rgba(255, 255, 255, 0.05)', linecolor='rgba(255, 255, 255, 0.2)', color='gray', title=''), 
+                                yaxis=dict(fixedrange=True,showgrid=True, visible=True, showline=True, gridcolor='rgba(255, 255, 255, 0.05)', linecolor='rgba(255, 255, 255, 0.2)', color='gray', title=''), 
                                 hovermode="x unified",
                                 font=dict(family="Consolas")
                             )
@@ -3986,9 +4026,10 @@ else:
                     h = 320 if ana_grafik else 240
                     
                     fig.update_layout(
+                        dragmode=False,
                         height=h, margin=dict(t=5, b=5, l=0, r=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", 
-                        yaxis=dict(gridcolor='rgba(255, 255, 255, 0.05)', tickformat=".4f" if is_tefas else ".2f", range=[min_v, max_v]), 
-                        xaxis=dict(gridcolor='rgba(255, 255, 255, 0.0)', showline=False, type='category', nticks=5, rangeslider=dict(visible=False)), 
+                        yaxis=dict(fixedrange=True,gridcolor='rgba(255, 255, 255, 0.05)', tickformat=".4f" if is_tefas else ".2f", range=[min_v, max_v]), 
+                        xaxis=dict(fixedrange=True,gridcolor='rgba(255, 255, 255, 0.0)', showline=False, type='category', nticks=5, rangeslider=dict(visible=False)), 
                         hovermode="x unified", font=dict(family="Consolas", color="gray", size=10), showlegend=False
                     )
                     st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
@@ -4101,7 +4142,7 @@ else:
                                     colors = ['rgba(0, 255, 0, 0.4)' if row['Close'] >= row['Open'] else 'rgba(255, 82, 82, 0.4)' for _, row in df_chart.iterrows()]
                                     fig.add_trace(go.Bar(x=x_vals, y=df_chart['Volume'], marker_color=colors, name='Hacim'), row=2, col=1)
 
-                                    fig.update_layout(height=230, margin=dict(t=5,b=0,l=0,r=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", xaxis_rangeslider_visible=False, showlegend=False, font=dict(family="Consolas", color="gray", size=9))
+                                    fig.update_layout(dragmode=False,height=230, margin=dict(t=5,b=0,l=0,r=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", xaxis_rangeslider_visible=False, showlegend=False, font=dict(family="Consolas", color="gray", size=9))
                                     fig.update_xaxes(showgrid=True, gridcolor='rgba(255,255,255,0.05)', type='category', nticks=4, row=2, col=1)
                                     fig.update_yaxes(showgrid=True, gridcolor='rgba(255,255,255,0.05)', side='right', tickformat=".2f", row=1, col=1)
                                     fig.update_yaxes(showgrid=False, side='right', showticklabels=False, row=2, col=1)
@@ -4570,6 +4611,7 @@ else:
                                             fig.add_trace(go.Bar(x=df_grafik['Tarih_Str'], y=df_grafik['MACD_HIST'], marker_color=hist_colors, name='Hist'), row=g_satir, col=1)
 
                                         fig.update_layout(
+                                            dragmode=False,
                                             height=550 if toplam_satir > 1 else 320, 
                                             margin=dict(t=30, b=5, l=0, r=0),
                                             paper_bgcolor="rgba(0,0,0,0)", 
@@ -4577,7 +4619,7 @@ else:
                                             font=dict(family="system-ui, -apple-system, sans-serif", color="gray", size=10),
                                             showlegend=True, 
                                             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-                                            xaxis=dict(rangeslider=dict(visible=False))
+                                            xaxis=dict(fixedrange=True,rangeslider=dict(visible=False))
                                         )
                                         
                                         fig.update_xaxes(showgrid=True, gridcolor='rgba(255, 255, 255, 0.05)', type='category', nticks=5, showline=False)
@@ -4818,12 +4860,13 @@ else:
                                 y_range = [min_y * 1.5 if min_y < 0 else min_y - 2, max_y * 1.5 if max_y > 0 else max_y + 2]
                                 
                                 fig_mevsim.update_layout(
+                                    dragmode=False,
                                     height=320,
                                     margin=dict(t=30, b=20, l=10, r=10),
                                     paper_bgcolor="rgba(0,0,0,0)",
                                     plot_bgcolor="rgba(0,0,0,0)",
-                                    xaxis=dict(showgrid=False, linecolor="rgba(255,255,255,0.1)", tickfont=dict(family="Consolas, monospace", color="gray")),
-                                    yaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.03)", zeroline=True, zerolinecolor="rgba(255,255,255,0.2)", range=y_range, tickfont=dict(family="Consolas, monospace", color="gray")),
+                                    xaxis=dict(fixedrange=True,showgrid=False, linecolor="rgba(255,255,255,0.1)", tickfont=dict(family="Consolas, monospace", color="gray")),
+                                    yaxis=dict(fixedrange=True,showgrid=True, gridcolor="rgba(255,255,255,0.03)", zeroline=True, zerolinecolor="rgba(255,255,255,0.2)", range=y_range, tickfont=dict(family="Consolas, monospace", color="gray")),
                                     showlegend=False,
                                     font=dict(family="Consolas, monospace") # Bütün grafiği Consolas'a zorluyoruz
                                 )

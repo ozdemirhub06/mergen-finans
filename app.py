@@ -34,7 +34,31 @@ except:
     )
 
 st.markdown("""
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mergen Finans">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <link rel="manifest" href="data:application/manifest+json,{
+      %22name%22:%22Mergen%20Finans%22,
+      %22short_name%22:%22Mergen%22,
+      %22start_url%22:%22/%22,
+      %22display%22:%22standalone%22,
+      %22background_color%22:%22#0a0a0a%22,
+      %22theme_color%22:%22#0a0a0a%22,
+      %22icons%22:[{%22src%22:%22https://i.ibb.co/bX1b0G1/logo.png%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}]
+    }">
+
     <style>
+    /* --- MOBİL UYGULAMA OPTİMİZASYONLARI --- */
+    html, body {
+        touch-action: pan-x pan-y; /* Çift tıklamayla yanlışlıkla yakınlaştırmayı engeller */
+        -webkit-tap-highlight-color: transparent; /* Mobilde tuşlara basınca çıkan mavi parlamayı yok eder */
+        overscroll-behavior-y: none; /* Ekranı çok yukarı/aşağı çekince sayfanın esnemesini durdurur */
+    }
+
     /* --- 1. BEYAZ ALT ÇUBUĞU VE REKLAMLARI KÖKÜNDEN YOK ETME --- */
     footer, [data-testid="stFooter"] {
         display: none !important;

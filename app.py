@@ -485,6 +485,9 @@ components.html(
     """,
     height=0, width=0
 )
+ # --- GÜVENLİ ÇEREZ (COOKIE) YÖNETİCİSİ ---
+import extra_streamlit_components as stx
+cookie_manager = stx.CookieManager(key="mergen_cerez_motoru")
 
 # --- 2. VERİTABANI VE YARDIMCI MOTORLAR ---
 
@@ -1381,8 +1384,6 @@ f"</div></div>"
 
     
     # --- SİSTEM HAFIZASI VE CİHAZ ÇEREZİ (COOKIE) KONTROLÜ ---
-cookie_manager = stx.CookieManager()
-
 if 'iceride_mi' not in st.session_state:
     st.session_state.iceride_mi = False
     st.session_state.aktif_kullanici = None
@@ -1451,7 +1452,6 @@ if not st.session_state.iceride_mi:
         k_adi_input = st.text_input("Kullanıcı Kodu")
         sifre_input = st.text_input("Parola", type="password")
         
-        # Geri Getirilen Kutucuk: "Oturumu Açık Tut"
         c_alt1, c_alt2 = st.columns(2)
         beni_hatirla = c_alt1.checkbox("Oturumu Açık Tut (Bu Cihazda)")
         davetiye_input = c_alt2.text_input("Davetiye Kodu", type="password", placeholder="Kayıt için")
@@ -1475,10 +1475,10 @@ if not st.session_state.iceride_mi:
                         st.session_state.aktif_kullanici = k_adi_input
                         st.session_state.iceride_mi = True
                         
-                        # EĞER SEÇİLDİYSE SADECE O TARAYICIYA 30 GÜNLÜK ÇEREZ BIRAKIR
+                        # EĞER SEÇİLDİYSE ÇEREZİ KAYDEDER VE TARAYICININ İŞLEMESİ İÇİN 1 SANİYE BEKLER
                         if beni_hatirla:
-                            cookie_manager.set("mergen_oturum", k_adi_input, expires_at=datetime.datetime.now() + datetime.timedelta(days=30))
-                            time.sleep(0.5) # Çerezin cihaza işlemesi için ufak bir es
+                            cookie_manager.set("mergen_oturum", k_adi_input, max_age=2592000)
+                            time.sleep(1) # Bu 1 saniyelik bekleme donmayı ve sonsuz döngüyü engeller
                             
                         st.rerun()
                     else: 

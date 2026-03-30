@@ -826,40 +826,49 @@ def kutuphane_hazirla():
     try:
         c = conn.cursor()
         c.execute("CREATE TABLE IF NOT EXISTS kullanicilar (kullanici_adi TEXT PRIMARY KEY, sifre TEXT)")
-        c.execute("CREATE TABLE IF NOT EXISTS bakiyeler (kullanici_adi TEXT PRIMARY KEY, bakiye REAL)")
-        c.execute("CREATE TABLE IF NOT EXISTS portfoy (id SERIAL PRIMARY KEY, kullanici_adi TEXT, varlik_adi TEXT, lot REAL, maliyet REAL, borsa TEXT)")
-        c.execute("CREATE TABLE IF NOT EXISTS islem_gecmisi (id SERIAL PRIMARY KEY, kullanici_adi TEXT, islem_tipi TEXT, detay TEXT, tutar REAL, tarih TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
-        c.execute("CREATE TABLE IF NOT EXISTS banka_hesaplari (id SERIAL PRIMARY KEY, kullanici_adi TEXT, banka_adi TEXT, hesap_adi TEXT, hesap_turu TEXT, bakiye REAL, faiz_orani REAL, stopaj_orani REAL, vade_gun INTEGER, acilis_tarihi TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
-        c.execute("CREATE TABLE IF NOT EXISTS kredi_kartlari (id SERIAL PRIMARY KEY, kullanici_adi TEXT, banka_adi TEXT, kart_adi TEXT, limit_tutari REAL, guncel_borc REAL, hesap_kesim_gunu INTEGER, son_odeme_gunu INTEGER)")
-        c.execute("CREATE TABLE IF NOT EXISTS sabit_islemler (id SERIAL PRIMARY KEY, kullanici_adi TEXT, islem_turu TEXT, aciklama TEXT, tutar REAL, islem_gunu INTEGER, bagli_hesap TEXT)")
+        c.execute("CREATE TABLE IF NOT EXISTS bakiyeler (kullanici_adi TEXT PRIMARY KEY, bakiye DOUBLE PRECISION)")
+        c.execute("CREATE TABLE IF NOT EXISTS portfoy (id SERIAL PRIMARY KEY, kullanici_adi TEXT, varlik_adi TEXT, lot NUMERIC(20,10), maliyet DOUBLE PRECISION, borsa TEXT)")
+        c.execute("CREATE TABLE IF NOT EXISTS islem_gecmisi (id SERIAL PRIMARY KEY, kullanici_adi TEXT, islem_tipi TEXT, detay TEXT, tutar DOUBLE PRECISION, tarih TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+        c.execute("CREATE TABLE IF NOT EXISTS banka_hesaplari (id SERIAL PRIMARY KEY, kullanici_adi TEXT, banka_adi TEXT, hesap_adi TEXT, hesap_turu TEXT, bakiye DOUBLE PRECISION, faiz_orani REAL, stopaj_orani REAL, vade_gun INTEGER, acilis_tarihi TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+        c.execute("CREATE TABLE IF NOT EXISTS kredi_kartlari (id SERIAL PRIMARY KEY, kullanici_adi TEXT, banka_adi TEXT, kart_adi TEXT, limit_tutari DOUBLE PRECISION, guncel_borc DOUBLE PRECISION, hesap_kesim_gunu INTEGER, son_odeme_gunu INTEGER)")
+        c.execute("CREATE TABLE IF NOT EXISTS sabit_islemler (id SERIAL PRIMARY KEY, kullanici_adi TEXT, islem_turu TEXT, aciklama TEXT, tutar DOUBLE PRECISION, islem_gunu INTEGER, bagli_hesap TEXT)")
         c.execute("CREATE TABLE IF NOT EXISTS harcama_kategorileri (id SERIAL PRIMARY KEY, kullanici_adi TEXT, kategori_adi TEXT)")
-        c.execute("CREATE TABLE IF NOT EXISTS harcamalar (id SERIAL PRIMARY KEY, kullanici_adi TEXT, kategori TEXT, aciklama TEXT, tutar REAL, kaynak_hesap TEXT, tarih TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
-        c.execute("CREATE TABLE IF NOT EXISTS hesaplar (kullanici_adi TEXT, hesap_adi TEXT, bakiye REAL, PRIMARY KEY(kullanici_adi, hesap_adi))")
-        c.execute("CREATE TABLE IF NOT EXISTS emtia_portfoy (id SERIAL PRIMARY KEY, kullanici_adi TEXT, maden_turu TEXT, miktar REAL, ortalama_maliyet REAL, bagli_hesap TEXT, son_guncelleme TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+        c.execute("CREATE TABLE IF NOT EXISTS harcamalar (id SERIAL PRIMARY KEY, kullanici_adi TEXT, kategori TEXT, aciklama TEXT, tutar DOUBLE PRECISION, kaynak_hesap TEXT, tarih TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
+        c.execute("CREATE TABLE IF NOT EXISTS hesaplar (kullanici_adi TEXT, hesap_adi TEXT, bakiye DOUBLE PRECISION, PRIMARY KEY(kullanici_adi, hesap_adi))")
+        c.execute("CREATE TABLE IF NOT EXISTS emtia_portfoy (id SERIAL PRIMARY KEY, kullanici_adi TEXT, maden_turu TEXT, miktar NUMERIC(20,10), ortalama_maliyet DOUBLE PRECISION, bagli_hesap TEXT, son_guncelleme TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
         c.execute("CREATE TABLE IF NOT EXISTS asistan_bildirimleri (id SERIAL PRIMARY KEY, kullanici_adi TEXT, baslik TEXT, mesaj TEXT, tur TEXT, tarih TIMESTAMP DEFAULT CURRENT_TIMESTAMP, okundu BOOLEAN DEFAULT FALSE)")
-        c.execute("CREATE TABLE IF NOT EXISTS taksitli_islemler (id SERIAL PRIMARY KEY, kullanici_adi TEXT, kart_adi TEXT, aciklama TEXT, toplam_tutar REAL, aylik_tutar REAL, toplam_taksit INTEGER, odenen_taksit INTEGER DEFAULT 0, tarih TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
-        c.execute("CREATE TABLE IF NOT EXISTS davetiyeler (kod TEXT PRIMARY KEY, kullanim_hakki INTEGER DEFAULT 2)")
-        c.execute("INSERT INTO davetiyeler (kod, kullanim_hakki) VALUES ('MERGEN_VIP_2026', 999) ON CONFLICT DO NOTHING")
-        # --- TABLOYU GARANTİYE AL ---
+        c.execute("CREATE TABLE IF NOT EXISTS taksitli_islemler (id SERIAL PRIMARY KEY, kullanici_adi TEXT, kart_adi TEXT, aciklama TEXT, toplam_tutar DOUBLE PRECISION, aylik_tutar DOUBLE PRECISION, toplam_taksit INTEGER, odenen_taksit INTEGER DEFAULT 0, tarih TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
         c.execute("CREATE TABLE IF NOT EXISTS davetiyeler (kod TEXT PRIMARY KEY, kullanim_hakki INTEGER DEFAULT 2)")
         c.execute("INSERT INTO davetiyeler (kod, kullanim_hakki) VALUES ('MERGEN_VIP_2026', 999) ON CONFLICT DO NOTHING")
         conn.commit()
 
         sorgular = [
             "ALTER TABLE portfoy ALTER COLUMN lot TYPE NUMERIC(20,10)",
+            "ALTER TABLE portfoy ALTER COLUMN maliyet TYPE DOUBLE PRECISION",
+            "ALTER TABLE hesaplar ALTER COLUMN bakiye TYPE DOUBLE PRECISION",
+            "ALTER TABLE bakiyeler ALTER COLUMN bakiye TYPE DOUBLE PRECISION",
+            "ALTER TABLE islem_gecmisi ALTER COLUMN tutar TYPE DOUBLE PRECISION",
+            "ALTER TABLE banka_hesaplari ALTER COLUMN bakiye TYPE DOUBLE PRECISION",
+            "ALTER TABLE kredi_kartlari ALTER COLUMN guncel_borc TYPE DOUBLE PRECISION",
+            "ALTER TABLE kredi_kartlari ALTER COLUMN limit_tutari TYPE DOUBLE PRECISION",
+            "ALTER TABLE takas_bekleyen_islemler ALTER COLUMN tutar TYPE DOUBLE PRECISION",
+            "ALTER TABLE takas_bekleyen_islemler ALTER COLUMN lot TYPE NUMERIC(20,10)",
+            "ALTER TABLE takas_bekleyen_islemler ALTER COLUMN maliyet TYPE DOUBLE PRECISION",
+            "ALTER TABLE emtia_portfoy ALTER COLUMN miktar TYPE NUMERIC(20,10)",
+            "ALTER TABLE emtia_portfoy ALTER COLUMN ortalama_maliyet TYPE DOUBLE PRECISION",
             "ALTER TABLE banka_hesaplari ADD COLUMN tahakkuk_saati TEXT DEFAULT '00:00'",
-            "ALTER TABLE kredi_kartlari ADD COLUMN kisisel_limit REAL DEFAULT 0.0",
+            "ALTER TABLE kredi_kartlari ADD COLUMN kisisel_limit DOUBLE PRECISION DEFAULT 0.0",
             "ALTER TABLE sabit_islemler ADD COLUMN son_islenme_tarihi TEXT DEFAULT 'Yok'",
             "ALTER TABLE kullanicilar ADD COLUMN isim_soyisim TEXT DEFAULT ''",
             "ALTER TABLE kullanicilar ADD COLUMN profil_fotosu TEXT DEFAULT ''",
             "ALTER TABLE banka_hesaplari ADD COLUMN para_birimi TEXT DEFAULT 'TL'",
-            "ALTER TABLE bakiyeler ADD COLUMN bakiye_usd REAL DEFAULT 0.0",
+            "ALTER TABLE bakiyeler ADD COLUMN bakiye_usd DOUBLE PRECISION DEFAULT 0.0",
             "ALTER TABLE islem_gecmisi ADD COLUMN para_birimi TEXT DEFAULT 'TL'",
             "ALTER TABLE kullanicilar ADD COLUMN yas INTEGER DEFAULT 30",
             "ALTER TABLE kullanicilar ADD COLUMN meslek TEXT DEFAULT 'Belirtilmemiş'",
-            "ALTER TABLE kullanicilar ADD COLUMN aylik_gelir REAL DEFAULT 0.0",
+            "ALTER TABLE kullanicilar ADD COLUMN aylik_gelir DOUBLE PRECISION DEFAULT 0.0",
             "ALTER TABLE kullanicilar ADD COLUMN hedef_adi TEXT DEFAULT 'Hedef Belirlenmedi'",
-            "ALTER TABLE kullanicilar ADD COLUMN hedef_tutar REAL DEFAULT 100000.0"
+            "ALTER TABLE kullanicilar ADD COLUMN hedef_tutar DOUBLE PRECISION DEFAULT 100000.0"
         ]
         for q in sorgular:
             try: c.execute(q); conn.commit()
@@ -947,7 +956,7 @@ def hizli_fiyat_cek(ticker):
         return None, None
     
 
-@st.cache_data(ttl=86400) 
+@st.cache_data(ttl=3600) 
 def tefas_fiyat_cek(fon_kod):
     import urllib3; urllib3.disable_warnings() 
     # Sistemin bot gibi görünmemesi için gerçek tarayıcı kimliği
@@ -1374,14 +1383,6 @@ f"</div></div>"
 if 'iceride_mi' not in st.session_state:
     st.session_state.iceride_mi = False
     st.session_state.aktif_kullanici = None
-    # SİBER HAFIZA: Çerez dosyasını okur ve otomatik içeri alır
-    if os.path.exists("beni_hatirla.json"):
-        try:
-            with open("beni_hatirla.json", "r") as f:
-                data = json.load(f)
-                st.session_state.aktif_kullanici = data["kullanici_adi"]
-                st.session_state.iceride_mi = True
-        except: pass
 
 if not st.session_state.iceride_mi:
     
@@ -1471,9 +1472,7 @@ if not st.session_state.iceride_mi:
         k_adi_input = st.text_input("Kullanıcı Kodu")
         sifre_input = st.text_input("Parola", type="password")
         
-        c_alt1, c_alt2 = st.columns(2)
-        beni_hatirla = c_alt1.checkbox("Oturumu Açık Tut")
-        davetiye_input = c_alt2.text_input("Davetiye Kodu (Kayıt İçin)", type="password", placeholder="Sadece yeni kayıtlar için")
+        davetiye_input = st.text_input("Davetiye Kodu (Kayıt İçin)", type="password", placeholder="Sadece yeni kayıtlar için")
         
         # --- ANTI-SPAM: GENEL İŞLEM SOĞUMA (COOLDOWN) SÜRESİ ---
         if 'son_islem_zamani' not in st.session_state:
@@ -1494,11 +1493,6 @@ if not st.session_state.iceride_mi:
                     if c.fetchone():
                         st.session_state.aktif_kullanici = k_adi_input
                         st.session_state.iceride_mi = True
-                        
-                        # Eğer kutucuk işaretlendiyse kimliği diske yazar
-                        if beni_hatirla:
-                            with open("beni_hatirla.json", "w") as f:
-                                json.dump({"kullanici_adi": k_adi_input}, f)
                                 
                         st.rerun()
                     else: 
@@ -1828,8 +1822,6 @@ else:
             
         if st.button("Güvenli Çıkış", type="primary", use_container_width=True):
             st.session_state.clear()
-            if os.path.exists("beni_hatirla.json"): 
-                os.remove("beni_hatirla.json")
             st.rerun()
         st.markdown("<br><br>", unsafe_allow_html=True)
             
@@ -2239,7 +2231,16 @@ else:
                         kz_gosterim = kar_zarar_tl
                         
                     renk, isaret = ("#4CAF50", "+") if kz_gosterim >= 0 else ("#FF5252", "")
-                    lot_gosterim = f"{lot:,.6f}" if is_foreign else f"{lot:,.0f}"
+                    
+                    # --- İŞTE BURASI: HASSAS TEFAS FORMATLAMASI ---
+                    if borsa == "FON (TEFAS)":
+                        fiyat_str = f"{fiyat_gosterim:,.6f}"
+                        maliyet_str = f"{maliyet_gosterim:,.6f}"
+                        lot_str = f"{lot:,.0f}" if float(lot).is_integer() else f"{lot:,.6f}".rstrip('0').rstrip('.')
+                    else:
+                        fiyat_str = f"{fiyat_gosterim:,.2f}"
+                        maliyet_str = f"{maliyet_gosterim:,.2f}"
+                        lot_str = f"{lot:,.6f}".rstrip('0').rstrip('.') if is_foreign else f"{lot:,.0f}"
 
                     with st.container(border=True):
                         c1, c2 = st.columns([6.5, 3.5])
@@ -2252,18 +2253,17 @@ else:
                                 </div>
                                 <div style='margin-left: 15px; line-height: 1.3;'>
                                     <div style='font-size: 0.70em; color: gray; text-transform: uppercase; letter-spacing: 0.5px;'>{borsa}</div>
-                                    <div style='font-size: 1.05em; font-weight: bold; color: white;'>{ticker}</div> <div style='font-size: 0.8em; color: gray;'>Lot: {lot_gosterim} | Maliyet: {maliyet_gosterim:,.2f} {pb_gosterim}</div>
+                                    <div style='font-size: 1.05em; font-weight: bold; color: white;'>{ticker}</div> <div style='font-size: 0.8em; color: gray;'>Lot: {lot_str} | Maliyet: {maliyet_str} {pb_gosterim}</div>
                                 </div>
                             </div>
                             """, unsafe_allow_html=True)
                         with c2:
-                            st.markdown(f"<div style='text-align: right; font-size: 0.8em; color: gray; margin-top: 5px; margin-bottom: 2px;'>Güncel: {fiyat_gosterim:,.2f} {pb_gosterim}</div>", unsafe_allow_html=True)
+                            st.markdown(f"<div style='text-align: right; font-size: 0.8em; color: gray; margin-top: 5px; margin-bottom: 2px;'>Güncel: {fiyat_str} {pb_gosterim}</div>", unsafe_allow_html=True)
                             
                             if is_foreign:
                                 if st.button(f"{toplam_gosterim:,.2f} {pb_gosterim}", key=f"btn_{ticker}", use_container_width=True, type="tertiary"):
                                     st.session_state['p_card_currency_toggles'][ticker] = not doviz_goster
                                     st.rerun()
-                                # SİHİRLİ DOKUNUŞ: Butonun yarattığı boşluğu negatif marjinle emiyoruz
                                 m_top = "-5px"
                             else:
                                 st.markdown(f"<div style='text-align: right; font-size: 1.15em; font-weight: bold; color: white; padding: 0; margin: 0;'>{toplam_gosterim:,.2f} {pb_gosterim}</div>", unsafe_allow_html=True)

@@ -14,6 +14,7 @@ import time
 import base64
 import json
 import streamlit.components.v1 as components
+import extra_streamlit_components as stx
 
 
 
@@ -1379,10 +1380,18 @@ f"</div></div>"
                 except Exception as e: st.error(f"İşlem hatası: {e}")
 
     
-    # --- SİSTEM HAFIZASI KONTROLÜ ---
+    # --- SİSTEM HAFIZASI VE CİHAZ ÇEREZİ (COOKIE) KONTROLÜ ---
+cookie_manager = stx.CookieManager()
+
 if 'iceride_mi' not in st.session_state:
     st.session_state.iceride_mi = False
     st.session_state.aktif_kullanici = None
+    
+# Sunucuya değil, SADECE BU CİHAZA özel çerezi kontrol et
+cihaz_cerez = cookie_manager.get("mergen_oturum")
+if cihaz_cerez and not st.session_state.iceride_mi:
+    st.session_state.aktif_kullanici = cihaz_cerez
+    st.session_state.iceride_mi = True
 
 if not st.session_state.iceride_mi:
     
@@ -1406,7 +1415,6 @@ if not st.session_state.iceride_mi:
             background-image: url('data:image/{logo_mime};base64,{logo_b64}');
             background-size: contain; background-repeat: no-repeat; background-position: center;
             z-index: 9999; pointer-events: none;
-            /* Logo hem aşağı yukarı süzülür hem de 4 saniyede bir parlar ve büyür */
             animation: logo-pulse-float 4s ease-in-out infinite;
         }}
         @keyframes logo-pulse-float {{
@@ -1414,54 +1422,25 @@ if not st.session_state.iceride_mi:
             50% {{ transform: translateY(-20px) scale(1.1); filter: drop-shadow(0 0 35px rgba(0,255,0,0.9)); }}
             100% {{ transform: translateY(0px) scale(1); filter: drop-shadow(0 0 10px rgba(0,255,0,0.2)); }}
         }}
-
-        /* 360 Derece Her Yöne Saçılan Partiküller */
         .giris-logo-anim::before, .giris-logo-anim::after {{
             content: ''; position: absolute; top: 50%; left: 50%;
             width: 5px; height: 5px; background: transparent; border-radius: 50%;
             z-index: -1; pointer-events: none;
-            /* Partikül patlaması logonun parlamasıyla aynı sürede (4s) sekronize çalışır */
             animation: burst 4s ease-out infinite;
         }}
-        
         .giris-logo-anim::after {{
             width: 3px; height: 3px;
             animation-delay: 0.3s;
         }}
-
         @keyframes burst {{
-            0% {{ 
-                box-shadow: 0 0 0 transparent; 
-                opacity: 1; 
-                transform: translate(-50%, -50%) scale(0.1); 
-            }}
-            40% {{ 
-                /* Logo parlamaya başladığında partiküller her köşeye (+ ve - X/Y yönlerine) saçılır */
-                box-shadow: 
-                    -100px -100px 4px #00ff00, 100px 100px 6px rgba(0,255,0,0.8),
-                    100px -100px 4px rgba(0,255,0,0.6), -100px 100px 5px rgba(0,255,0,0.9),
-                    0px -140px 4px #00ff00, 0px 140px 6px rgba(0,255,0,0.7),
-                    -140px 0px 5px rgba(0,255,0,0.8), 140px 0px 4px rgba(0,255,0,0.9),
-                    -70px -150px 3px #00ff00, 150px 70px 4px rgba(0,255,0,0.7);
-                opacity: 0.9;
-            }}
-            100% {{ 
-                /* Partiküller tamamen uzaklaşıp yok olur */
-                box-shadow: 
-                    -250px -250px 0 transparent, 250px 250px 0 transparent,
-                    250px -250px 0 transparent, -250px 250px 0 transparent,
-                    0px -300px 0 transparent, 0px 300px 0 transparent,
-                    -300px 0px 0 transparent, 300px 0px 0 transparent,
-                    -150px -350px 0 transparent, 350px 150px 0 transparent;
-                opacity: 0; 
-                transform: translate(-50%, -50%) scale(1.5); 
-            }}
+            0% {{ box-shadow: 0 0 0 transparent; opacity: 1; transform: translate(-50%, -50%) scale(0.1); }}
+            40% {{ box-shadow: -100px -100px 4px #00ff00, 100px 100px 6px rgba(0,255,0,0.8), 100px -100px 4px rgba(0,255,0,0.6), -100px 100px 5px rgba(0,255,0,0.9), 0px -140px 4px #00ff00, 0px 140px 6px rgba(0,255,0,0.7), -140px 0px 5px rgba(0,255,0,0.8), 140px 0px 4px rgba(0,255,0,0.9), -70px -150px 3px #00ff00, 150px 70px 4px rgba(0,255,0,0.7); opacity: 0.9; }}
+            100% {{ box-shadow: -250px -250px 0 transparent, 250px 250px 0 transparent, 250px -250px 0 transparent, -250px 250px 0 transparent, 0px -300px 0 transparent, 0px 300px 0 transparent, -300px 0px 0 transparent, 300px 0px 0 transparent, -150px -350px 0 transparent, 350px 150px 0 transparent; opacity: 0; transform: translate(-50%, -50%) scale(1.5); }}
         }}
         </style>
         <div class="giris-logo-anim"></div>
         """, unsafe_allow_html=True)
 
-    # Giriş formunu ortalamak için ekranı 3 parçaya bölüyoruz
     bosluk_sol, merkez_kolon, bosluk_sag = st.columns([1, 2, 1])
     
     with merkez_kolon:
@@ -1472,9 +1451,11 @@ if not st.session_state.iceride_mi:
         k_adi_input = st.text_input("Kullanıcı Kodu")
         sifre_input = st.text_input("Parola", type="password")
         
-        davetiye_input = st.text_input("Davetiye Kodu (Kayıt İçin)", type="password", placeholder="Sadece yeni kayıtlar için")
+        # Geri Getirilen Kutucuk: "Oturumu Açık Tut"
+        c_alt1, c_alt2 = st.columns(2)
+        beni_hatirla = c_alt1.checkbox("Oturumu Açık Tut (Bu Cihazda)")
+        davetiye_input = c_alt2.text_input("Davetiye Kodu", type="password", placeholder="Kayıt için")
         
-        # --- ANTI-SPAM: GENEL İŞLEM SOĞUMA (COOLDOWN) SÜRESİ ---
         if 'son_islem_zamani' not in st.session_state:
             st.session_state.son_islem_zamani = 0
 
@@ -1493,7 +1474,12 @@ if not st.session_state.iceride_mi:
                     if c.fetchone():
                         st.session_state.aktif_kullanici = k_adi_input
                         st.session_state.iceride_mi = True
-                                
+                        
+                        # EĞER SEÇİLDİYSE SADECE O TARAYICIYA 30 GÜNLÜK ÇEREZ BIRAKIR
+                        if beni_hatirla:
+                            cookie_manager.set("mergen_oturum", k_adi_input, expires_at=datetime.datetime.now() + datetime.timedelta(days=30))
+                            time.sleep(0.5) # Çerezin cihaza işlemesi için ufak bir es
+                            
                         st.rerun()
                     else: 
                         st.error("Yetkilendirme Hatası: Kimlik bilgileri geçersiz.")
@@ -1509,21 +1495,17 @@ if not st.session_state.iceride_mi:
                     conn = get_db()
                     try:
                         c = conn.cursor()
-                        # --- DAVETİYE KONTROLÜ ---
                         c.execute("SELECT kullanim_hakki FROM davetiyeler WHERE kod = %s", (davetiye_input,))
                         davetiye_res = c.fetchone()
                         
                         if not davetiye_res:
                             st.error("Geçersiz Davetiye Kodu! Lütfen geliştiriciden kod talep edin.")
                         elif davetiye_res[0] <= 0:
-                            st.error("Bu davetiye kodunun kullanım limiti (Max 2 kişi) dolmuştur!")
+                            st.error("Bu davetiye kodunun kullanım limiti dolmuştur!")
                         else:
-                            # Kayıt Başarılıysa
                             c.execute("INSERT INTO kullanicilar (kullanici_adi, sifre) VALUES (%s,%s)", (k_adi_input, sifre_input))
                             c.execute("INSERT INTO bakiyeler VALUES (%s, 0.0)", (k_adi_input,))
-                            # Davetiye hakkını düşür
                             c.execute("UPDATE davetiyeler SET kullanim_hakki = kullanim_hakki - 1 WHERE kod = %s", (davetiye_input,))
-                            
                             conn.commit()
                             st.success("Kayıt oluşturuldu. Sisteme bağlanabilirsiniz.")
                     except IntegrityError: 
@@ -1534,6 +1516,7 @@ if not st.session_state.iceride_mi:
                         release_db(conn)
                 else:
                     st.warning("Yeni kayıt için Kullanıcı Kodu, Parola ve geçerli bir Davetiye Kodu girmek zorunludur.")
+
 
 else:
     k_adi = st.session_state.aktif_kullanici
@@ -1821,7 +1804,9 @@ else:
             st.rerun()
             
         if st.button("Güvenli Çıkış", type="primary", use_container_width=True):
+            cookie_manager.delete("mergen_oturum")
             st.session_state.clear()
+            time.sleep(0.5)
             st.rerun()
         st.markdown("<br><br>", unsafe_allow_html=True)
             

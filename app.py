@@ -1474,24 +1474,14 @@ if not st.session_state.iceride_mi:
                     c = conn.cursor()
                     c.execute("SELECT * FROM kullanicilar WHERE kullanici_adi = %s AND sifre = %s", (k_adi_input, sifre_input))
                     if c.fetchone():
+                        st.session_state.aktif_kullanici = k_adi_input
+                        st.session_state.iceride_mi = True
+                        
                         if beni_hatirla:
-                            # 100% GARANTİLİ JS ÇEREZ MOTORU (Sadece bu cihaza mühürler)
-                            components.html(
-                                f"""
-                                <script>
-                                    window.parent.document.body.innerHTML += '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#050505;z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#00ff00;font-family:Consolas;"><div style="font-size:40px;margin-bottom:10px;">M</div><div style="font-size:18px;">Güvenli Bağlantı Kuruluyor...</div></div>';
-                                    var d = new Date();
-                                    d.setTime(d.getTime() + (30*24*60*60*1000));
-                                    window.parent.document.cookie = "mergen_oturum={k_adi_input}; expires=" + d.toUTCString() + "; path=/";
-                                    setTimeout(function() {{ window.parent.location.reload(); }}, 600);
-                                </script>
-                                """, height=0, width=0
-                            )
-                            st.stop() # JS'in çalışması için Python'ı anında durdurur
-                        else:
-                            st.session_state.aktif_kullanici = k_adi_input
-                            st.session_state.iceride_mi = True
-                            st.rerun()
+                            cookie_manager.set("mergen_oturum", k_adi_input, max_age=2592000)
+                            time.sleep(0.5)
+                            
+                        st.rerun()
                     else: 
                         st.error("Yetkilendirme Hatası: Kimlik bilgileri geçersiz.")
                 finally: release_db(conn)
@@ -1815,14 +1805,18 @@ else:
             st.rerun()
             
         if st.button("Güvenli Çıkış", type="primary", use_container_width=True):
-            st.session_state.clear()
-            # JS ile tarayıcıyı hard-reset atıp çerezi CİHAZDAN fiziki olarak yok ediyoruz
+            st.session_state.iceride_mi = False
+            st.session_state.aktif_kullanici = None
+            
+            try: cookie_manager.delete("mergen_oturum")
+            except: pass
+            
+            # Animasyonsuz, sessizce çerezi silip sayfayı yeniler
             components.html(
                 """
                 <script>
-                    window.parent.document.body.innerHTML += '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#050505;z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#FF5252;font-family:Consolas;"><div style="font-size:40px;margin-bottom:10px;">M</div><div style="font-size:18px;">Sistemden Çıkılıyor...</div></div>';
-                    window.parent.document.cookie = "mergen_oturum=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                    setTimeout(function() { window.parent.location.reload(); }, 600);
+                    document.cookie = "mergen_oturum=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                    window.parent.location.reload();
                 </script>
                 """, height=0, width=0
             )

@@ -100,16 +100,10 @@ st.markdown("""
         .giris-logo-anim::before, .giris-logo-anim::after {
             display: none !important; 
         }
-        /* 1. MOBİLDE SİDEBAR'I TAMAMEN YOK ET (Menü Alta Geçecek) */
+        /* 1. Sidebar'ı Ciddi Şekilde İnceltiyoruz */
         [data-testid="stSidebar"] {
-            display: none !important;
-        }
-        [data-testid="collapsedControl"] {
-            display: none !important;
-        }
-        /* Alt menü sayfayı kapatmasın diye en alta padding ekliyoruz */
-        .block-container {
-            padding-bottom: 85px !important; 
+            min-width: 230px !important;
+            max-width: 230px !important;
         }
         
         /* 2. Ana Ekran Kenar Boşluklarını Kısıyoruz (Daha fazla alan) */
@@ -1761,17 +1755,6 @@ else:
     if st.button("ASISTAN_LOGO"):
         asistan_paneli_ac(k_adi)
 
-    # --- MOBİL CİHAZ TESPİTİ (GİZLİ JS) ---
-    if 'is_mobile' not in st.session_state:
-        st.session_state.is_mobile = False
-    components.html("""<script>window.parent.document.body.clientWidth <= 768 ? window.parent.document.dispatchEvent(new CustomEvent('mobile_check', {detail: true})) : window.parent.document.dispatchEvent(new CustomEvent('mobile_check', {detail: false}));</script>""", height=0)
-
-    # Menü seçeneklerini her iki taraf (PC/Mobil) kullanabilsin diye dışarı aldık
-    ADMIN_KULLANICILAR = ["oguzhan", "admin", "mergen"]
-    menu_secenekleri = ["Portföy Yönetimi", "Banka ve Bütçe", "Piyasa Analiz"]
-    if k_adi in ADMIN_KULLANICILAR: menu_secenekleri.append("Yönetici Paneli")
-
-    # SADECE MASAÜSTÜNDE SİDEBAR ÇİZ
     with st.sidebar:
         # --- 1. TARİH VE GÜN MODÜLÜ ---
         aylar = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
@@ -1805,68 +1788,42 @@ else:
         # ... menü devamı ...
         st.markdown("<span style='color: gray; font-size: 12px; font-weight: bold;'>ANA TERMİNAL</span>", unsafe_allow_html=True)
         
-        # Masaüstü İçin Seçim Menüsü
-        st.markdown("<span style='color: gray; font-size: 12px; font-weight: bold;'>SİSTEM MENÜSÜ</span>", unsafe_allow_html=True)
-        secilen_sayfa_pc = st.radio("Menü", menu_secenekleri, label_visibility="collapsed", key="menu_pc")
+        # --- GİZLİ YÖNETİCİ MENÜSÜ KONTROLÜ ---
+        ADMIN_KULLANICILAR = ["oguzhan", "admin", "mergen"] # Sisteme kayıt olurken bu isimlerden birini kullan ki admin olasın
+        
+        menu_secenekleri = ["Portföy Yönetimi", "Banka ve Bütçe", "Piyasa Analiz"]
+        if k_adi in ADMIN_KULLANICILAR:
+            menu_secenekleri.append("Yönetici Paneli")
+            
+        # Seçim Menüsü
+        secilen_sayfa = st.radio("Menü", menu_secenekleri, label_visibility="collapsed")
         
         st.markdown("<hr style='margin-top: 10px; margin-bottom: 10px; border-color: rgba(255,255,255,0.05);'>", unsafe_allow_html=True)
+        st.markdown("<span style='color: gray; font-size: 12px; font-weight: bold;'>SİSTEM</span>", unsafe_allow_html=True)
         
-        if st.button("Güvenli Çıkış", type="primary", use_container_width=True, key="cikis_pc"):
+        if st.button("Yenile", use_container_width=True): 
+            st.rerun()
+            
+        if st.button("Güvenli Çıkış", type="primary", use_container_width=True):
             st.session_state.iceride_mi = False
             st.session_state.aktif_kullanici = None
+            
             try: cookie_manager.delete("mergen_oturum")
             except: pass
-            components.html("""<script>document.cookie = "mergen_oturum=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.parent.location.reload();</script>""", height=0)
+            
+            # Animasyonsuz, sessizce çerezi silip sayfayı yeniler
+            components.html(
+                """
+                <script>
+                    document.cookie = "mergen_oturum=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                    window.parent.location.reload();
+                </script>
+                """, height=0, width=0
+            )
             st.stop()
+            
         st.markdown("<br><br>", unsafe_allow_html=True)
-        
-    # --- MOBİL İÇİN ÖZEL ALT GÖREV ÇUBUĞU (BOTTOM NAV) - EMOJİSİZ SİBER TASARIM ---
-    st.markdown("""
-        <style>
-        .mobil-alt-menu { display: none; }
-        @media (max-width: 768px) {
-            .mobil-alt-menu {
-                display: flex; justify-content: space-around; align-items: center;
-                position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
-                background: rgba(10, 10, 10, 0.95); backdrop-filter: blur(15px);
-                border-top: 1px solid rgba(0, 255, 0, 0.2); z-index: 999999;
-                box-shadow: 0 -5px 15px rgba(0,0,0,0.5);
-            }
-            .mobil-alt-menu .stRadio > div { flex-direction: row; gap: 0; width: 100%; }
-            .mobil-alt-menu .stRadio label { background: transparent !important; border: none !important; margin: 0; padding: 12px 5px; flex: 1; text-align: center; justify-content: center; }
             
-            /* Temiz Siber Yazılar - EMOJİ YOK */
-            .mobil-alt-menu .stRadio p { 
-                font-size: 11px !important; 
-                font-weight: bold !important;
-                font-family: Consolas, monospace !important;
-                color: gray !important;
-                text-transform: uppercase;
-                margin: 0 !important;
-            }
-            
-            /* Seçili Olanın Parlaması */
-            .mobil-alt-menu .stRadio label:has(input:checked) p {
-                color: #00ff00 !important; 
-                text-shadow: 0 0 8px rgba(0,255,0,0.8) !important; 
-            }
-            .mobil-alt-menu .stRadio label:has(input:checked) { 
-                border-left: none !important; 
-                border-top: 2px solid #00ff00 !important; 
-                background: rgba(0, 255, 0, 0.05) !important; 
-            }
-        }
-        </style>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("<div class='mobil-alt-menu'>", unsafe_allow_html=True)
-    # Mobilde sadece ana 3 menüyü gösteriyoruz ki ekranı boğmasın
-    secilen_sayfa_mobil = st.radio("MobilMenü", ["Portföy Yönetimi", "Banka ve Bütçe", "Piyasa Analiz"], label_visibility="collapsed", horizontal=True, key="menu_mobil")
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    # Ortak Seçim: Masaüstünde isek PC menüsü, Mobilde isek Mobil menüsü geçerli olsun
-    secilen_sayfa = secilen_sayfa_mobil if st.session_state.get('is_mobile') else st.session_state.get('menu_pc', "Portföy Yönetimi")
-
     # --- ANA YATIRIM SAYFASI ---
     if secilen_sayfa == "Portföy Yönetimi":
         st.title("Portföy Yönetim Terminali")
@@ -2438,18 +2395,16 @@ else:
                         # Anlık Fiyatı ve Çarpanı Bul
                         opt_fiyat = tefas_fiyat_cek(opt_secim) if opt_borsa == "FON (TEFAS)" else hizli_fiyat_cek(opt_secim)[0]
                         if not opt_fiyat: opt_fiyat = secilen_r['ORT_MALIYET']
-                        # Native currency check for optimization
-                        is_usd_asset = opt_borsa in ["NASDAQ", "S&P 500", "KRİPTO", "EMTİA", "ETF"] or "-USD" in opt_secim
-                        opt_pb = "USD" if is_usd_asset else "TL"
+                        opt_carpan = anlik_dolar if opt_borsa in ["NASDAQ", "S&P 500", "KRİPTO", "EMTİA", "ETF"] else 1.0
                         
-                        hedef_kar_native = c_opt2.number_input(f"Gerçek Kâr / Zarar Tutarı ({opt_pb})", value=0.0, step=10.0, format="%.2f")
-                        st.caption(f"Uyarı: Eğer varlıktan zarardaysanız tutarın başına eksi (-) koyarak yazın. Örn: -450 {opt_pb}")
+                        hedef_kar_tl = c_opt2.number_input("Gerçek Kâr / Zarar Tutarı (TL)", value=0.0, step=10.0, format="%.2f")
+                        st.caption("Uyarı: Eğer varlıktan zarardaysanız tutarın başına eksi (-) koyarak yazın. Örn: -450")
                         
                         if st.button("Optimizasyonu Başlat", type="primary", use_container_width=True):
-                            # --- KUSURSUZ TERSİNE MÜHENDİSLİK MATEMATİĞİ (DİNAMİK KUR) ---
-                            guncel_deger_native = float(opt_lot * opt_fiyat)
-                            hedef_toplam_maliyet_native = float(guncel_deger_native - hedef_kar_native)
-                            yeni_birim_maliyet = float(hedef_toplam_maliyet_native / opt_lot)
+                            # --- KUSURSUZ TERSİNE MÜHENDİSLİK MATEMATİĞİ ---
+                            guncel_deger_tl = float(opt_lot * opt_fiyat * opt_carpan)
+                            hedef_toplam_maliyet_tl = float(guncel_deger_tl - hedef_kar_tl)
+                            yeni_birim_maliyet = float(hedef_toplam_maliyet_tl / (opt_lot * opt_carpan))
                             
                             conn = get_db()
                             try:
@@ -3190,28 +3145,16 @@ else:
                 # Filtre ve Toplam Tutarı aynı hizaya, şık bir şekilde diziyoruz
                 c_analiz1, c_analiz2 = st.columns([1, 1])
                 st.caption("Analiz Aralığı:")
-                # "Bu Ay" varsayılan yapıldı (index=2) ve "Önceki Ay" menüye eklendi.
-                filtre = c_analiz1.selectbox("Analiz Aralığı:", ["Bugün", "Bu Hafta", "Bu Ay", "Önceki Ay", "Son 6 Ay", "Tümü"], index=2, label_visibility="collapsed")
+                filtre = c_analiz1.selectbox("Analiz Aralığı:", ["Bugün", "Son 24 Saat", "Son 7 Gün", "Son 15 Gün", "Son 1 Ay", "Tümü"], index=2, label_visibility="collapsed")
                 
                 bugun = pd.Timestamp.today()
                 
-                if filtre == "Bugün": 
-                    df_filtreli = df_harcama[df_harcama['GercekTarih'].dt.date == bugun.date()]
-                elif filtre == "Bu Hafta": 
-                    df_filtreli = df_harcama[df_harcama['GercekTarih'] >= bugun - pd.Timedelta(days=7)]
-                elif filtre == "Bu Ay": 
-                    # Ayın 1'inden bugüne kadar olanı alır, her ay başı otomatik sıfırlanır
-                    bas_tarih = bugun.replace(day=1)
-                    df_filtreli = df_harcama[df_harcama['GercekTarih'] >= bas_tarih]
-                elif filtre == "Önceki Ay":
-                    # Önceki ayın 1'inden son gününe kadar olan veriyi çeker
-                    son_tarih = bugun.replace(day=1) - pd.Timedelta(days=1)
-                    bas_tarih = son_tarih.replace(day=1)
-                    df_filtreli = df_harcama[(df_harcama['GercekTarih'].dt.date >= bas_tarih.date()) & (df_harcama['GercekTarih'].dt.date <= son_tarih.date())]
-                elif filtre == "Son 6 Ay": 
-                    df_filtreli = df_harcama[df_harcama['GercekTarih'] >= bugun - pd.DateOffset(months=6)]
-                else: 
-                    df_filtreli = df_harcama
+                if filtre == "Bugün": df_filtreli = df_harcama[df_harcama['GercekTarih'].dt.date == bugun.date()]
+                elif filtre == "Son 24 Saat": df_filtreli = df_harcama[df_harcama['GercekTarih'] >= bugun - pd.Timedelta(hours=24)]
+                elif filtre == "Son 7 Gün": df_filtreli = df_harcama[df_harcama['GercekTarih'] >= bugun - pd.Timedelta(days=7)]
+                elif filtre == "Son 15 Gün": df_filtreli = df_harcama[df_harcama['GercekTarih'] >= bugun - pd.Timedelta(days=15)]
+                elif filtre == "Son 1 Ay": df_filtreli = df_harcama[df_harcama['GercekTarih'] >= bugun - pd.DateOffset(months=1)]
+                else: df_filtreli = df_harcama
                     
                 if df_filtreli.empty: st.info("Bu zaman aralığında harcama kaydı bulunamadı.")
                 else:

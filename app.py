@@ -1455,7 +1455,7 @@ if not st.session_state.iceride_mi:
         sifre_input = st.text_input("Parola", type="password")
         
         c_alt1, c_alt2 = st.columns(2)
-        beni_hatirla = c_alt1.checkbox("Oturumu Açık Tut (Bu Cihazda)")
+        beni_hatirla = c_alt1.checkbox("Oturumu Açık Tut")
         davetiye_input = c_alt2.text_input("Davetiye Kodu", type="password", placeholder="Kayıt için")
         
         if 'son_islem_zamani' not in st.session_state:
@@ -2395,16 +2395,18 @@ else:
                         # Anlık Fiyatı ve Çarpanı Bul
                         opt_fiyat = tefas_fiyat_cek(opt_secim) if opt_borsa == "FON (TEFAS)" else hizli_fiyat_cek(opt_secim)[0]
                         if not opt_fiyat: opt_fiyat = secilen_r['ORT_MALIYET']
-                        opt_carpan = anlik_dolar if opt_borsa in ["NASDAQ", "S&P 500", "KRİPTO", "EMTİA", "ETF"] else 1.0
+                        # Native currency check for optimization
+                        is_usd_asset = opt_borsa in ["NASDAQ", "S&P 500", "KRİPTO", "EMTİA", "ETF"] or "-USD" in opt_secim
+                        opt_pb = "USD" if is_usd_asset else "TL"
                         
-                        hedef_kar_tl = c_opt2.number_input("Gerçek Kâr / Zarar Tutarı (TL)", value=0.0, step=10.0, format="%.2f")
-                        st.caption("Uyarı: Eğer varlıktan zarardaysanız tutarın başına eksi (-) koyarak yazın. Örn: -450")
+                        hedef_kar_native = c_opt2.number_input(f"Gerçek Kâr / Zarar Tutarı ({opt_pb})", value=0.0, step=10.0, format="%.2f")
+                        st.caption(f"Uyarı: Eğer varlıktan zarardaysanız tutarın başına eksi (-) koyarak yazın. Örn: -450 {opt_pb}")
                         
                         if st.button("Optimizasyonu Başlat", type="primary", use_container_width=True):
-                            # --- KUSURSUZ TERSİNE MÜHENDİSLİK MATEMATİĞİ ---
-                            guncel_deger_tl = float(opt_lot * opt_fiyat * opt_carpan)
-                            hedef_toplam_maliyet_tl = float(guncel_deger_tl - hedef_kar_tl)
-                            yeni_birim_maliyet = float(hedef_toplam_maliyet_tl / (opt_lot * opt_carpan))
+                            # --- KUSURSUZ TERSİNE MÜHENDİSLİK MATEMATİĞİ (DİNAMİK KUR) ---
+                            guncel_deger_native = float(opt_lot * opt_fiyat)
+                            hedef_toplam_maliyet_native = float(guncel_deger_native - hedef_kar_native)
+                            yeni_birim_maliyet = float(hedef_toplam_maliyet_native / opt_lot)
                             
                             conn = get_db()
                             try:
@@ -3145,16 +3147,28 @@ else:
                 # Filtre ve Toplam Tutarı aynı hizaya, şık bir şekilde diziyoruz
                 c_analiz1, c_analiz2 = st.columns([1, 1])
                 st.caption("Analiz Aralığı:")
-                filtre = c_analiz1.selectbox("Analiz Aralığı:", ["Bugün", "Son 24 Saat", "Son 7 Gün", "Son 15 Gün", "Son 1 Ay", "Tümü"], index=2, label_visibility="collapsed")
+                # "Bu Ay" varsayılan yapıldı (index=2) ve "Önceki Ay" menüye eklendi.
+                filtre = c_analiz1.selectbox("Analiz Aralığı:", ["Bugün", "Bu Hafta", "Bu Ay", "Önceki Ay", "Son 6 Ay", "Tümü"], index=2, label_visibility="collapsed")
                 
                 bugun = pd.Timestamp.today()
                 
-                if filtre == "Bugün": df_filtreli = df_harcama[df_harcama['GercekTarih'].dt.date == bugun.date()]
-                elif filtre == "Son 24 Saat": df_filtreli = df_harcama[df_harcama['GercekTarih'] >= bugun - pd.Timedelta(hours=24)]
-                elif filtre == "Son 7 Gün": df_filtreli = df_harcama[df_harcama['GercekTarih'] >= bugun - pd.Timedelta(days=7)]
-                elif filtre == "Son 15 Gün": df_filtreli = df_harcama[df_harcama['GercekTarih'] >= bugun - pd.Timedelta(days=15)]
-                elif filtre == "Son 1 Ay": df_filtreli = df_harcama[df_harcama['GercekTarih'] >= bugun - pd.DateOffset(months=1)]
-                else: df_filtreli = df_harcama
+                if filtre == "Bugün": 
+                    df_filtreli = df_harcama[df_harcama['GercekTarih'].dt.date == bugun.date()]
+                elif filtre == "Bu Hafta": 
+                    df_filtreli = df_harcama[df_harcama['GercekTarih'] >= bugun - pd.Timedelta(days=7)]
+                elif filtre == "Bu Ay": 
+                    # Ayın 1'inden bugüne kadar olanı alır, her ay başı otomatik sıfırlanır
+                    bas_tarih = bugun.replace(day=1)
+                    df_filtreli = df_harcama[df_harcama['GercekTarih'] >= bas_tarih]
+                elif filtre == "Önceki Ay":
+                    # Önceki ayın 1'inden son gününe kadar olan veriyi çeker
+                    son_tarih = bugun.replace(day=1) - pd.Timedelta(days=1)
+                    bas_tarih = son_tarih.replace(day=1)
+                    df_filtreli = df_harcama[(df_harcama['GercekTarih'].dt.date >= bas_tarih.date()) & (df_harcama['GercekTarih'].dt.date <= son_tarih.date())]
+                elif filtre == "Son 6 Ay": 
+                    df_filtreli = df_harcama[df_harcama['GercekTarih'] >= bugun - pd.DateOffset(months=6)]
+                else: 
+                    df_filtreli = df_harcama
                     
                 if df_filtreli.empty: st.info("Bu zaman aralığında harcama kaydı bulunamadı.")
                 else:

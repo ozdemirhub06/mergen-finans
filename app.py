@@ -1388,11 +1388,13 @@ if 'iceride_mi' not in st.session_state:
     st.session_state.iceride_mi = False
     st.session_state.aktif_kullanici = None
     
-# Sunucuya değil, SADECE BU CİHAZA özel çerezi kontrol et
-cihaz_cerez = cookie_manager.get("mergen_oturum")
-if cihaz_cerez and not st.session_state.iceride_mi:
-    st.session_state.aktif_kullanici = cihaz_cerez
-    st.session_state.iceride_mi = True
+# SADECE giriş yapılmamışsa cihazdaki çereze bak (Sistemi yormaması için)
+if not st.session_state.iceride_mi:
+    cihaz_cerez = cookie_manager.get("mergen_oturum")
+    if cihaz_cerez:
+        st.session_state.aktif_kullanici = cihaz_cerez
+        st.session_state.iceride_mi = True
+        st.rerun() # Çerezi bulduğu an içeri girmesi için ekranı tazeler
 
 if not st.session_state.iceride_mi:
     
@@ -1472,15 +1474,24 @@ if not st.session_state.iceride_mi:
                     c = conn.cursor()
                     c.execute("SELECT * FROM kullanicilar WHERE kullanici_adi = %s AND sifre = %s", (k_adi_input, sifre_input))
                     if c.fetchone():
-                        st.session_state.aktif_kullanici = k_adi_input
-                        st.session_state.iceride_mi = True
-                        
-                        # EĞER SEÇİLDİYSE ÇEREZİ KAYDEDER VE TARAYICININ İŞLEMESİ İÇİN 1 SANİYE BEKLER
                         if beni_hatirla:
-                            cookie_manager.set("mergen_oturum", k_adi_input, max_age=2592000)
-                            time.sleep(1) # Bu 1 saniyelik bekleme donmayı ve sonsuz döngüyü engeller
-                            
-                        st.rerun()
+                            # 100% GARANTİLİ JS ÇEREZ MOTORU (Sadece bu cihaza mühürler)
+                            components.html(
+                                f"""
+                                <script>
+                                    window.parent.document.body.innerHTML += '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#050505;z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#00ff00;font-family:Consolas;"><div style="font-size:40px;margin-bottom:10px;">M</div><div style="font-size:18px;">Güvenli Bağlantı Kuruluyor...</div></div>';
+                                    var d = new Date();
+                                    d.setTime(d.getTime() + (30*24*60*60*1000));
+                                    window.parent.document.cookie = "mergen_oturum={k_adi_input}; expires=" + d.toUTCString() + "; path=/";
+                                    setTimeout(function() {{ window.parent.location.reload(); }}, 600);
+                                </script>
+                                """, height=0, width=0
+                            )
+                            st.stop() # JS'in çalışması için Python'ı anında durdurur
+                        else:
+                            st.session_state.aktif_kullanici = k_adi_input
+                            st.session_state.iceride_mi = True
+                            st.rerun()
                     else: 
                         st.error("Yetkilendirme Hatası: Kimlik bilgileri geçersiz.")
                 finally: release_db(conn)
@@ -1804,10 +1815,19 @@ else:
             st.rerun()
             
         if st.button("Güvenli Çıkış", type="primary", use_container_width=True):
-            cookie_manager.delete("mergen_oturum")
             st.session_state.clear()
-            time.sleep(0.5)
-            st.rerun()
+            # JS ile tarayıcıyı hard-reset atıp çerezi CİHAZDAN fiziki olarak yok ediyoruz
+            components.html(
+                """
+                <script>
+                    window.parent.document.body.innerHTML += '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#050505;z-index:999999;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#FF5252;font-family:Consolas;"><div style="font-size:40px;margin-bottom:10px;">M</div><div style="font-size:18px;">Sistemden Çıkılıyor...</div></div>';
+                    window.parent.document.cookie = "mergen_oturum=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                    setTimeout(function() { window.parent.location.reload(); }, 600);
+                </script>
+                """, height=0, width=0
+            )
+            st.stop()
+            
         st.markdown("<br><br>", unsafe_allow_html=True)
             
     # --- ANA YATIRIM SAYFASI ---

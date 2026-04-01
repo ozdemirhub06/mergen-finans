@@ -81,9 +81,10 @@ components.html(
 
 st.markdown("""
     <style>
-    /* --- MASAÜSTÜ VE GENEL ÜST BOŞLUK (PADDING) TEMİZLİĞİ --- */
-    .block-container {
-        padding-top: 1.5rem !important;
+    /* --- MASAÜSTÜ VE GENEL ÜST BOŞLUK (KÖKTEN SİBER TIRAŞLAMA) --- */
+    .block-container, [data-testid="stAppViewBlockContainer"] {
+        padding-top: 1rem !important;
+        margin-top: -3.5rem !important; /* İçeriği zorla yukarı çeker */
     }
 
     /* ======================================================= */
@@ -259,21 +260,24 @@ st.markdown("""
     [data-testid="stSidebar"] {
         background-color: transparent !important;
         border: none !important;
+        overflow: hidden !important; /* Dış çerçevenin kayma ihtimalini öldürdük */
     }
     
     /* Bütün sihri iç astara uyguluyoruz (Streamlit asıl rengi buraya basar) */
     [data-testid="stSidebar"] > div:first-child {
-        background: rgba(10, 10, 10, 0.45) !important; /* Saydam siber siyah */
-        backdrop-filter: blur(25px) saturate(150%) !important; /* Yüksek blur ve ışık kırılması */
-        -webkit-backdrop-filter: blur(25px) saturate(150%) !important; /* Safari/iOS desteği */
+        background: rgba(10, 10, 10, 0.45) !important; 
+        backdrop-filter: blur(25px) saturate(150%) !important; 
+        -webkit-backdrop-filter: blur(25px) saturate(150%) !important; 
         border-right: 1px solid rgba(0, 255, 0, 0.15) !important;
-        box-shadow: inset -2px 0px 15px rgba(0, 255, 0, 0.03) !important; /* Cama hafif siber parlama */
-        padding-bottom: 2rem !important; /* Dış astarın alt boşluğunu tıraşlar */
+        box-shadow: inset -2px 0px 15px rgba(0, 255, 0, 0.03) !important;
+        padding-bottom: 0px !important; /* BOŞLUK MİLİMETRİK OLARAK SIFIRLANDI */
+        overflow: hidden !important; /* İç astarın kayma motoru felç edildi */
     }
     
-    /* İçeriğin altındaki o devasa öksüz boşluğu sıfırlar */
+    /* İçeriğin altındaki boşluğu sıfırlar ve farenin tekerleğini etkisiz kılar */
     [data-testid="stSidebarUserContent"] {
-        padding-bottom: 1rem !important; 
+        padding-bottom: 0px !important; 
+        overflow-y: hidden !important; /* Fareyle kaydırmayı (scroll) KESİNLİKLE engeller */
     }
 
     /* 2. SCROLL ÇUBUĞUNU (KAYDIRMAYI) YOK ET */
@@ -1415,10 +1419,12 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
     except:
         foto_b64, isim_soyisim = "", k_adi_pin
         
-    foto_html = f"<img src='data:image/png;base64,{foto_b64}' style='width:100px; height:100px; border-radius:50%; border:3px solid #00ff00; object-fit:cover; margin-bottom:15px; box-shadow: 0 0 25px rgba(0,255,0,0.4);'>" if foto_b64 else f"<div style='width:100px; height:100px; border-radius:50%; border:3px solid #00ff00; display:flex; align-items:center; justify-content:center; color:#00ff00; background:rgba(0,255,0,0.05); font-size:40px; margin-bottom:15px; font-family:Consolas; box-shadow: 0 0 25px rgba(0,255,0,0.4);'>{isim_soyisim[0].upper()}</div>"
+    # Profil Fotoğrafı Çizimi (Neon Yuvarlak)
+    foto_html = f"<img src='data:image/png;base64,{foto_b64}' style='width:120px; height:120px; border-radius:50%; border:3px solid #00ff00; object-fit:cover; margin-bottom:15px; box-shadow: 0 0 30px rgba(0,255,0,0.4);'>" if foto_b64 else f"<div style='width:120px; height:120px; border-radius:50%; border:3px solid #00ff00; display:flex; align-items:center; justify-content:center; color:#00ff00; background:rgba(0,255,0,0.05); font-size:45px; margin-bottom:15px; font-family:Consolas; box-shadow: 0 0 30px rgba(0,255,0,0.4);'>{isim_soyisim[0].upper()}</div>"
 
-    # Python tarafı ile haberleşen görünmez Streamlit kutuları
-    st.markdown("<div style='display:none;'>", unsafe_allow_html=True)
+    # Arka planda gizlice çalışacak Streamlit formunu React'i bozmadan görünmez yapıyoruz
+    st.markdown("<style>div[data-testid='stForm'], button[kind='secondary'] { opacity: 0; position: absolute; z-index: -1; pointer-events: none; }</style>", unsafe_allow_html=True)
+    
     with st.form("pin_form"):
         girilen_pin = st.text_input("PIN", key="pin_giris", label_visibility="collapsed", placeholder="PIN_GIRIS_ALANI")
         if st.form_submit_button("DOĞRULA"):
@@ -1427,43 +1433,18 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
                 st.session_state.iceride_mi = True
                 st.rerun()
             else:
-                st.error("HATALI PIN KODU!") # Hata verirse sayfa yenilenir ve pin kutuları boşalır
+                st.error("HATALI PIN KODU!") 
     
-    if st.button("GİZLİ SIFIRLA BUTONU"):
+    if st.button("GİZLİ SIFIRLA BUTONU", key="gizli_sifirla"):
         st.session_state.pin_bekleniyor = False
         st.session_state.aktif_kullanici = None
         try: cookie_manager.delete("mergen_oturum")
         except: pass
         components.html("""<script>document.cookie = "mergen_oturum=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.parent.location.reload();</script>""", height=0)
         st.stop()
-    st.markdown("</div>", unsafe_allow_html=True)
 
-    # JS MOTORU: Klavye + Ekrana tam basan tuş takımı
+    # JS MOTORU: Klavye + Ekrana tam basan tuş takımı (İşte sana söz verdiğim SİBER TASARIM)
     components.html(f"""
-    <style>
-        #cyber-pin-overlay {{
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: linear-gradient(135deg, #050505 0%, #111 100%);
-            z-index: 9999999; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; font-family: Consolas, monospace;
-            color: white; user-select: none; backdrop-filter: blur(10px);
-        }}
-        .pin-numpad {{
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-top: 35px;
-        }}
-        .pin-btn {{
-            width: 75px; height: 75px; border-radius: 50%; background: rgba(20,20,20,0.8);
-            border: 1px solid rgba(0,255,0,0.3); color: #00ff00; font-size: 32px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.1s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            font-family: Consolas, monospace; font-weight: bold;
-        }}
-        .pin-btn:active {{ transform: scale(0.9); background: rgba(0,255,0,0.2); box-shadow: 0 0 20px rgba(0,255,0,0.8); }}
-        .pin-action {{ color: gray; border-color: rgba(255,255,255,0.1); font-size: 16px; }}
-        .pin-action:active {{ color: white; background: rgba(255,255,255,0.1); }}
-        #pin-dots {{ font-size: 30px; letter-spacing: 20px; margin-top: 20px; height: 40px; color: #00ff00; text-shadow: 0 0 10px #00ff00; }}
-        .username-txt {{ font-size: 22px; font-weight: bold; letter-spacing: 2px; margin: 0; text-shadow: 0 0 5px rgba(255,255,255,0.3); }}
-    </style>
     <script>
         const doc = window.parent.document;
         let existing = doc.getElementById('cyber-pin-overlay');
@@ -1471,9 +1452,39 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
 
         let overlay = doc.createElement('div');
         overlay.id = 'cyber-pin-overlay';
+        
+        // CSS STILLERINI JS ILE EKIYORUZ KI KESIN CALISSIN
         overlay.innerHTML = `
+            <style>
+                #cyber-pin-overlay {{
+                    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+                    background: linear-gradient(135deg, #050505 0%, #111 100%);
+                    z-index: 9999999; display: flex; flex-direction: column;
+                    align-items: center; justify-content: center; font-family: system-ui, -apple-system, sans-serif;
+                    color: white; user-select: none;
+                }}
+                .pin-numpad {{
+                    display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-top: 30px;
+                }}
+                .pin-btn {{
+                    width: 75px; height: 75px; border-radius: 50%; background: rgba(20,20,20,0.8);
+                    border: 2px solid rgba(0,255,0,0.2); color: #00ff00; font-size: 32px;
+                    display: flex; align-items: center; justify-content: center;
+                    cursor: pointer; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+                    font-family: Consolas, monospace; font-weight: bold;
+                }}
+                .pin-btn:hover {{ border-color: rgba(0,255,0,0.6); background: rgba(0,255,0,0.1); }}
+                .pin-btn:active {{ transform: scale(0.9); background: rgba(0,255,0,0.3); box-shadow: 0 0 20px rgba(0,255,0,0.8); }}
+                .pin-action {{ color: gray; border-color: rgba(255,255,255,0.1); font-size: 16px; }}
+                .pin-action:hover {{ border-color: rgba(255,255,255,0.4); color: white; }}
+                .pin-action:active {{ color: white; background: rgba(255,255,255,0.1); }}
+                #pin-dots {{ font-size: 26px; letter-spacing: 25px; margin-top: 10px; height: 40px; color: #00ff00; text-shadow: 0 0 10px rgba(0,255,0,0.5); }}
+                .username-txt {{ font-size: 24px; font-weight: 600; letter-spacing: 1px; margin: 0; color: #e0e0e0; }}
+                .sub-txt {{ font-size: 13px; color: #666; margin-top: 5px; letter-spacing: 2px; text-transform: uppercase; }}
+            </style>
             {foto_html}
             <p class="username-txt">{isim_soyisim}</p>
+            <p class="sub-txt">KİLİDİ AÇMAK İÇİN PIN GİRİN</p>
             <div id="pin-dots">⚪ ⚪ ⚪ ⚪</div>
             <div class="pin-numpad">
                 <div class="pin-btn" onclick="addPin('1')">1</div>
@@ -1487,7 +1498,7 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
                 <div class="pin-btn" onclick="addPin('9')">9</div>
                 <div class="pin-btn pin-action" onclick="forgotPin()">İPTAL</div>
                 <div class="pin-btn" onclick="addPin('0')">0</div>
-                <div class="pin-btn pin-action" onclick="delPin()" style="font-size: 24px;">⌫</div>
+                <div class="pin-btn pin-action" onclick="delPin()" style="font-size: 26px;">⌫</div>
             </div>
         `;
         doc.body.appendChild(overlay);
@@ -1506,7 +1517,7 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
                 currentPin += d;
                 updateDots();
                 if(currentPin.length === 4) {{
-                    setTimeout(() => submitStreamlitPin(currentPin), 100);
+                    setTimeout(() => submitStreamlitPin(currentPin), 150);
                 }}
             }}
         }};
@@ -1523,7 +1534,6 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
         }};
 
         function submitStreamlitPin(pinValue) {{
-            // Doğru kutuyu bulmak için hem placeholder hem de aria-label tarıyoruz
             const inputs = doc.querySelectorAll('input[placeholder="PIN_GIRIS_ALANI"], input[aria-label="PIN"]');
             if(inputs.length > 0) {{
                 let inp = inputs[0];
@@ -1531,7 +1541,6 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
                 setter.call(inp, pinValue);
                 inp.dispatchEvent(new Event('input', {{ bubbles: true }}));
                 
-                // Garantili tetikleyici: DOĞRULA butonunu bul ve tıkla
                 setTimeout(()=>{{
                     const btns = Array.from(doc.querySelectorAll('button'));
                     const dogrulaBtn = btns.find(b => b.innerText.includes('DOĞRULA'));

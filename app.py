@@ -450,9 +450,28 @@ st.markdown("""
         text-shadow: 0 0 8px rgba(0, 255, 0, 0.5) !important;
     }
 
-    /* 2. Sağ Üstteki Koşan Adamı Tamamen İptal Et */
+    /* 2. Sağ Üstteki Koşan Adamı İptal Edip, Merkeze Dev Neon Halka Ekleme */
     [data-testid="stStatusWidget"] {
-        display: none !important;
+        visibility: hidden !important; /* Ekranı bozmaması için sadece gizliyoruz, tamamen yok etmiyoruz ki ::after çalışsın */
+    }
+    [data-testid="stStatusWidget"]::after {
+        content: "";
+        visibility: visible !important;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(0, 255, 0, 0.1);
+        border-left-color: #00ff00;
+        border-radius: 50%;
+        animation: siber-spin 0.8s linear infinite;
+        z-index: 99999;
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+    }
+    @keyframes siber-spin {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
 </style>
                
@@ -1443,22 +1462,22 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
         components.html("""<script>document.cookie = "mergen_oturum=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.parent.location.reload();</script>""", height=0)
         st.stop()
 
-    # JS MOTORU: Klavye + Ekrana tam basan tuş takımı (İşte sana söz verdiğim SİBER TASARIM)
+    # JS MOTORU: Klavye + Ekrana tam basan tuş takımı (Zifiri Karanlık + Kusursuz Tıklama)
     components.html(f"""
     <script>
-        const doc = window.parent.document;
+        const parentWindow = window.parent;
+        const doc = parentWindow.document;
         let existing = doc.getElementById('cyber-pin-overlay');
         if(existing) existing.remove();
 
         let overlay = doc.createElement('div');
         overlay.id = 'cyber-pin-overlay';
         
-        // CSS STILLERINI JS ILE EKIYORUZ KI KESIN CALISSIN
         overlay.innerHTML = `
             <style>
                 #cyber-pin-overlay {{
                     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-                    background: linear-gradient(135deg, #050505 0%, #111 100%);
+                    background: #000000; /* ZİFİRİ KARANLIK SİYAH */
                     z-index: 9999999; display: flex; flex-direction: column;
                     align-items: center; justify-content: center; font-family: system-ui, -apple-system, sans-serif;
                     color: white; user-select: none;
@@ -1487,18 +1506,18 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
             <p class="sub-txt">KİLİDİ AÇMAK İÇİN PIN GİRİN</p>
             <div id="pin-dots">⚪ ⚪ ⚪ ⚪</div>
             <div class="pin-numpad">
-                <div class="pin-btn" onclick="addPin('1')">1</div>
-                <div class="pin-btn" onclick="addPin('2')">2</div>
-                <div class="pin-btn" onclick="addPin('3')">3</div>
-                <div class="pin-btn" onclick="addPin('4')">4</div>
-                <div class="pin-btn" onclick="addPin('5')">5</div>
-                <div class="pin-btn" onclick="addPin('6')">6</div>
-                <div class="pin-btn" onclick="addPin('7')">7</div>
-                <div class="pin-btn" onclick="addPin('8')">8</div>
-                <div class="pin-btn" onclick="addPin('9')">9</div>
-                <div class="pin-btn pin-action" onclick="forgotPin()">İPTAL</div>
-                <div class="pin-btn" onclick="addPin('0')">0</div>
-                <div class="pin-btn pin-action" onclick="delPin()" style="font-size: 26px;">⌫</div>
+                <div class="pin-btn pin-num">1</div>
+                <div class="pin-btn pin-num">2</div>
+                <div class="pin-btn pin-num">3</div>
+                <div class="pin-btn pin-num">4</div>
+                <div class="pin-btn pin-num">5</div>
+                <div class="pin-btn pin-num">6</div>
+                <div class="pin-btn pin-num">7</div>
+                <div class="pin-btn pin-num">8</div>
+                <div class="pin-btn pin-num">9</div>
+                <div class="pin-btn pin-action pin-forgot">İPTAL</div>
+                <div class="pin-btn pin-num">0</div>
+                <div class="pin-btn pin-action pin-del" style="font-size: 26px;">⌫</div>
             </div>
         `;
         doc.body.appendChild(overlay);
@@ -1512,7 +1531,7 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
             dotEl.innerHTML = html;
         }}
 
-        window.addPin = function(d) {{
+        function addPin(d) {{
             if(currentPin.length < 4) {{
                 currentPin += d;
                 updateDots();
@@ -1520,24 +1539,31 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
                     setTimeout(() => submitStreamlitPin(currentPin), 150);
                 }}
             }}
-        }};
+        }}
 
-        window.delPin = function() {{
+        function delPin() {{
             currentPin = currentPin.slice(0, -1);
             updateDots();
-        }};
+        }}
 
-        window.forgotPin = function() {{
+        function forgotPin() {{
             const btns = Array.from(doc.querySelectorAll('button'));
             const target = btns.find(b => b.innerText.includes('GİZLİ SIFIRLA BUTONU'));
             if(target) target.click();
-        }};
+        }}
+
+        // JS CLICK EVENTLERINI DIREKT ELEMANLARA BAGLIYORUZ (SORUN CÖZEN KISIM)
+        overlay.querySelectorAll('.pin-num').forEach(el => {{
+            el.addEventListener('click', function() {{ addPin(this.innerText); }});
+        }});
+        overlay.querySelector('.pin-del').addEventListener('click', delPin);
+        overlay.querySelector('.pin-forgot').addEventListener('click', forgotPin);
 
         function submitStreamlitPin(pinValue) {{
             const inputs = doc.querySelectorAll('input[placeholder="PIN_GIRIS_ALANI"], input[aria-label="PIN"]');
             if(inputs.length > 0) {{
                 let inp = inputs[0];
-                let setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+                let setter = Object.getOwnPropertyDescriptor(parentWindow.HTMLInputElement.prototype, "value").set;
                 setter.call(inp, pinValue);
                 inp.dispatchEvent(new Event('input', {{ bubbles: true }}));
                 
@@ -1550,9 +1576,13 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
         }}
 
         // Fiziksel klavye desteği
-        doc.addEventListener('keydown', (e) => {{
-            if(e.key >= '0' && e.key <= '9') window.addPin(e.key);
-            if(e.key === 'Backspace') window.delPin();
+        parentWindow.addEventListener('keydown', function pinKeyHandler(e) {{
+            if(!doc.getElementById('cyber-pin-overlay')) {{
+                parentWindow.removeEventListener('keydown', pinKeyHandler);
+                return;
+            }}
+            if(e.key >= '0' && e.key <= '9') addPin(e.key);
+            if(e.key === 'Backspace') delPin();
         }});
     </script>
     """, height=0, width=0)

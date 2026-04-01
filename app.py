@@ -598,9 +598,11 @@ def kullanici_bilgileri_sayfasi(k_adi):
         yeni_hedef_adi = st.text_input("Hedefiniz (Örn: Ev Peşinatı)", value=k_bilgi['hedef_adi'])
         yeni_hedef_tutar = st.number_input("Hedeflenen Tutar (TL)", value=float(k_bilgi['hedef_tutar']), step=10000.0)
         
-        st.markdown("<div class='kart-baslik' style='margin-top: 10px;'>ŞİFRE DEĞİŞİKLİĞİ</div>", unsafe_allow_html=True)
-        y_eski_sifre = st.text_input("Mevcut Şifre", type="password")
+        st.markdown("<div class='kart-baslik' style='margin-top: 10px;'>ŞİFRE VE UYGULAMA KİLİDİ (PIN)</div>", unsafe_allow_html=True)
+        y_eski_sifre = st.text_input("Mevcut Şifre (Sadece şifre değiştirecekseniz girin)", type="password")
         y_yeni_sifre = st.text_input("Yeni Şifre", type="password")
+        yeni_pin = st.text_input("Giriş PIN Kodu (4 Haneli Rakam - Boş bırakırsanız PIN kapanır)", max_chars=4, type="password")
+        st.caption("Not: PIN kodu sadece 'Oturumu Açık Tut' dediğiniz cihazlarda hızlı giriş için kullanılır.")
         
         cb1, cb2 = st.columns(2)
         if cb1.button("İptal", use_container_width=True):
@@ -618,6 +620,9 @@ def kullanici_bilgileri_sayfasi(k_adi):
                     else: c.execute("UPDATE kullanicilar SET sifre = %s WHERE kullanici_adi = %s", (y_yeni_sifre, k_adi))
                 
                 # VERİLERİ KALICI OLARAK VERİTABANINA ÇİVİLİYORUZ
+                if yeni_pin is not None:
+                    c.execute("UPDATE kullanicilar SET pin_kodu = %s WHERE kullanici_adi = %s", (yeni_pin, k_adi))
+                    
                 if yeni_foto is not None:
                     b64 = base64.b64encode(yeni_foto.getvalue()).decode()
                     c.execute("UPDATE kullanicilar SET isim_soyisim = %s, profil_fotosu = %s, yas = %s, meslek = %s, aylik_gelir = %s, hedef_adi = %s, hedef_tutar = %s WHERE kullanici_adi = %s", 
@@ -883,16 +888,23 @@ def kutuphane_hazirla():
             "ALTER TABLE kullanicilar ADD COLUMN meslek TEXT DEFAULT 'Belirtilmemiş'",
             "ALTER TABLE kullanicilar ADD COLUMN aylik_gelir DOUBLE PRECISION DEFAULT 0.0",
             "ALTER TABLE kullanicilar ADD COLUMN hedef_adi TEXT DEFAULT 'Hedef Belirlenmedi'",
-            "ALTER TABLE kullanicilar ADD COLUMN hedef_tutar DOUBLE PRECISION DEFAULT 100000.0"
+            "ALTER TABLE kullanicilar ADD COLUMN hedef_tutar DOUBLE PRECISION DEFAULT 100000.0",
+            "ALTER TABLE kullanicilar ADD COLUMN pin_kodu TEXT DEFAULT ''"
         ]
         for q in sorgular:
-            try: c.execute(q); conn.commit()
-            except psycopg2.Error: conn.rollback() 
-            
+            try: 
+                c.execute(q)
+                conn.commit()
+            except Exception: 
+                try: conn.rollback()
+                except: pass # Bağlantı koptuysa rollback de yapama, sessizce geç
+                
         try:
             c.execute("UPDATE kredi_kartlari SET kisisel_limit = limit_tutari WHERE kisisel_limit = 0.0 OR kisisel_limit IS NULL")
             conn.commit()
-        except psycopg2.Error: conn.rollback()
+        except Exception: 
+            try: conn.rollback()
+            except: pass
     finally: release_db(conn)
 
 
@@ -1399,15 +1411,172 @@ if 'iceride_mi' not in st.session_state:
     st.session_state.iceride_mi = False
     st.session_state.aktif_kullanici = None
     
-# SADECE giriş yapılmamışsa cihazdaki çereze bak (Sistemi yormaması için)
+# SADECE giriş yapılmamışsa cihazdaki çereze bak
 if not st.session_state.iceride_mi:
     cihaz_cerez = cookie_manager.get("mergen_oturum")
     if cihaz_cerez:
         st.session_state.aktif_kullanici = cihaz_cerez
-        st.session_state.iceride_mi = True
-        st.rerun() # Çerezi bulduğu an içeri girmesi için ekranı tazeler
+        # Çerez bulundu. Kullanıcının PIN kodu var mı kontrol et!
+        db_pin = ""
+        try:
+            conn = get_db(); c = conn.cursor()
+            c.execute("SELECT pin_kodu FROM kullanicilar WHERE kullanici_adi = %s", (cihaz_cerez,))
+            res = c.fetchone()
+            db_pin = res[0] if res and res[0] else ""
+        except: pass
+        finally:
+            try: release_db(conn)
+            except: pass
+            
+        if db_pin and len(db_pin) == 4:
+            st.session_state.pin_bekleniyor = True
+            st.session_state.gercek_pin = db_pin
+        else:
+            st.session_state.iceride_mi = True
+            st.session_state.pin_bekleniyor = False
+            st.rerun()
 
-if not st.session_state.iceride_mi:
+# --- SİSTEM GİRİŞ YÖNLENDİRİCİSİ (PIN vs NORMAL GİRİŞ) ---
+if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
+    # --- 100% NATIVE, SIFIR GECİKMELİ, TAM EKRAN SİBER PIN ARAYÜZÜ ---
+    k_adi_pin = st.session_state.aktif_kullanici
+    try:
+        k_bilgi = kullanici_bilgileri_getir(k_adi_pin)
+        foto_b64 = k_bilgi['profil_fotosu']
+        isim_soyisim = k_bilgi['isim_soyisim'] if k_bilgi['isim_soyisim'] else k_adi_pin
+    except:
+        foto_b64, isim_soyisim = "", k_adi_pin
+        
+    foto_html = f"<img src='data:image/png;base64,{foto_b64}' style='width:100px; height:100px; border-radius:50%; border:3px solid #00ff00; object-fit:cover; margin-bottom:15px; box-shadow: 0 0 25px rgba(0,255,0,0.4);'>" if foto_b64 else f"<div style='width:100px; height:100px; border-radius:50%; border:3px solid #00ff00; display:flex; align-items:center; justify-content:center; color:#00ff00; background:rgba(0,255,0,0.05); font-size:40px; margin-bottom:15px; font-family:Consolas; box-shadow: 0 0 25px rgba(0,255,0,0.4);'>{isim_soyisim[0].upper()}</div>"
+
+    # Python tarafı ile haberleşen görünmez Streamlit kutuları
+    st.markdown("<div style='display:none;'>", unsafe_allow_html=True)
+    with st.form("pin_form"):
+        girilen_pin = st.text_input("PIN", key="pin_giris", label_visibility="collapsed", placeholder="PIN_GIRIS_ALANI")
+        if st.form_submit_button("DOĞRULA"):
+            if girilen_pin == st.session_state.gercek_pin:
+                st.session_state.pin_bekleniyor = False
+                st.session_state.iceride_mi = True
+                st.rerun()
+            else:
+                st.error("HATALI PIN KODU!") # Hata verirse sayfa yenilenir ve pin kutuları boşalır
+    
+    if st.button("GİZLİ SIFIRLA BUTONU"):
+        st.session_state.pin_bekleniyor = False
+        st.session_state.aktif_kullanici = None
+        try: cookie_manager.delete("mergen_oturum")
+        except: pass
+        components.html("""<script>document.cookie = "mergen_oturum=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.parent.location.reload();</script>""", height=0)
+        st.stop()
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # JS MOTORU: Klavye + Ekrana tam basan tuş takımı
+    components.html(f"""
+    <style>
+        #cyber-pin-overlay {{
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(135deg, #050505 0%, #111 100%);
+            z-index: 9999999; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; font-family: Consolas, monospace;
+            color: white; user-select: none; backdrop-filter: blur(10px);
+        }}
+        .pin-numpad {{
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-top: 35px;
+        }}
+        .pin-btn {{
+            width: 75px; height: 75px; border-radius: 50%; background: rgba(20,20,20,0.8);
+            border: 1px solid rgba(0,255,0,0.3); color: #00ff00; font-size: 32px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.1s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            font-family: Consolas, monospace; font-weight: bold;
+        }}
+        .pin-btn:active {{ transform: scale(0.9); background: rgba(0,255,0,0.2); box-shadow: 0 0 20px rgba(0,255,0,0.8); }}
+        .pin-action {{ color: gray; border-color: rgba(255,255,255,0.1); font-size: 16px; }}
+        .pin-action:active {{ color: white; background: rgba(255,255,255,0.1); }}
+        #pin-dots {{ font-size: 30px; letter-spacing: 20px; margin-top: 20px; height: 40px; color: #00ff00; text-shadow: 0 0 10px #00ff00; }}
+        .username-txt {{ font-size: 22px; font-weight: bold; letter-spacing: 2px; margin: 0; text-shadow: 0 0 5px rgba(255,255,255,0.3); }}
+    </style>
+    <script>
+        const doc = window.parent.document;
+        let existing = doc.getElementById('cyber-pin-overlay');
+        if(existing) existing.remove();
+
+        let overlay = doc.createElement('div');
+        overlay.id = 'cyber-pin-overlay';
+        overlay.innerHTML = `
+            {foto_html}
+            <p class="username-txt">{isim_soyisim}</p>
+            <div id="pin-dots">⚪ ⚪ ⚪ ⚪</div>
+            <div class="pin-numpad">
+                <div class="pin-btn" onclick="addPin('1')">1</div>
+                <div class="pin-btn" onclick="addPin('2')">2</div>
+                <div class="pin-btn" onclick="addPin('3')">3</div>
+                <div class="pin-btn" onclick="addPin('4')">4</div>
+                <div class="pin-btn" onclick="addPin('5')">5</div>
+                <div class="pin-btn" onclick="addPin('6')">6</div>
+                <div class="pin-btn" onclick="addPin('7')">7</div>
+                <div class="pin-btn" onclick="addPin('8')">8</div>
+                <div class="pin-btn" onclick="addPin('9')">9</div>
+                <div class="pin-btn pin-action" onclick="forgotPin()">İPTAL</div>
+                <div class="pin-btn" onclick="addPin('0')">0</div>
+                <div class="pin-btn pin-action" onclick="delPin()" style="font-size: 24px;">⌫</div>
+            </div>
+        `;
+        doc.body.appendChild(overlay);
+
+        let currentPin = "";
+        let dotEl = overlay.querySelector('#pin-dots');
+        
+        function updateDots() {{
+            let html = "";
+            for(let i=0; i<4; i++) html += (i < currentPin.length) ? "🟢 " : "⚪ ";
+            dotEl.innerHTML = html;
+        }}
+
+        window.addPin = function(d) {{
+            if(currentPin.length < 4) {{
+                currentPin += d;
+                updateDots();
+                if(currentPin.length === 4) {{
+                    setTimeout(() => submitStreamlitPin(currentPin), 100);
+                }}
+            }}
+        }};
+
+        window.delPin = function() {{
+            currentPin = currentPin.slice(0, -1);
+            updateDots();
+        }};
+
+        window.forgotPin = function() {{
+            const btns = Array.from(doc.querySelectorAll('button'));
+            const target = btns.find(b => b.innerText.includes('GİZLİ SIFIRLA BUTONU'));
+            if(target) target.click();
+        }};
+
+        function submitStreamlitPin(pinValue) {{
+            const inputs = doc.querySelectorAll('input[aria-label="PIN_GIRIS_ALANI"]');
+            if(inputs.length > 0) {{
+                let inp = inputs[0];
+                let setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+                setter.call(inp, pinValue);
+                inp.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                // 100ms sonra enter'a bas
+                setTimeout(()=>{{
+                    inp.dispatchEvent(new KeyboardEvent('keydown', {{key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true}}));
+                }}, 100);
+            }}
+        }}
+
+        // Fiziksel klavye desteği
+        doc.addEventListener('keydown', (e) => {{
+            if(e.key >= '0' && e.key <= '9') window.addPin(e.key);
+            if(e.key === 'Backspace') window.delPin();
+        }});
+    </script>
+    """, height=0, width=0)
+
+elif not st.session_state.iceride_mi:
     
     # --- GİRİŞ EKRANI SÜZÜLEN LOGO VE 360 DERECE PARTİKÜL EFEKTİ ---
     logo_b64, logo_mime = "", "png"

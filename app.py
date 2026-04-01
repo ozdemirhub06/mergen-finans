@@ -81,7 +81,12 @@ components.html(
 
 st.markdown("""
     <style>
-            /* ======================================================= */
+    /* --- MASAÜSTÜ VE GENEL ÜST BOŞLUK (PADDING) TEMİZLİĞİ --- */
+    .block-container {
+        padding-top: 1.5rem !important;
+    }
+
+    /* ======================================================= */
     /* --- MOBİL EKRANLAR İÇİN ÖZEL DARALTMA (SİBER NEFES) --- */
     /* ======================================================= */
     @media (max-width: 768px) {
@@ -263,6 +268,12 @@ st.markdown("""
         -webkit-backdrop-filter: blur(25px) saturate(150%) !important; /* Safari/iOS desteği */
         border-right: 1px solid rgba(0, 255, 0, 0.15) !important;
         box-shadow: inset -2px 0px 15px rgba(0, 255, 0, 0.03) !important; /* Cama hafif siber parlama */
+        padding-bottom: 2rem !important; /* Dış astarın alt boşluğunu tıraşlar */
+    }
+    
+    /* İçeriğin altındaki o devasa öksüz boşluğu sıfırlar */
+    [data-testid="stSidebarUserContent"] {
+        padding-bottom: 1rem !important; 
     }
 
     /* 2. SCROLL ÇUBUĞUNU (KAYDIRMAYI) YOK ET */
@@ -1667,15 +1678,16 @@ else:
         finally: release_db(conn)
         
         if bildirimler:
-            for b in bildirimler:
-                tarih_str = b[2].strftime("%d.%m.%Y %H:%M")
-                st.markdown(f"""
-                <div style='border-left: 3px solid #00ff00; background: rgba(0,255,0,0.05); padding: 12px; margin-bottom: 12px; border-radius: 0 5px 5px 0;'>
-                    <div style='font-size: 0.8em; color: gray; margin-bottom: 2px;'>{tarih_str}</div>
-                    <div style='font-weight: bold; color: white; margin-bottom: 4px;'>{b[0]}</div>
-                    <div style='font-size: 0.95em; color: #d0d0d0; line-height: 1.4;'>{b[1]}</div>
-                </div>
-                """, unsafe_allow_html=True)
+            with st.container(height=350, border=True):
+                for b in bildirimler:
+                    tarih_str = b[2].strftime("%d.%m.%Y %H:%M")
+                    st.markdown(f"""
+                    <div style='border-left: 3px solid #00ff00; background: rgba(0,255,0,0.05); padding: 12px; margin-bottom: 12px; border-radius: 0 5px 5px 0;'>
+                        <div style='font-size: 0.8em; color: gray; margin-bottom: 2px;'>{tarih_str}</div>
+                        <div style='font-weight: bold; color: white; margin-bottom: 4px;'>{b[0]}</div>
+                        <div style='font-size: 0.95em; color: #d0d0d0; line-height: 1.4;'>{b[1]}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
         else:
             st.info("Sistemde okunmamış yeni bir analiz veya bildirim bulunmamaktadır.")
 
@@ -1940,7 +1952,7 @@ else:
             st.toast(st.session_state.islem_bildirimi['mesaj'])
             del st.session_state.islem_bildirimi 
 
-        tab1, tab2, tab3, tab4 = st.tabs(["Cari Portföy", "İşlem Terminali", "Virman Yönetimi", "İşlem Dökümü"])
+        tab1, tab2, tab3, tab4 = st.tabs(["Cari Portföy", "İşlem Terminali", "Transfer İşlemleri", "İşlem Dökümü"])
 
         with tab1: 
             conn = get_db()
@@ -2725,7 +2737,7 @@ else:
             doviz_islem_modulu(k_adi, "portfoy_tab2")   
 
         with tab3: 
-            st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #bb86fc; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #bb86fc;'></div><div style='color: #bb86fc; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>KURUM İÇİ TRANSFER (VİRMAN)</div></div>", unsafe_allow_html=True)
+            st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff00;'></div><div style='color: #00ff00; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>TRANSFER İŞLEMLERİ</div></div>", unsafe_allow_html=True)
             
             conn = get_db()
             try:
@@ -2743,7 +2755,17 @@ else:
                 
                 st.markdown("<span style='color: gray; font-size: 0.85em;'>Çıkış Yapılacak Kaynak:</span>", unsafe_allow_html=True)
                 gonderen = st.selectbox("Çıkış Yapılacak Kaynak", transfer_hesaplari, label_visibility="collapsed", key="v_kaynak_portfoy")
-                kalan_hesaplar = [h for h in transfer_hesaplari if h != gonderen]
+                
+                # --- AKILLI OTOMASYON (DİNAMİK FİLTRELEME) ---
+                if "Yatırım:" in gonderen:
+                    # Kaynak Yatırım Hesabıysa, hedef SADECE Normal Banka Hesapları olabilir
+                    kalan_hesaplar = [h for h in transfer_hesaplari if "Yatırım:" not in h]
+                else:
+                    # Kaynak Normal Banka Hesabıysa, hedef SADECE Yatırım Hesapları olabilir
+                    kalan_hesaplar = [h for h in transfer_hesaplari if "Yatırım:" in h]
+                    
+                if not kalan_hesaplar:
+                    kalan_hesaplar = ["Uygun Hedef Hesap Bulunamadı"]
                 
                 k_bak_p = float(gonderen.rsplit("(", 1)[1].replace(")", "").split(" ")[0])
                 k_pb_p = gonderen.rsplit("(", 1)[1].replace(")", "").split(" ")[1]
@@ -2763,6 +2785,10 @@ else:
                     
                     st.markdown("<br>", unsafe_allow_html=True)
                     if st.form_submit_button("Transferi Başlat", type="primary", use_container_width=True):
+                        if alan == "Uygun Hedef Hesap Bulunamadı":
+                            st.error("İşlem Reddedildi: Transfer yapılacak uygun bir hedef hesap bulunmuyor.")
+                            st.stop()
+                            
                         k_saf = gonderen.rsplit(" (", 1)[0].replace("Hesap: ", "").replace("Yatırım: ", "")
                         h_saf = alan.rsplit(" (", 1)[0].replace("Hesap: ", "").replace("Yatırım: ", "")
                         k_pb = gonderen.rsplit("(", 1)[1].replace(")", "").split(" ")[1]

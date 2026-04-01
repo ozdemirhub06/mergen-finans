@@ -446,28 +446,9 @@ st.markdown("""
         text-shadow: 0 0 8px rgba(0, 255, 0, 0.5) !important;
     }
 
-    /* 2. Sağ Üstteki Koşan Adamı İptal Edip, Merkeze Dev Neon Halka Ekleme */
+    /* 2. Sağ Üstteki Koşan Adamı Tamamen İptal Et */
     [data-testid="stStatusWidget"] {
-        visibility: hidden !important; /* Ekranı bozmaması için sadece gizliyoruz, tamamen yok etmiyoruz ki ::after çalışsın */
-    }
-    [data-testid="stStatusWidget"]::after {
-        content: "";
-        visibility: visible !important;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        width: 50px;
-        height: 50px;
-        border: 4px solid rgba(0, 255, 0, 0.1);
-        border-left-color: #00ff00;
-        border-radius: 50%;
-        animation: siber-spin 0.8s linear infinite;
-        z-index: 99999;
-        box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
-    }
-    @keyframes siber-spin {
-        0% { transform: translate(-50%, -50%) rotate(0deg); }
-        100% { transform: translate(-50%, -50%) rotate(360deg); }
+        display: none !important;
     }
 </style>
                
@@ -1542,16 +1523,20 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
         }};
 
         function submitStreamlitPin(pinValue) {{
-            const inputs = doc.querySelectorAll('input[aria-label="PIN_GIRIS_ALANI"]');
+            // Doğru kutuyu bulmak için hem placeholder hem de aria-label tarıyoruz
+            const inputs = doc.querySelectorAll('input[placeholder="PIN_GIRIS_ALANI"], input[aria-label="PIN"]');
             if(inputs.length > 0) {{
                 let inp = inputs[0];
                 let setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
                 setter.call(inp, pinValue);
                 inp.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                // 100ms sonra enter'a bas
+                
+                // Garantili tetikleyici: DOĞRULA butonunu bul ve tıkla
                 setTimeout(()=>{{
-                    inp.dispatchEvent(new KeyboardEvent('keydown', {{key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true}}));
-                }}, 100);
+                    const btns = Array.from(doc.querySelectorAll('button'));
+                    const dogrulaBtn = btns.find(b => b.innerText.includes('DOĞRULA'));
+                    if(dogrulaBtn) dogrulaBtn.click();
+                }}, 150);
             }}
         }}
 

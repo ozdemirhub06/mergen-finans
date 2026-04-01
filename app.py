@@ -500,34 +500,21 @@ components.html(
 import extra_streamlit_components as stx
 cookie_manager = stx.CookieManager(key="mergen_cerez_motoru")
 
-# --- 2. VERİTABANI VE YARDIMCI MOTORLAR ---
+# --- 2. VERİTABANI VE YARDIMCI MOTORLAR (ZIRHLI BAĞLANTI) ---
 
-@st.cache_resource
-def init_pool():
-    # Yeni Sunucu (Render) Uyumu
+def get_db():
     db_url = os.environ.get("DB_URL", "")
     if not db_url:
         try: db_url = st.secrets["DB_URL"]
         except: pass
-    return pool.ThreadedConnectionPool(1, 20, db_url)
-
-def get_db():
-    try:
-        return init_pool().getconn()
-    except Exception:
-        db_url = os.environ.get("DB_URL", "")
-        if not db_url:
-            try: db_url = st.secrets["DB_URL"]
-            except: pass
-        return psycopg2.connect(db_url)
+    
+    # HAVUZ (POOL) İPTAL EDİLDİ: Her seferinde kapıyı çalıp taze bağlantı açıyoruz!
+    return psycopg2.connect(db_url)
 
 def release_db(conn):
-    # Bağlantıyı öldürmüyoruz (close yapmıyoruz), diğer işlemler için havuza geri bırakıyoruz
-    try:
-        init_pool().putconn(conn)
-    except:
-        try: conn.close()
-        except: pass
+    # İŞİMİZ BİTİNCE KÖPRÜYÜ YIKIYORUZ: Açık kalıp elimizde patlamasın!
+    try: conn.close()
+    except: pass
 
 @st.dialog("Sistem Onayı")
 def islem_onay_dialog(baslik, mesaj, basari_mesaji, sorgular):

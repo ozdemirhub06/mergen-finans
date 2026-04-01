@@ -1446,10 +1446,10 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
     foto_html = f"<img src='data:image/png;base64,{foto_b64}' style='width:120px; height:120px; border-radius:50%; border:3px solid #00ff00; object-fit:cover; margin-bottom:15px; box-shadow: 0 0 30px rgba(0,255,0,0.4);'>" if foto_b64 else f"<div style='width:120px; height:120px; border-radius:50%; border:3px solid #00ff00; display:flex; align-items:center; justify-content:center; color:#00ff00; background:rgba(0,255,0,0.05); font-size:45px; margin-bottom:15px; font-family:Consolas; box-shadow: 0 0 30px rgba(0,255,0,0.4);'>{isim_soyisim[0].upper()}</div>"
 
     # Hata Mesajı Dinamik HTML'i
-    hata_html = f"<div style='color: #FF5252; font-size: 15px; font-weight: bold; margin-top: 10px; text-shadow: 0 0 10px rgba(255,0,0,0.5);'>HATALI PIN! KALAN HAK: {st.session_state.pin_deneme}</div>" if st.session_state.get('pin_hata') else ""
+    hata_html = f"<div style='color: #FF5252; font-size: 16px; font-weight: bold; margin-top: 5px; margin-bottom: 5px; text-shadow: 0 0 10px rgba(255,0,0,0.5);'>HATALI PIN! KALAN HAK: {st.session_state.pin_deneme}</div>" if st.session_state.get('pin_hata') else ""
 
-    # Arka planda gizlice çalışacak Streamlit formunu görünmez yapıyoruz
-    st.markdown("<style>div[data-testid='stForm'], button[kind='secondary'] { opacity: 0; position: absolute; z-index: -1; pointer-events: none; }</style>", unsafe_allow_html=True)
+    # Arka planda gizlice çalışacak Streamlit formunu GÜVENLİ şekilde görünmez yapıyoruz
+    st.markdown("<style>div[data-testid='stForm'] { position: fixed; left: -9999px; opacity: 0; }</style>", unsafe_allow_html=True)
     
     with st.form("pin_form"):
         girilen_pin = st.text_input("PIN", key="pin_giris", label_visibility="collapsed", placeholder="PIN_GIRIS_ALANI")
@@ -1483,7 +1483,7 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
         components.html("""<script>document.cookie = "mergen_oturum=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.parent.location.reload();</script>""", height=0)
         st.stop()
 
-    # JS MOTORU: Klavye + Ekrana tam basan tuş takımı (Zifiri Karanlık + Garantili Tıklama)
+    # JS MOTORU: Klavye + Ekrana tam basan tuş takımı (Zifiri Karanlık + React Hackli Tıklama + Nizami Hizalama)
     components.html(f"""
     <script>
         const parentWindow = window.parent;
@@ -1504,22 +1504,23 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
                     color: white; user-select: none;
                 }}
                 .pin-numpad {{
-                    display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-top: 15px;
+                    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 15px;
                 }}
                 .pin-btn {{
-                    width: 75px; height: 75px; border-radius: 50%; background: rgba(20,20,20,0.8);
-                    border: 2px solid rgba(0,255,0,0.2); color: #00ff00; font-size: 32px;
+                    width: 80px; height: 80px; border-radius: 50%; background: rgba(20,20,20,0.8);
+                    border: 2px solid rgba(0,255,0,0.2); color: #00ff00; font-size: 34px;
                     display: flex; align-items: center; justify-content: center;
                     cursor: pointer; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.5);
                     font-family: Consolas, monospace; font-weight: bold;
                 }}
                 .pin-btn:hover {{ border-color: rgba(0,255,0,0.6); background: rgba(0,255,0,0.1); }}
                 .pin-btn:active {{ transform: scale(0.9); background: rgba(0,255,0,0.3); box-shadow: 0 0 20px rgba(0,255,0,0.8); }}
-                .pin-action {{ color: gray; border-color: rgba(255,255,255,0.1); font-size: 16px; }}
+                .pin-action {{ color: gray; border-color: rgba(255,255,255,0.1); font-size: 16px; letter-spacing: 1px; }}
                 .pin-action:hover {{ border-color: rgba(255,255,255,0.4); color: white; }}
                 .pin-action:active {{ color: white; background: rgba(255,255,255,0.1); }}
+                .pin-del {{ font-size: 32px; padding-bottom: 4px; }}
                 #pin-dots {{ font-size: 26px; letter-spacing: 25px; margin-top: 10px; height: 40px; color: #00ff00; text-shadow: 0 0 10px rgba(0,255,0,0.5); }}
-                .username-txt {{ font-size: 24px; font-weight: 600; letter-spacing: 1px; margin: 0; color: #e0e0e0; }}
+                .username-txt {{ font-size: 26px; font-weight: 600; letter-spacing: 1px; margin: 0; color: #e0e0e0; }}
                 .sub-txt {{ font-size: 13px; color: #666; margin-top: 5px; letter-spacing: 2px; text-transform: uppercase; }}
             </style>
             {foto_html}
@@ -1528,24 +1529,25 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
             {hata_html}
             <div id="pin-dots">⚪ ⚪ ⚪ ⚪</div>
             <div class="pin-numpad">
-                <div class="pin-btn" onclick="window.addPin('1')">1</div>
-                <div class="pin-btn" onclick="window.addPin('2')">2</div>
-                <div class="pin-btn" onclick="window.addPin('3')">3</div>
-                <div class="pin-btn" onclick="window.addPin('4')">4</div>
-                <div class="pin-btn" onclick="window.addPin('5')">5</div>
-                <div class="pin-btn" onclick="window.addPin('6')">6</div>
-                <div class="pin-btn" onclick="window.addPin('7')">7</div>
-                <div class="pin-btn" onclick="window.addPin('8')">8</div>
-                <div class="pin-btn" onclick="window.addPin('9')">9</div>
-                <div class="pin-btn pin-action" onclick="window.forgotPin()">İPTAL</div>
-                <div class="pin-btn" onclick="window.addPin('0')">0</div>
-                <div class="pin-btn pin-action" onclick="window.delPin()" style="font-size: 26px;">⌫</div>
+                <div class="pin-btn pin-num">1</div>
+                <div class="pin-btn pin-num">2</div>
+                <div class="pin-btn pin-num">3</div>
+                <div class="pin-btn pin-num">4</div>
+                <div class="pin-btn pin-num">5</div>
+                <div class="pin-btn pin-num">6</div>
+                <div class="pin-btn pin-num">7</div>
+                <div class="pin-btn pin-num">8</div>
+                <div class="pin-btn pin-num">9</div>
+                <div class="pin-btn pin-action pin-forgot">İPTAL</div>
+                <div class="pin-btn pin-num">0</div>
+                <div class="pin-btn pin-action pin-del">⌫</div>
             </div>
         `;
         doc.body.appendChild(overlay);
 
         let currentPin = "";
         let dotEl = overlay.querySelector('#pin-dots');
+        let isSubmitting = false;
         
         function updateDots() {{
             let html = "";
@@ -1554,16 +1556,19 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
         }}
 
         window.addPin = function(d) {{
+            if(isSubmitting) return;
             if(currentPin.length < 4) {{
                 currentPin += d;
                 updateDots();
                 if(currentPin.length === 4) {{
+                    isSubmitting = true;
                     setTimeout(() => window.submitStreamlitPin(currentPin), 150);
                 }}
             }}
         }};
 
         window.delPin = function() {{
+            if(isSubmitting) return;
             currentPin = currentPin.slice(0, -1);
             updateDots();
         }};
@@ -1574,23 +1579,34 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
             if(target) target.click();
         }};
 
+        overlay.querySelectorAll('.pin-num').forEach(el => {{
+            el.addEventListener('click', function() {{ window.addPin(this.innerText); }});
+        }});
+        overlay.querySelector('.pin-del').addEventListener('click', window.delPin);
+        overlay.querySelector('.pin-forgot').addEventListener('click', window.forgotPin);
+
         window.submitStreamlitPin = function(pinValue) {{
-            const inputs = doc.querySelectorAll('input[placeholder="PIN_GIRIS_ALANI"], input[aria-label="PIN"]');
+            const inputs = doc.querySelectorAll('input[placeholder="PIN_GIRIS_ALANI"]');
             if(inputs.length > 0) {{
                 let inp = inputs[0];
-                let setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
-                setter.call(inp, pinValue);
-                inp.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                
+                // REACT'I ZORLA KANDIRAN KESİN ÇÖZÜM HACK'İ
+                let lastValue = inp.value;
+                inp.value = pinValue;
+                let event = new Event('input', {{ bubbles: true }});
+                event.simulated = true;
+                let tracker = inp._valueTracker;
+                if (tracker) {{ tracker.setValue(lastValue); }}
+                inp.dispatchEvent(event);
                 
                 setTimeout(()=>{{
                     const btns = Array.from(doc.querySelectorAll('button'));
                     const dogrulaBtn = btns.find(b => b.innerText.includes('DOĞRULA'));
                     if(dogrulaBtn) dogrulaBtn.click();
-                }}, 150);
+                }}, 200);
             }}
         }};
 
-        // Fiziksel klavye desteği
         parentWindow.addEventListener('keydown', function pinKeyHandler(e) {{
             if(!doc.getElementById('cyber-pin-overlay')) {{
                 parentWindow.removeEventListener('keydown', pinKeyHandler);
@@ -1602,6 +1618,8 @@ if st.session_state.get('pin_bekleniyor') and not st.session_state.iceride_mi:
         }});
     </script>
     """, height=0, width=0)
+
+elif not st.session_state.iceride_mi:
     
     # --- GİRİŞ EKRANI SÜZÜLEN LOGO VE 360 DERECE PARTİKÜL EFEKTİ ---
     logo_b64, logo_mime = "", "png"

@@ -3049,10 +3049,19 @@ else:
                     
                     h_taksit = 1
                     h_faiz = 0.0
+                    islem_tarihi_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                     
                     if "Kart:" in h_kaynak:
                         st.markdown("<hr style='margin: 15px 0px 5px 0px; border-color: rgba(255,255,255,0.05);'>", unsafe_allow_html=True)
-                        taksit_secimi = st.checkbox(" Taksitli veya Vadeli İşlem Ekle")
+                        
+                        cx1, cx2 = st.columns(2)
+                        taksit_secimi = cx1.checkbox(" Taksitli / Vadeli İşlem")
+                        provizyon_secimi = cx2.checkbox(" Geçmiş Tarihli (Provizyon) İşlem")
+                        
+                        if provizyon_secimi:
+                            st.markdown("<div style='margin-bottom: 5px; margin-top: 5px; color: #00bcd4; font-size: 0.85em; font-weight: bold;'>İşlemin Gerçekleştiği Tarih</div>", unsafe_allow_html=True)
+                            secilen_tarih = st.date_input("İşlem Tarihi", value=datetime.date.today(), label_visibility="collapsed")
+                            islem_tarihi_str = datetime.datetime.combine(secilen_tarih, datetime.datetime.now().time()).strftime('%Y-%m-%d %H:%M:%S')
                         
                         if taksit_secimi:
                             st.markdown("<div style='margin-bottom: 10px; margin-top: 5px; color: #ffb300; font-size: 0.85em; font-weight: bold;'>Taksit ve Vade Ayarları</div>", unsafe_allow_html=True)
@@ -3073,7 +3082,7 @@ else:
                             ek_not = f"({h_taksit} Taksit | Aylık: {aylik_tutar:,.2f} TL | %{h_faiz} Vade Farkı)"
                             h_detay = f"{h_detay_orj} {ek_not}".strip() if h_detay_orj else f"{h_kategori} {ek_not}"
                             
-                            sorgular.append(("INSERT INTO taksitli_islemler (kullanici_adi, kart_adi, aciklama, toplam_tutar, aylik_tutar, toplam_taksit, odenen_taksit) VALUES (%s, %s, %s, %s, %s, %s, 0)", (k_adi, secilen_k, h_detay_orj if h_detay_orj else h_kategori, h_tutar, aylik_tutar, h_taksit)))
+                            sorgular.append(("INSERT INTO taksitli_islemler (kullanici_adi, kart_adi, aciklama, toplam_tutar, aylik_tutar, toplam_taksit, odenen_taksit, tarih) VALUES (%s, %s, %s, %s, %s, %s, 0, %s)", (k_adi, secilen_k, h_detay_orj if h_detay_orj else h_kategori, h_tutar, aylik_tutar, h_taksit, islem_tarihi_str)))
                         elif h_faiz > 0:
                             ek_not = f"(%{h_faiz} Vade Farkı)"
                             h_detay = f"{h_detay_orj} {ek_not}".strip() if h_detay_orj else f"{h_kategori} {ek_not}"
@@ -3094,13 +3103,13 @@ else:
                                 gecerli_mi = True
 
                         if gecerli_mi:
-                            sorgular.append(("INSERT INTO harcamalar (kullanici_adi, kategori, aciklama, tutar, kaynak_hesap) VALUES (%s,%s,%s,%s,%s)", (k_adi, h_kategori, h_detay, h_tutar, salt_kaynak)))
+                            sorgular.append(("INSERT INTO harcamalar (kullanici_adi, kategori, aciklama, tutar, kaynak_hesap, tarih) VALUES (%s,%s,%s,%s,%s,%s)", (k_adi, h_kategori, h_detay, h_tutar, salt_kaynak, islem_tarihi_str)))
                             dekont = f"{salt_kaynak.replace('Hesap: ', '').replace('Kart: ', '')} - {h_kategori} Harcaması" + (f" ({h_detay})" if h_detay else "")
-                            sorgular.append(("INSERT INTO islem_gecmisi (kullanici_adi, islem_tipi, detay, tutar) VALUES (%s, 'HARCAMA (-)', %s, %s)", (k_adi, dekont, -h_tutar)))
+                            sorgular.append(("INSERT INTO islem_gecmisi (kullanici_adi, islem_tipi, detay, tutar, tarih) VALUES (%s, 'HARCAMA (-)', %s, %s, %s)", (k_adi, dekont, -h_tutar, islem_tarihi_str)))
                             
                             if h_tutar >= 3000:
                                 asistan_mesaji = f"{h_kategori} kategorisinde tek seferde {h_tutar:,.2f} TL tutarında yüksek bir harcama tespit edilmiştir. Bütçe limitlerinizi gözden geçirmeniz tavsiye olunur."
-                                sorgular.append(("INSERT INTO asistan_bildirimleri (kullanici_adi, baslik, mesaj, tur) VALUES (%s, 'Yüksek Tutarlı Harcama Tespiti', %s, 'GIDER')", (k_adi, asistan_mesaji)))
+                                sorgular.append(("INSERT INTO asistan_bildirimleri (kullanici_adi, baslik, mesaj, tur, tarih) VALUES (%s, 'Yüksek Tutarlı Harcama Tespiti', %s, 'GIDER', %s)", (k_adi, asistan_mesaji, islem_tarihi_str)))
                             
                             # --- ONAY BEKLEMEDEN DİREKT İŞLEME MOTORU ---
                             conn = get_db()
@@ -3697,12 +3706,28 @@ else:
                                             c_indir.download_button("Dekont İndir", dekont_metni, file_name=f"Dekont_{ekstre['donem_adi']}.md", key=f"dl_{ekstre['id']}", use_container_width=True)
                                 else: st.info("Geçmiş ekstre bulunmuyor.")
                                 st.markdown("---")
-                        c_lim, c_sil = st.columns(2)
-                        with c_lim:
-                            with st.expander("Bütçe Sınırını Güncelle"):
-                                yeni_lim = st.number_input("Yeni Sınır (TL)", value=float(kisisel_limit), step=500.0, key=f"ylim_{kart_adi}")
-                                if st.button("Güncelle", key=f"ubtn_{kart_adi}", type="primary"):
-                                    conn = get_db(); c = conn.cursor(); c.execute("UPDATE kredi_kartlari SET kisisel_limit = %s WHERE kullanici_adi = %s AND kart_adi = %s", (yeni_lim, k_adi, kart_adi)); conn.commit(); release_db(conn); st.rerun()
+                        # --- KART YÖNETİMİ (3'LÜ SÜTUN) ---
+                        # --- KART YÖNETİMİ (4'LÜ SÜTUN - BORÇ DÜZELTME EKLENDİ) ---
+                        c_blim, c_klim, c_borc, c_sil = st.columns(4)
+                        
+                        with c_blim:
+                            with st.expander("Banka Limiti"):
+                                yeni_blim = st.number_input("Yeni Banka Limiti (TL)", value=float(limit), step=1000.0, key=f"blim_{kart_adi}")
+                                if st.button("Güncelle", key=f"bbtn_{kart_adi}", type="primary"):
+                                    conn = get_db(); c = conn.cursor(); c.execute("UPDATE kredi_kartlari SET limit_tutari = %s WHERE kullanici_adi = %s AND kart_adi = %s", (yeni_blim, k_adi, kart_adi)); conn.commit(); release_db(conn); st.rerun()
+                                    
+                        with c_klim:
+                            with st.expander("Bütçe Sınırı"):
+                                yeni_klim = st.number_input("Yeni Bütçe Sınırı (TL)", value=float(kisisel_limit), step=500.0, key=f"ylim_{kart_adi}")
+                                if st.button("Güncelle ", key=f"ubtn_{kart_adi}", type="primary"):
+                                    conn = get_db(); c = conn.cursor(); c.execute("UPDATE kredi_kartlari SET kisisel_limit = %s WHERE kullanici_adi = %s AND kart_adi = %s", (yeni_klim, k_adi, kart_adi)); conn.commit(); release_db(conn); st.rerun()
+                                    
+                        with c_borc:
+                            with st.expander("Borç Düzelt"):
+                                yeni_borc = st.number_input("Gerçek Borç Tutarı (TL)", value=float(borc), step=100.0, key=f"gborc_{kart_adi}")
+                                if st.button("Eşitle", key=f"borcbtn_{kart_adi}", type="primary"):
+                                    conn = get_db(); c = conn.cursor(); c.execute("UPDATE kredi_kartlari SET guncel_borc = %s WHERE kullanici_adi = %s AND kart_adi = %s", (yeni_borc, k_adi, kart_adi)); conn.commit(); release_db(conn); st.rerun()
+                                    
                         with c_sil:
                             with st.expander("Kartı Sil"):
                                 if st.button("Kalıcı Sil", key=f"del_{kart_adi}"):

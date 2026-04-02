@@ -378,44 +378,19 @@ st.markdown("""
         color: #000000 !important;
     }
     
-    /* --- EXPANDER (AÇILIR KUTU) SİBER TASARIMI --- */
+    /* --- EXPANDER TASARIMI (SADE & CONSOLAS FONT) --- */
     [data-testid="stExpander"] {
-        background: rgba(15, 15, 15, 0.6) !important;
-        border: 1px solid rgba(0, 255, 0, 0.15) !important;
-        border-radius: 8px !important;
-        overflow: hidden !important;
-        transition: all 0.3s ease !important;
-    }
-    [data-testid="stExpander"]:hover {
-        border-color: rgba(0, 255, 0, 0.4) !important;
-        box-shadow: 0 0 12px rgba(0, 255, 0, 0.15) !important;
-    }
-    [data-testid="stExpander"] summary {
-        background: rgba(10, 10, 10, 0.9) !important;
-        padding: 10px 15px !important;
-    }
-    [data-testid="stExpander"] summary:hover {
-        background: rgba(0, 255, 0, 0.05) !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        border-radius: 6px !important;
+        background: transparent !important;
     }
     [data-testid="stExpander"] summary p {
-        color: #d0d0d0 !important;
         font-family: Consolas, monospace !important;
-        font-weight: 600 !important;
-        letter-spacing: 0.5px !important;
-        transition: color 0.3s ease !important;
+        color: #d0d0d0 !important;
+        font-size: 1.05em !important;
     }
     [data-testid="stExpander"] summary:hover p {
         color: #00ff00 !important;
-        text-shadow: 0 0 8px rgba(0,255,0,0.3) !important;
-    }
-    [data-testid="stExpander"] summary svg {
-        color: #00ff00 !important;
-        fill: #00ff00 !important;
-    }
-    [data-testid="stExpanderDetails"] {
-        background: rgba(5, 5, 5, 0.95) !important;
-        border-top: 1px solid rgba(0, 255, 0, 0.1) !important;
-        padding: 15px !important;
     }
             /* --- İNATÇI BEYAZ YAZILARI ZORLA SİYAH YAP (FORM BUTONLARI DAHİL) --- */
     button[kind="primary"] p,
@@ -1582,8 +1557,7 @@ if not st.session_state.iceride_mi:
 else:
     k_adi = st.session_state.aktif_kullanici
     mevcut_bakiye = bakiye_getir(k_adi)
-    
-    
+    H_MASK = "*****"
     
     
     if 'motorlar_calisti' not in st.session_state:
@@ -1817,28 +1791,56 @@ else:
         asistan_paneli_ac(k_adi)
 
     with st.sidebar:
+        # --- HAYALET MODU (GHOST MODE) MOTORU VE İKONU ---
+        if 'hayalet_modu' not in st.session_state:
+            st.session_state.hayalet_modu = False
+
+        def toggle_hayalet_modu():
+            st.session_state.hayalet_modu = not st.session_state.hayalet_modu
+
+        is_ghost = st.session_state.hayalet_modu
         
-        # --- HAYALET MODU İKONU VE STİLİ ---
-        is_ghost = st.session_state.get('hayalet_modu', False)
-        ghost_color = "#00ff00" if is_ghost else "gray"
-        ghost_shadow = "0 0 15px rgba(0, 255, 0, 0.4)" if is_ghost else "none"
-        
+        # SVG Çizimleri (Açık Göz = Gri, Çizgili Kapalı Göz = Neon Yeşil)
+        svg_acik = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="gray" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>'
+        svg_kapali = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2300ff00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
+        aktif_svg = svg_kapali if is_ghost else svg_acik
+
         st.markdown(f"""
         <style>
-        div.stButton > button[key="btn_ghost"] {{
-            position: absolute !important; top: 5px !important; right: 15px !important; background: transparent !important;
-            border: 2px solid {ghost_color} !important; border-radius: 50% !important; width: 42px !important; height: 42px !important;
-            padding: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important;
-            color: {ghost_color} !important; box-shadow: {ghost_shadow} !important; z-index: 999 !important; transition: all 0.3s ease !important;
+        /* Hayalet Modu Butonu Siber Tasarımı (Doğrudan İkonun Kendisi Tıklanır) */
+        div[data-testid="stElementContainer"]:has(#ghost-marker) + div[data-testid="stElementContainer"] button {{
+            position: absolute !important;
+            top: -25px !important;
+            right: 10px !important;
+            width: 40px !important;
+            height: 40px !important;
+            background-color: transparent !important;
+            background-image: url('{aktif_svg}') !important;
+            background-size: 22px 22px !important;
+            background-repeat: no-repeat !important;
+            background-position: center !important;
+            border: none !important;
+            box-shadow: none !important;
+            color: transparent !important;
+            z-index: 9999 !important;
+            transition: all 0.3s ease !important;
         }}
-        div.stButton > button[key="btn_ghost"] p {{ display: none !important; }}
+        div[data-testid="stElementContainer"]:has(#ghost-marker) + div[data-testid="stElementContainer"] button:hover {{
+            transform: scale(1.1) !important;
+            filter: drop-shadow(0 0 8px {'#00ff00' if is_ghost else 'gray'}) !important;
+            background-color: transparent !important;
+            border: none !important;
+        }}
+        /* Butonun içindeki yazıyı yokediyoruz */
+        div[data-testid="stElementContainer"]:has(#ghost-marker) + div[data-testid="stElementContainer"] button p {{
+            display: none !important;
+        }}
         </style>
+        <div id="ghost-marker"></div>
         """, unsafe_allow_html=True)
         
-        st.button("H", key="btn_ghost", on_click=toggle_hayalet_modu)
-        st.markdown(f"<div style='position:absolute; top:15px; right:25px; z-index:998; pointer-events:none; color: {ghost_color};'>{SVG_GOZ_IKONU}</div>", unsafe_allow_html=True)
+        st.button("Hayalet", on_click=toggle_hayalet_modu)
 
-        # --- 1. TARİH VE GÜN MODÜLÜ ---
         # --- 1. TARİH VE GÜN MODÜLÜ ---
         aylar = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
         gunler = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"]

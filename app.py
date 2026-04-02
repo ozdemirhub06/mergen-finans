@@ -3730,10 +3730,39 @@ else:
                                             c_indir.download_button("Dekont İndir", dekont_metni, file_name=f"Dekont_{ekstre['donem_adi']}.md", key=f"dl_{ekstre['id']}", use_container_width=True)
                                 else: st.info("Geçmiş ekstre bulunmuyor.")
                                 st.markdown("---")
-                        # --- KART YÖNETİMİ (3'LÜ SÜTUN) ---
-                        # --- KART YÖNETİMİ (4'LÜ SÜTUN - BORÇ DÜZELTME EKLENDİ) ---
-                        c_blim, c_klim, c_borc, c_sil = st.columns(4)
+                        # --- KART YÖNETİMİ (5'Lİ SÜTUN - KART BORCU ÖDEME EKLENDİ) ---
+                        c_ode, c_blim, c_klim, c_borc, c_sil = st.columns(5)
                         
+                        with c_ode:
+                            with st.expander("Borç Öde"):
+                                vd_hesaplar = df_bh[df_bh['hesap_turu'] == 'Vadesiz']
+                                if vd_hesaplar.empty:
+                                    st.warning(f"Ödeme için bu bankada vadesiz hesabınız yok.")
+                                else:
+                                    h_secenek = [f"{r['hesap_adi']} ({r['bakiye']:,.2f} TL)" for _, r in vd_hesaplar.iterrows()]
+                                    st.caption("Ödeme Kaynağı:")
+                                    o_kaynak = st.selectbox("Ödeme Kaynağı", h_secenek, key=f"ok_{kart_adi}", label_visibility="collapsed")
+                                    st.caption("Ödenecek Tutar (TL):")
+                                    o_tutar = st.number_input("Tutar (TL)", min_value=0.0, max_value=float(borc) if borc>0 else 0.0, value=float(borc) if borc>0 else 0.0, step=100.0, key=f"ot_{kart_adi}", label_visibility="collapsed")
+                                    
+                                    if st.button("Ödemeyi Yap", key=f"ob_{kart_adi}", type="primary"):
+                                        if o_tutar <= 0: st.error("Sıfırdan büyük tutar girin.")
+                                        else:
+                                            sec_saf = o_kaynak.split(" (")[0]
+                                            bak_kontrol = float(vd_hesaplar[vd_hesaplar['hesap_adi'] == sec_saf]['bakiye'].values[0])
+                                            if o_tutar > bak_kontrol: st.error("Yetersiz Bakiye!")
+                                            else:
+                                                conn = get_db()
+                                                try:
+                                                    c = conn.cursor()
+                                                    c.execute("UPDATE banka_hesaplari SET bakiye = bakiye - %s WHERE kullanici_adi = %s AND hesap_adi = %s", (o_tutar, k_adi, sec_saf))
+                                                    c.execute("UPDATE kredi_kartlari SET guncel_borc = GREATEST(0, guncel_borc - %s) WHERE kullanici_adi = %s AND kart_adi = %s", (o_tutar, k_adi, kart_adi))
+                                                    c.execute("INSERT INTO islem_gecmisi (kullanici_adi, islem_tipi, detay, tutar) VALUES (%s, 'KART BORCU ÖDEME (-)', %s, %s)", (k_adi, f"{kart_adi} Güncel Borç Ödemesi ({sec_saf})", -o_tutar))
+                                                    c.execute("INSERT INTO harcamalar (kullanici_adi, kategori, aciklama, tutar, kaynak_hesap) VALUES (%s, 'Kredi Kartı Ödemesi', %s, %s, %s)", (k_adi, f"{kart_adi} Ödemesi", o_tutar, sec_saf))
+                                                    conn.commit()
+                                                finally: release_db(conn)
+                                                st.success("Ödendi!"); time.sleep(1); st.rerun()
+
                         with c_blim:
                             with st.expander("Banka Limiti"):
                                 yeni_blim = st.number_input("Yeni Banka Limiti (TL)", value=float(limit), step=1000.0, key=f"blim_{kart_adi}")

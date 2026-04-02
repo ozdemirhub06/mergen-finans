@@ -1791,8 +1791,6 @@ else:
         asistan_paneli_ac(k_adi)
 
     with st.sidebar:
-        with st.sidebar:
-        
         # --- HAYALET MODU MOTORU VE İKON ENJEKSİYONU ---
         is_ghost = st.session_state.get('hayalet_modu', False)
         
@@ -1825,6 +1823,8 @@ else:
         """, unsafe_allow_html=True)
         
         st.button("GhostBtn", on_click=toggle_hayalet_modu)
+
+        # --- 1. TARİH VE GÜN MODÜLÜ ---
 
         # --- 1. TARİH VE GÜN MODÜLÜ ---
         aylar = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
@@ -5592,6 +5592,3 @@ else:
                     st.info("Sistemde henüz kayıtlı kullanıcı yok.")
             finally:
                 release_db(conn)
-
-
-

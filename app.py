@@ -378,7 +378,45 @@ st.markdown("""
         color: #000000 !important;
     }
     
-    .st-expander {border: 1px solid rgba(255,255,255,0.05) !important; border-radius: 4px !important;}
+    /* --- EXPANDER (AÇILIR KUTU) SİBER TASARIMI --- */
+    [data-testid="stExpander"] {
+        background: rgba(15, 15, 15, 0.6) !important;
+        border: 1px solid rgba(0, 255, 0, 0.15) !important;
+        border-radius: 8px !important;
+        overflow: hidden !important;
+        transition: all 0.3s ease !important;
+    }
+    [data-testid="stExpander"]:hover {
+        border-color: rgba(0, 255, 0, 0.4) !important;
+        box-shadow: 0 0 12px rgba(0, 255, 0, 0.15) !important;
+    }
+    [data-testid="stExpander"] summary {
+        background: rgba(10, 10, 10, 0.9) !important;
+        padding: 10px 15px !important;
+    }
+    [data-testid="stExpander"] summary:hover {
+        background: rgba(0, 255, 0, 0.05) !important;
+    }
+    [data-testid="stExpander"] summary p {
+        color: #d0d0d0 !important;
+        font-family: Consolas, monospace !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.5px !important;
+        transition: color 0.3s ease !important;
+    }
+    [data-testid="stExpander"] summary:hover p {
+        color: #00ff00 !important;
+        text-shadow: 0 0 8px rgba(0,255,0,0.3) !important;
+    }
+    [data-testid="stExpander"] summary svg {
+        color: #00ff00 !important;
+        fill: #00ff00 !important;
+    }
+    [data-testid="stExpanderDetails"] {
+        background: rgba(5, 5, 5, 0.95) !important;
+        border-top: 1px solid rgba(0, 255, 0, 0.1) !important;
+        padding: 15px !important;
+    }
             /* --- İNATÇI BEYAZ YAZILARI ZORLA SİYAH YAP (FORM BUTONLARI DAHİL) --- */
     button[kind="primary"] p,
     button[kind="primary"] span,
@@ -503,6 +541,19 @@ components.html(
  # --- GÜVENLİ ÇEREZ (COOKIE) YÖNETİCİSİ ---
 import extra_streamlit_components as stx
 cookie_manager = stx.CookieManager(key="mergen_cerez_motoru")
+
+# --- HAYALET MODU (GHOST MODE) ALTYAPISI ---
+H_MASK = "*****"
+
+def toggle_hayalet_modu():
+    st.session_state.hayalet_modu = not st.session_state.get('hayalet_modu', False)
+
+SVG_GOZ_IKONU = """
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+    <circle cx="12" cy="12" r="3"></circle>
+</svg>
+"""
 
 # --- 2. VERİTABANI VE YARDIMCI MOTORLAR (ZIRHLI BAĞLANTI) ---
 
@@ -640,7 +691,7 @@ def kullanici_bilgileri_sayfasi(k_adi):
                 nakit_vadeli = c.fetchone()[0] or 0.0
 
                 # Varlıklar
-                c.execute('SELECT varlik_adi, borsa, SUM(lot), SUM(lot * maliyet) / SUM(lot) FROM portfoy WHERE kullanici_adi = %s GROUP BY varlik_adi, borsa HAVING SUM(lot) > 0', (k_adi,))
+                c.execute('SELECT varlik_adi, borsa, SUM(lot), SUM(CASE WHEN lot > 0 THEN lot * maliyet ELSE 0 END) / NULLIF(SUM(CASE WHEN lot > 0 THEN lot ELSE 0 END), 0) FROM portfoy WHERE kullanici_adi = %s GROUP BY varlik_adi, borsa HAVING SUM(lot) > 0.0001', (k_adi,))
                 aktif_portfoy = c.fetchall()
                 c.execute("SELECT maden_turu, SUM(miktar), AVG(ortalama_maliyet) FROM emtia_portfoy WHERE kullanici_adi = %s GROUP BY maden_turu HAVING SUM(miktar) > 0", (k_adi,))
                 aktif_emtia = c.fetchall()
@@ -1557,9 +1608,9 @@ else:
         conn = get_db()
         try:
             c = conn.cursor()
-            c.execute("INSERT INTO hesaplar (kullanici_adi, hesap_adi, bakiye) VALUES (%s, 'Vadesiz TL', 50000.0) ON CONFLICT (kullanici_adi, hesap_adi) DO NOTHING", (k_adi,))
             c.execute("INSERT INTO hesaplar (kullanici_adi, hesap_adi, bakiye) VALUES (%s, 'Yatırım Hesabı', %s) ON CONFLICT (kullanici_adi, hesap_adi) DO NOTHING", (k_adi, mevcut_bakiye))
             c.execute("INSERT INTO hesaplar (kullanici_adi, hesap_adi, bakiye) VALUES (%s, 'Yatırım Hesabı (USD)', 0.0) ON CONFLICT (kullanici_adi, hesap_adi) DO NOTHING", (k_adi,))
+            c.execute("INSERT INTO hesaplar (kullanici_adi, hesap_adi, bakiye) VALUES (%s, 'Fiziki Nakit', 0.0) ON CONFLICT (kullanici_adi, hesap_adi) DO NOTHING", (k_adi,))
             conn.commit()
         finally: release_db(conn)
         st.session_state.motorlar_calisti = True
@@ -1766,6 +1817,28 @@ else:
         asistan_paneli_ac(k_adi)
 
     with st.sidebar:
+        
+        # --- HAYALET MODU İKONU VE STİLİ ---
+        is_ghost = st.session_state.get('hayalet_modu', False)
+        ghost_color = "#00ff00" if is_ghost else "gray"
+        ghost_shadow = "0 0 15px rgba(0, 255, 0, 0.4)" if is_ghost else "none"
+        
+        st.markdown(f"""
+        <style>
+        div.stButton > button[key="btn_ghost"] {{
+            position: absolute !important; top: 5px !important; right: 15px !important; background: transparent !important;
+            border: 2px solid {ghost_color} !important; border-radius: 50% !important; width: 42px !important; height: 42px !important;
+            padding: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important;
+            color: {ghost_color} !important; box-shadow: {ghost_shadow} !important; z-index: 999 !important; transition: all 0.3s ease !important;
+        }}
+        div.stButton > button[key="btn_ghost"] p {{ display: none !important; }}
+        </style>
+        """, unsafe_allow_html=True)
+        
+        st.button("H", key="btn_ghost", on_click=toggle_hayalet_modu)
+        st.markdown(f"<div style='position:absolute; top:15px; right:25px; z-index:998; pointer-events:none; color: {ghost_color};'>{SVG_GOZ_IKONU}</div>", unsafe_allow_html=True)
+
+        # --- 1. TARİH VE GÜN MODÜLÜ ---
         # --- 1. TARİH VE GÜN MODÜLÜ ---
         aylar = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
         gunler = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"]
@@ -1844,7 +1917,7 @@ else:
             conn = get_db()
             try:
                 # 1. Güncel Portföy Verisi
-                df_guncel = pd.read_sql_query('SELECT varlik_adi as "VARLIK", borsa as "BORSA", SUM(lot) as "LOT", SUM(lot * maliyet) / SUM(lot) as "ORT_MALIYET" FROM portfoy WHERE kullanici_adi = %s GROUP BY varlik_adi, borsa HAVING SUM(lot) > 0.0001', conn, params=(k_adi,))
+                df_guncel = pd.read_sql_query('SELECT varlik_adi as "VARLIK", borsa as "BORSA", SUM(lot) as "LOT", SUM(CASE WHEN lot > 0 THEN lot * maliyet ELSE 0 END) / NULLIF(SUM(CASE WHEN lot > 0 THEN lot ELSE 0 END), 0) as "ORT_MALIYET" FROM portfoy WHERE kullanici_adi = %s GROUP BY varlik_adi, borsa HAVING SUM(lot) > 0.0001', conn, params=(k_adi,))
                 
                 # 2. Kapanan Pozisyonlar Verisi
                 sorgu_kapanan = """
@@ -1980,11 +2053,18 @@ else:
 
             st.markdown("##### Nakit Bakiye ve Alım Gücü")
             
+            is_ghost = st.session_state.get('hayalet_modu', False)
             # --- 1. NAKİT BAKİYE KARTLARI (EMOJİSİZ SİBER TASARIM) ---
             nakit_kartlari = [
-                {"isim": "TL Alım Gücü" if net_takas_tl > 0 else "TL Kasası", "alt": "Türk Lirası", "deger": f"{alim_gucu_tl:,.2f} TL", "renk": "#4CAF50", "detay": f"Nakit: {nakit_tl:,.2f} | Net Takas: {net_takas_tl:,.2f}" if net_takas_tl > 0 else "Kullanılabilir Nakit", "ikon": "TL"},
-                {"isim": "USD Kasası", "alt": "Amerikan Doları", "deger": f"{nakit_usd:,.2f} $", "renk": "#4CAF50", "detay": f"Anlık Kur: {anlik_dolar:.2f} TL", "ikon": "USD"},
-                {"isim": "Toplam TL Karşılığı", "alt": "Tüm Varlıklar", "deger": f"{toplam_nakit_tl:,.2f} TL", "renk": "#00ff00", "detay": "T+2 ve Döviz Dahil", "ikon": "TOPLAM"}
+                {"isim": "TL Alım Gücü" if net_takas_tl > 0 else "TL Kasası", "alt": "Türk Lirası", 
+                 "deger": H_MASK if is_ghost else f"{alim_gucu_tl:,.2f} TL", "renk": "#4CAF50", 
+                 "detay": (H_MASK if is_ghost else f"Nakit: {nakit_tl:,.2f} | Net Takas: {net_takas_tl:,.2f}") if net_takas_tl > 0 else "Kullanılabilir Nakit", "ikon": "TL"},
+                {"isim": "USD Kasası", "alt": "Amerikan Doları", 
+                 "deger": H_MASK if is_ghost else f"{nakit_usd:,.2f} $", "renk": "#4CAF50", 
+                 "detay": f"Anlık Kur: {anlik_dolar:.2f} TL", "ikon": "USD"},
+                {"isim": "Toplam TL Karşılığı", "alt": "Tüm Varlıklar", 
+                 "deger": H_MASK if is_ghost else f"{toplam_nakit_tl:,.2f} TL", "renk": "#00ff00", 
+                 "detay": "T+2 ve Döviz Dahil", "ikon": "TOPLAM"}
             ]
             
             cols_n = st.columns(3)
@@ -2137,19 +2217,21 @@ else:
             st.markdown("---")
             
             conn = get_db()
-            df_p = pd.read_sql_query('SELECT varlik_adi as "VARLIK", borsa as "BORSA", SUM(lot) as "LOT", SUM(lot * maliyet) / SUM(lot) as "ORT_MALIYET" FROM portfoy WHERE kullanici_adi = %s GROUP BY varlik_adi, borsa HAVING SUM(lot) > 0.0001', conn, params=(k_adi,))
+            df_p = pd.read_sql_query('SELECT varlik_adi as "VARLIK", borsa as "BORSA", SUM(lot) as "LOT", SUM(CASE WHEN lot > 0 THEN lot * maliyet ELSE 0 END) / NULLIF(SUM(CASE WHEN lot > 0 THEN lot ELSE 0 END), 0) as "ORT_MALIYET" FROM portfoy WHERE kullanici_adi = %s GROUP BY varlik_adi, borsa HAVING SUM(lot) > 0.0001', conn, params=(k_adi,))
             df_emtia = pd.read_sql_query("SELECT maden_turu, SUM(miktar) as miktar, SUM(miktar * ortalama_maliyet) as toplam_maliyet FROM emtia_portfoy WHERE kullanici_adi = %s GROUP BY maden_turu HAVING SUM(miktar) > 0.001", conn, params=(k_adi,))
             release_db(conn)
             
             genel_maliyet_toplami, genel_guncel_toplam = 0.0, 0.0
             dagilim_data = []
             
-        # --- 1. BORSA VE FON VARLIKLARI ---
+        # --- 1. BORSA VE FON VARLIKLARI (AYRI LİSTELER) ---
             if 'p_card_currency_toggles' not in st.session_state:
                 st.session_state['p_card_currency_toggles'] = {}
 
             if not df_p.empty:
-                st.markdown("##### Borsa ve Fon Varlıkları")
+                # Veriyi iki farklı orduya ayırıyoruz
+                df_borsa = df_p[df_p['BORSA'] != 'FON (TEFAS)']
+                df_fon = df_p[df_p['BORSA'] == 'FON (TEFAS)']
                 
                 # --- MİLYON DOLARLIK CSS HACK'İ (Sıfır Kayma, Sıfır Genişleme) ---
                 st.markdown("""
@@ -2205,80 +2287,92 @@ else:
                 </style>
                 """, unsafe_allow_html=True)
 
-                for _, row in df_p.iterrows():
-                    ticker, borsa, lot, maliyet = row['VARLIK'], row['BORSA'], row['LOT'], row['ORT_MALIYET']
-                    fiyat = tefas_fiyat_cek(ticker) if borsa == "FON (TEFAS)" else hizli_fiyat_cek(ticker)[0]
-                    if not fiyat: fiyat = maliyet
-                    
-                    is_foreign = borsa in ["NASDAQ", "S&P 500", "KRİPTO", "EMTİA", "ETF"]
-                    carpan = anlik_dolar if is_foreign else 1.0
-                    
-                    varlik_maliyet_tl = maliyet * lot * carpan
-                    varlik_guncel_tl = fiyat * lot * carpan
-                    kar_zarar_tl = varlik_guncel_tl - varlik_maliyet_tl
-                    kar_zarar_yuzde = ((fiyat - maliyet) / maliyet) * 100 if maliyet > 0 else 0
-                    
-                    genel_maliyet_toplami += varlik_maliyet_tl
-                    genel_guncel_toplam += varlik_guncel_tl
-                    dagilim_data.append({"Varlık": ticker, "Değer": varlik_guncel_tl})
-                    
-                    bas_harf = ticker[0].upper()
-                    
-                    doviz_goster = st.session_state['p_card_currency_toggles'].get(ticker, False)
-                    
-                    if doviz_goster and is_foreign:
-                        pb_gosterim = "$"
-                        maliyet_gosterim = maliyet
-                        fiyat_gosterim = fiyat
-                        toplam_gosterim = fiyat * lot
-                        kz_gosterim = (fiyat - maliyet) * lot
-                    else:
-                        pb_gosterim = "₺"
-                        maliyet_gosterim = (varlik_maliyet_tl / lot) if lot > 0 else 0.0
-                        fiyat_gosterim = (varlik_guncel_tl / lot) if lot > 0 else 0.0
-                        toplam_gosterim = varlik_guncel_tl
-                        kz_gosterim = kar_zarar_tl
-                        
-                    renk, isaret = ("#4CAF50", "+") if kz_gosterim >= 0 else ("#FF5252", "")
-                    
-                    # --- İŞTE BURASI: HASSAS TEFAS FORMATLAMASI ---
-                    if borsa == "FON (TEFAS)":
-                        fiyat_str = f"{fiyat_gosterim:,.6f}"
-                        maliyet_str = f"{maliyet_gosterim:,.6f}"
-                        lot_str = f"{lot:,.0f}" if float(lot).is_integer() else f"{lot:,.6f}".rstrip('0').rstrip('.')
-                    else:
-                        fiyat_str = f"{fiyat_gosterim:,.2f}"
-                        maliyet_str = f"{maliyet_gosterim:,.2f}"
-                        lot_str = f"{lot:,.6f}".rstrip('0').rstrip('.') if is_foreign else f"{lot:,.0f}"
-
-                    with st.container(border=True):
-                        c1, c2 = st.columns([6.5, 3.5])
-                        
-                        with c1:
-                            st.markdown(f"""
-                            <div style='display: flex; align-items: center; margin-top: 5px; margin-bottom: 5px;'>
-                                <div style='min-width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(0,255,0,0.4); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #00ff00; background: rgba(0,255,0,0.05); font-size: 18px;'>
-                                    {bas_harf}
-                                </div>
-                                <div style='margin-left: 15px; line-height: 1.3;'>
-                                    <div style='font-size: 0.70em; color: gray; text-transform: uppercase; letter-spacing: 0.5px;'>{borsa}</div>
-                                    <div style='font-size: 1.05em; font-weight: bold; color: white;'>{ticker}</div> <div style='font-size: 0.8em; color: gray;'>Lot: {lot_str} | Maliyet: {maliyet_str} {pb_gosterim}</div>
-                                </div>
-                            </div>
-                            """, unsafe_allow_html=True)
-                        with c2:
-                            st.markdown(f"<div style='text-align: right; font-size: 0.8em; color: gray; margin-top: 5px; margin-bottom: 2px;'>Güncel: {fiyat_str} {pb_gosterim}</div>", unsafe_allow_html=True)
+                # İki listeyi sırayla ekrana basan motor
+                grup_listesi = [("Borsa Varlıkları (Hisse Senedi & ETF)", df_borsa), ("Yatırım Fonları (TEFAS)", df_fon)]
+                
+                for baslik, df_grup in grup_listesi:
+                    if not df_grup.empty:
+                        st.markdown(f"<h5 style='margin-top: 15px;'>{baslik}</h5>", unsafe_allow_html=True)
+                        for _, row in df_grup.iterrows():
+                            ticker, borsa, lot, maliyet = row['VARLIK'], row['BORSA'], row['LOT'], row['ORT_MALIYET']
+                            fiyat = tefas_fiyat_cek(ticker) if borsa == "FON (TEFAS)" else hizli_fiyat_cek(ticker)[0]
+                            if not fiyat: fiyat = maliyet
                             
-                            if is_foreign:
-                                if st.button(f"{toplam_gosterim:,.2f} {pb_gosterim}", key=f"btn_{ticker}", use_container_width=True, type="tertiary"):
-                                    st.session_state['p_card_currency_toggles'][ticker] = not doviz_goster
-                                    st.rerun()
-                                m_top = "-5px"
+                            is_foreign = borsa in ["NASDAQ", "S&P 500", "KRİPTO", "EMTİA", "ETF"]
+                            carpan = anlik_dolar if is_foreign else 1.0
+                            
+                            varlik_maliyet_tl = maliyet * lot * carpan
+                            varlik_guncel_tl = fiyat * lot * carpan
+                            kar_zarar_tl = varlik_guncel_tl - varlik_maliyet_tl
+                            kar_zarar_yuzde = ((fiyat - maliyet) / maliyet) * 100 if maliyet > 0 else 0
+                            
+                            genel_maliyet_toplami += varlik_maliyet_tl
+                            genel_guncel_toplam += varlik_guncel_tl
+                            dagilim_data.append({"Varlık": ticker, "Değer": varlik_guncel_tl})
+                            
+                            bas_harf = ticker[0].upper()
+                            
+                            doviz_goster = st.session_state['p_card_currency_toggles'].get(ticker, False)
+                            
+                            if doviz_goster and is_foreign:
+                                pb_gosterim = "$"
+                                maliyet_gosterim = maliyet
+                                fiyat_gosterim = fiyat
+                                toplam_gosterim = fiyat * lot
+                                kz_gosterim = (fiyat - maliyet) * lot
                             else:
-                                st.markdown(f"<div style='text-align: right; font-size: 1.15em; font-weight: bold; color: white; padding: 0; margin: 0;'>{toplam_gosterim:,.2f} {pb_gosterim}</div>", unsafe_allow_html=True)
-                                m_top = "2px"
+                                pb_gosterim = "₺"
+                                maliyet_gosterim = (varlik_maliyet_tl / lot) if lot > 0 else 0.0
+                                fiyat_gosterim = (varlik_guncel_tl / lot) if lot > 0 else 0.0
+                                toplam_gosterim = varlik_guncel_tl
+                                kz_gosterim = kar_zarar_tl
                                 
-                            st.markdown(f"<div style='text-align: right; font-size: 0.85em; font-weight: bold; color: {renk}; margin-top: {m_top}; margin-bottom: 5px;'>{isaret}{kz_gosterim:,.2f} {pb_gosterim} ({isaret}%{kar_zarar_yuzde:.2f})</div>", unsafe_allow_html=True)
+                            renk, isaret = ("#4CAF50", "+") if kz_gosterim >= 0 else ("#FF5252", "")
+                            
+                            # --- İŞTE BURASI: HASSAS TEFAS FORMATLAMASI ---
+                            if borsa == "FON (TEFAS)":
+                                fiyat_str = f"{fiyat_gosterim:,.6f}"
+                                maliyet_str = f"{maliyet_gosterim:,.6f}"
+                                lot_str = f"{lot:,.0f}" if float(lot).is_integer() else f"{lot:,.6f}".rstrip('0').rstrip('.')
+                            else:
+                                fiyat_str = f"{fiyat_gosterim:,.2f}"
+                                maliyet_str = f"{maliyet_gosterim:,.2f}"
+                                lot_str = f"{lot:,.6f}".rstrip('0').rstrip('.') if is_foreign else f"{lot:,.0f}"
+
+                            # --- HAYALET MODU MASKELERİ ---
+                            is_ghost = st.session_state.get('hayalet_modu', False)
+                            h_maliyet_str = H_MASK if is_ghost else maliyet_str
+                            h_toplam_gosterim = H_MASK if is_ghost else f"{toplam_gosterim:,.2f}"
+                            h_kz_gosterim = H_MASK if is_ghost else f"{isaret}{kz_gosterim:,.2f}"
+
+                            with st.container(border=True):
+                                c1, c2 = st.columns([6.5, 3.5])
+                                
+                                with c1:
+                                    st.markdown(f"""
+                                    <div style='display: flex; align-items: center; margin-top: 5px; margin-bottom: 5px;'>
+                                        <div style='min-width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(0,255,0,0.4); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #00ff00; background: rgba(0,255,0,0.05); font-size: 18px;'>
+                                            {bas_harf}
+                                        </div>
+                                        <div style='margin-left: 15px; line-height: 1.3;'>
+                                            <div style='font-size: 0.70em; color: gray; text-transform: uppercase; letter-spacing: 0.5px;'>{borsa}</div>
+                                            <div style='font-size: 1.05em; font-weight: bold; color: white;'>{ticker}</div> <div style='font-size: 0.8em; color: gray;'>Lot: {lot_str} | Maliyet: {h_maliyet_str} {pb_gosterim}</div>
+                                        </div>
+                                    </div>
+                                    """, unsafe_allow_html=True)
+                                with c2:
+                                    st.markdown(f"<div style='text-align: right; font-size: 0.8em; color: gray; margin-top: 5px; margin-bottom: 2px;'>Güncel: {fiyat_str} {pb_gosterim}</div>", unsafe_allow_html=True)
+                                    
+                                    if is_foreign and not is_ghost:
+                                        if st.button(f"{toplam_gosterim:,.2f} {pb_gosterim}", key=f"btn_{ticker}", use_container_width=True, type="tertiary"):
+                                            st.session_state['p_card_currency_toggles'][ticker] = not doviz_goster
+                                            st.rerun()
+                                        m_top = "-5px"
+                                    else:
+                                        st.markdown(f"<div style='text-align: right; font-size: 1.15em; font-weight: bold; color: white; padding: 0; margin: 0;'>{h_toplam_gosterim} {pb_gosterim}</div>", unsafe_allow_html=True)
+                                        m_top = "2px"
+                                        
+                                    st.markdown(f"<div style='text-align: right; font-size: 0.85em; font-weight: bold; color: {renk}; margin-top: {m_top}; margin-bottom: 5px;'>{h_kz_gosterim} {pb_gosterim} ({isaret}%{kar_zarar_yuzde:.2f})</div>", unsafe_allow_html=True)
 
             # --- 2. KIYMETLİ MADEN (EMTİA) VARLIKLARI ---
             if not df_emtia.empty:
@@ -2420,7 +2514,7 @@ else:
                             
                             conn = get_db()
                             try:
-                                cc = conn.cursor()
+                                c = conn.cursor()
                                 # ESKİ PARÇALI KAYITLARI SİLİP TEK VE TEMİZ BİR SATIR (KONSOLİDE) OLARAK YAZIYORUZ
                                 c.execute("DELETE FROM portfoy WHERE kullanici_adi = %s AND varlik_adi = %s", (k_adi, opt_secim))
                                 c.execute("INSERT INTO portfoy (kullanici_adi, varlik_adi, lot, maliyet, borsa) VALUES (%s, %s, %s, %s, %s)", (k_adi, opt_secim, float(opt_lot), float(yeni_birim_maliyet), opt_borsa))
@@ -2973,15 +3067,32 @@ else:
                 # SQL GÜNCELLEMESİ: Logoları çekebilmek için banka_adi sütununu da ekledik
                 df_vad = pd.read_sql_query("SELECT banka_adi, hesap_adi, bakiye FROM banka_hesaplari WHERE kullanici_adi = %s AND hesap_turu = 'Vadesiz'", conn, params=(k_adi,))
                 df_kar = pd.read_sql_query("SELECT banka_adi, kart_adi, limit_tutari, guncel_borc, kisisel_limit FROM kredi_kartlari WHERE kullanici_adi = %s", conn, params=(k_adi,))
+                c = conn.cursor()
+                c.execute("SELECT bakiye FROM hesaplar WHERE kullanici_adi = %s AND hesap_adi = 'Fiziki Nakit'", (k_adi,))
+                nakit_b = c.fetchone()
+                fiziki_nakit_bakiye = nakit_b[0] if nakit_b else 0.0
             finally: release_db(conn)
 
             st.markdown("##### Cari Cüzdan Özeti")
             
             # 1. Cüzdan Verilerini Tek Bir Havuzda Topluyoruz
-            cuzdan_listesi = [{"banka": "Midas", "isim": "Yatırım Hesabı", "bakiye": mevcut_bakiye, "tur": "Yatirim"}]
-            for _, r in df_vad.iterrows(): cuzdan_listesi.append({"banka": r['banka_adi'], "isim": r['hesap_adi'], "bakiye": r['bakiye'], "tur": "Vadesiz"})
-            for _, r in df_kar.iterrows(): cuzdan_listesi.append({"banka": r['banka_adi'], "isim": r['kart_adi'], "bakiye": r['kisisel_limit'] - r['guncel_borc'], "borc": r['guncel_borc'], "tur": "Kart"})
+            cuzdan_listesi_ham = [
+                {"banka": "Midas", "isim": "Yatırım Hesabı", "bakiye": mevcut_bakiye, "tur": "Yatirim"},
+                {"banka": "Cüzdan", "isim": "Fiziki Nakit", "bakiye": fiziki_nakit_bakiye, "tur": "Nakit"}
+            ]
+            for _, r in df_vad.iterrows(): cuzdan_listesi_ham.append({"banka": r['banka_adi'], "isim": r['hesap_adi'], "bakiye": r['bakiye'], "tur": "Vadesiz"})
+            for _, r in df_kar.iterrows(): cuzdan_listesi_ham.append({"banka": r['banka_adi'], "isim": r['kart_adi'], "bakiye": r['kisisel_limit'] - r['guncel_borc'], "borc": r['guncel_borc'], "tur": "Kart"})
             
+            # --- SIFIR BAKİYELİ HESAPLARI GİZLEME (AKILLI FİLTRE) ---
+            cuzdan_listesi = []
+            for c in cuzdan_listesi_ham:
+                # Midas ve Kartlar HER ZAMAN kalır. Diğerleri bakiye 0 ise silinir.
+                if c['tur'] == 'Yatirim' or c['tur'] == 'Kart' or float(c['bakiye']) > 0:
+                    cuzdan_listesi.append(c)
+                    
+            if not cuzdan_listesi:
+                cuzdan_listesi = [{"banka": "Sistem", "isim": "Aktif Bakiye Yok", "bakiye": 0.0, "tur": "Vadesiz"}]
+
             # 2. Şık Tasarım İçin Verileri 4'lü Satırlara Bölüyoruz
             satirlar = [cuzdan_listesi[i:i+4] for i in range(0, len(cuzdan_listesi), 4)]
             
@@ -3004,15 +3115,22 @@ else:
                                     img_html = f"<img src='data:image/png;base64,{b64}' style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(0,255,0,0.4); padding: 3px; object-fit: contain; background: #ffffff;'>"
                                 break
                         
+                        # --- HAYALET MODU MASKELERİ ---
+                        is_ghost = st.session_state.get('hayalet_modu', False)
+                        
                         # Kartın altındaki ufak yazı (Borç veya Nakit durumu)
                         alt_yazi = "Nakit Kasa"
                         alt_renk = "gray"
                         bakiye_renk = "#4CAF50" # Neon Yeşil
+                        
                         if item['tur'] == "Kart":
-                            alt_yazi = f"Güncel Borç: -{item['borc']:,.2f} TL"
+                            gosterilen_borc = H_MASK if is_ghost else f"{item['borc']:,.2f}"
+                            alt_yazi = f"Güncel Borç: -{gosterilen_borc} TL"
                             alt_renk = "#FF5252" # Kırmızı
                         if item['bakiye'] < 0:
                             bakiye_renk = "#FF5252" # Eksi bakiyeyse kırmızı
+
+                        gosterilen_bakiye = H_MASK if is_ghost else f"{item['bakiye']:,.2f}"
 
                         # Profesyonel HTML Kart Tasarımı
                         kart_html = f"""
@@ -3025,7 +3143,7 @@ else:
                                 </div>
                             </div>
                             <div style='text-align: right;'>
-                                <div style='font-size: 1.35em; font-weight: bold; color: {bakiye_renk};'>{item['bakiye']:,.2f} TL</div>
+                                <div style='font-size: 1.35em; font-weight: bold; color: {bakiye_renk};'>{gosterilen_bakiye} TL</div>
                                 <div style='font-size: 0.8em; color: {alt_renk}; margin-top: 4px; font-family: monospace;'>{alt_yazi}</div>
                             </div>
                         </div>
@@ -3034,7 +3152,7 @@ else:
             
             st.markdown("<hr style='margin-top: 5px; margin-bottom: 20px;'>", unsafe_allow_html=True)
             
-            kaynaklar = []
+            kaynaklar = [f"Hesap: Fiziki Nakit (Bakiye: {fiziki_nakit_bakiye:,.2f} TL)"]
             for _, r in df_vad.iterrows(): 
                 kaynaklar.append(f"Hesap: {r['hesap_adi']} (Bakiye: {r['bakiye']:,.2f} TL)")
                 
@@ -3113,11 +3231,17 @@ else:
 
                         if "Hesap:" in h_kaynak:
                             secilen_h = h_kaynak.split(": ")[1].split(" (")[0]
-                            mevcut_bak = df_vad[df_vad['hesap_adi'] == secilen_h]['bakiye'].values[0]
-                            if h_tutar > mevcut_bak: st.error("İşlem Reddedildi: Yetersiz Bakiye.")
+                            if secilen_h == "Fiziki Nakit":
+                                if h_tutar > fiziki_nakit_bakiye: st.error("İşlem Reddedildi: Cüzdanda yeterli nakit yok.")
+                                else:
+                                    sorgular.append(("UPDATE hesaplar SET bakiye = bakiye - %s WHERE kullanici_adi = %s AND hesap_adi = 'Fiziki Nakit'", (h_tutar, k_adi)))
+                                    gecerli_mi = True
                             else:
-                                sorgular.append(("UPDATE banka_hesaplari SET bakiye = bakiye - %s WHERE kullanici_adi = %s AND hesap_adi = %s", (h_tutar, k_adi, secilen_h)))
-                                gecerli_mi = True
+                                mevcut_bak = df_vad[df_vad['hesap_adi'] == secilen_h]['bakiye'].values[0]
+                                if h_tutar > mevcut_bak: st.error("İşlem Reddedildi: Yetersiz Bakiye.")
+                                else:
+                                    sorgular.append(("UPDATE banka_hesaplari SET bakiye = bakiye - %s WHERE kullanici_adi = %s AND hesap_adi = %s", (h_tutar, k_adi, secilen_h)))
+                                    gecerli_mi = True
                         elif "Kart:" in h_kaynak:
                             secilen_k = h_kaynak.split(": ")[1].split(" (")[0]
                             k_kisisel_limit, k_borc = df_kar[df_kar['kart_adi'] == secilen_k]['kisisel_limit'].values[0], df_kar[df_kar['kart_adi'] == secilen_k]['guncel_borc'].values[0]
@@ -3898,10 +4022,10 @@ else:
                         finally: release_db(conn)
 
             with c_dis:
-                st.markdown("##### Dış İşlemler (EFT / Havale / SWIFT)")
-                st.caption("Sistem Notu: Kurum dışı hesaplardan gelen veya kuruma gönderilen transferler (TL/Döviz).")
+                st.markdown("##### Dış İşlemler & ATM Nakit Çekimi")
+                st.caption("EFT/Havale, SWIFT veya ATM'den fiziki nakit çekim işlemlerinizi buradan yönetin.")
                 
-                islem_yonu = st.radio("İşlem Yönü", ["Giden Transfer (EFT/SWIFT Gönder)", "Gelen Transfer (Hesaba Para Girişi)"])
+                islem_yonu = st.radio("İşlem Yönü", ["Giden Transfer (EFT/SWIFT)", "Gelen Transfer (Para Girişi)", "Nakit Çekimi (ATM/Banka)"])
                 st.markdown("<span style='font-size:0.9em; color:gray;'>İşlem Yapılacak Kendi Hesabınız:</span>", unsafe_allow_html=True)
                 d_kaynak = st.selectbox("İşlem Yapılacak Kendi Hesabınız", th, label_visibility="collapsed", key="d_kaynak_dis")
                 
@@ -3909,14 +4033,18 @@ else:
                 pb_d = d_kaynak.rsplit("(", 1)[1].split(" ")[1].replace(")", "")
                 
                 with st.form("dis_islem_form"):
-                    d_karsi = st.text_input("Karşı Taraf (Gönderen / Alıcı Adı veya IBAN)")
+                    if "Nakit" in islem_yonu:
+                        d_karsi = "ATM / Şube Nakit Çekimi"
+                        st.info("Bu işlem banka hesabınızdaki bakiyeyi düşürerek 'Fiziki Nakit' cüzdanınıza ekler.")
+                    else:
+                        d_karsi = st.text_input("Karşı Taraf (Gönderen / Alıcı Adı veya IBAN)")
                     
                     tumu_d = False
-                    if "Giden" in islem_yonu:
-                        tumu_d = st.checkbox(f"Tüm Bakiyeyi Gönder (Mevcut: {kbak_d:,.2f} {pb_d})")
+                    if "Giden" in islem_yonu or "Nakit" in islem_yonu:
+                        tumu_d = st.checkbox(f"Tüm Bakiyeyi Kullan (Mevcut: {kbak_d:,.2f} {pb_d})")
                         
                     cd1, cd2 = st.columns(2)
-                    d_tutar = cd1.number_input("Transfer Tutarı", min_value=0.0, value=0.0, step=100.0, disabled=tumu_d)
+                    d_tutar = cd1.number_input("İşlem Tutarı", min_value=0.0, value=0.0, step=100.0, disabled=tumu_d)
                     d_kom = cd2.number_input("Komisyon / Masraf", min_value=0.0, step=5.0, value=0.0)
                     
                     if st.form_submit_button("İşlemi Onayla", type="primary"):
@@ -3928,12 +4056,36 @@ else:
                         kom_tl = d_kom * doviz_kuru_cek(pb)
                         
                         islem_tutari = (kbak - d_kom) if tumu_d else d_tutar
-                        if islem_tutari <= 0: st.error("Hata: Transfer tutarı 0'dan büyük olmalıdır."); st.stop()
+                        if islem_tutari <= 0: st.error("Hata: İşlem tutarı 0'dan büyük olmalıdır."); st.stop()
                         
                         conn = get_db()
                         try:
                             c = conn.cursor()
-                            if "Giden" in islem_yonu:
+                            if "Nakit" in islem_yonu:
+                                toplam_cikis = islem_tutari + d_kom
+                                if toplam_cikis > kbak: st.error("İşlem Reddedildi: Yetersiz Bakiye (Tutar + Komisyon)."); st.stop()
+                                
+                                # Hesaptan çıkış yap
+                                if "Yatırım:" in d_kaynak or "💼" in d_kaynak:
+                                    c.execute("UPDATE hesaplar SET bakiye = bakiye - %s WHERE kullanici_adi = %s AND hesap_adi = %s", (toplam_cikis, k_adi, k_saf))
+                                    if pb == "TL": c.execute("UPDATE bakiyeler SET bakiye = bakiye - %s WHERE kullanici_adi = %s", (toplam_cikis, k_adi))
+                                else:
+                                    c.execute("UPDATE banka_hesaplari SET bakiye = bakiye - %s WHERE kullanici_adi = %s AND hesap_adi = %s", (toplam_cikis, k_adi, k_saf))
+                                
+                                # Nakit cüzdanına ekle (Sadece TL destekliyoruz nakitte)
+                                tl_karsiligi = islem_tutari * doviz_kuru_cek(pb)
+                                c.execute("UPDATE hesaplar SET bakiye = bakiye + %s WHERE kullanici_adi = %s AND hesap_adi = 'Fiziki Nakit'", (tl_karsiligi, k_adi))
+                                
+                                c.execute("INSERT INTO islem_gecmisi (kullanici_adi, islem_tipi, detay, tutar) VALUES (%s, 'ATM NAKİT ÇEKİMİ', %s, %s)", (k_adi, f"{k_saf} -> Fiziki Cüzdan", 0.0)) 
+                                
+                                if d_kom > 0:
+                                    c.execute("INSERT INTO islem_gecmisi (kullanici_adi, islem_tipi, detay, tutar) VALUES (%s, 'KOMİSYON GİDERİ (-)', %s, %s)", (k_adi, f"{k_saf} Nakit Çekim Ücreti", -kom_tl))
+                                    c.execute("INSERT INTO harcamalar (kullanici_adi, kategori, aciklama, tutar, kaynak_hesap) VALUES (%s, 'Banka Kesintisi', 'Nakit Çekim Komisyonu', %s, %s)", (k_adi, kom_tl, k_saf))
+                                
+                                conn.commit()
+                                st.success(f"Nakit Çekildi: {islem_tutari:,.2f} {pb}, 'Fiziki Nakit' cüzdanınıza eklendi. (Masraf: {d_kom:.2f} {pb})")
+                            
+                            elif "Giden" in islem_yonu:
                                 toplam_cikis = islem_tutari + d_kom
                                 if toplam_cikis > kbak: st.error("İşlem Reddedildi: Yetersiz Bakiye (Tutar + Komisyon)."); st.stop()
                                 

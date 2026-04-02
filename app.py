@@ -1791,55 +1791,40 @@ else:
         asistan_paneli_ac(k_adi)
 
     with st.sidebar:
-        # --- HAYALET MODU (GHOST MODE) MOTORU VE İKONU ---
-        if 'hayalet_modu' not in st.session_state:
-            st.session_state.hayalet_modu = False
-
-        def toggle_hayalet_modu():
-            st.session_state.hayalet_modu = not st.session_state.hayalet_modu
-
-        is_ghost = st.session_state.hayalet_modu
+        with st.sidebar:
         
-        # SVG Çizimleri (Açık Göz = Gri, Çizgili Kapalı Göz = Neon Yeşil)
-        svg_acik = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="gray" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>'
-        svg_kapali = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2300ff00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
-        aktif_svg = svg_kapali if is_ghost else svg_acik
+        # --- HAYALET MODU MOTORU VE İKON ENJEKSİYONU ---
+        is_ghost = st.session_state.get('hayalet_modu', False)
+        
+        # Vektörel SVG Çizimleri (Açık = Gri, Kapalı/Çizgili = Neon Yeşil)
+        svg_acik = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="gray" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>'
+        svg_kapali = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2300ff00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
+        
+        aktif_svg_b64 = base64.b64encode((svg_kapali if is_ghost else svg_acik).encode('utf-8')).decode('utf-8')
 
         st.markdown(f"""
         <style>
-        /* Hayalet Modu Butonu Siber Tasarımı (Doğrudan İkonun Kendisi Tıklanır) */
+        /* Hayalet Modu Buton Konteynerinin Boşluğunu Sıfırlama */
+        div[data-testid="stElementContainer"]:has(#ghost-marker),
+        div[data-testid="stElementContainer"]:has(#ghost-marker) + div[data-testid="stElementContainer"] {{
+            height: 0px !important; min-height: 0px !important; margin: 0 !important; padding: 0 !important;
+        }}
+        /* Butonun Kendisine SVG Basma */
         div[data-testid="stElementContainer"]:has(#ghost-marker) + div[data-testid="stElementContainer"] button {{
-            position: absolute !important;
-            top: -25px !important;
-            right: 10px !important;
-            width: 40px !important;
-            height: 40px !important;
-            background-color: transparent !important;
-            background-image: url('{aktif_svg}') !important;
-            background-size: 22px 22px !important;
-            background-repeat: no-repeat !important;
-            background-position: center !important;
-            border: none !important;
-            box-shadow: none !important;
-            color: transparent !important;
-            z-index: 9999 !important;
-            transition: all 0.3s ease !important;
+            position: absolute !important; top: -35px !important; right: 10px !important; width: 40px !important; height: 40px !important;
+            background-color: transparent !important; background-image: url('data:image/svg+xml;base64,{aktif_svg_b64}') !important;
+            background-size: 24px 24px !important; background-repeat: no-repeat !important; background-position: center !important;
+            border: none !important; box-shadow: none !important; transition: all 0.3s ease !important; z-index: 9999 !important;
         }}
+        div[data-testid="stElementContainer"]:has(#ghost-marker) + div[data-testid="stElementContainer"] button p {{ display: none !important; }}
         div[data-testid="stElementContainer"]:has(#ghost-marker) + div[data-testid="stElementContainer"] button:hover {{
-            transform: scale(1.1) !important;
-            filter: drop-shadow(0 0 8px {'#00ff00' if is_ghost else 'gray'}) !important;
-            background-color: transparent !important;
-            border: none !important;
-        }}
-        /* Butonun içindeki yazıyı yokediyoruz */
-        div[data-testid="stElementContainer"]:has(#ghost-marker) + div[data-testid="stElementContainer"] button p {{
-            display: none !important;
+            transform: scale(1.1) !important; filter: drop-shadow(0 0 8px {'#00ff00' if is_ghost else 'gray'}) !important; background-color: transparent !important;
         }}
         </style>
         <div id="ghost-marker"></div>
         """, unsafe_allow_html=True)
         
-        st.button("Hayalet", on_click=toggle_hayalet_modu)
+        st.button("GhostBtn", on_click=toggle_hayalet_modu)
 
         # --- 1. TARİH VE GÜN MODÜLÜ ---
         aylar = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
@@ -5607,3 +5592,6 @@ else:
                     st.info("Sistemde henüz kayıtlı kullanıcı yok.")
             finally:
                 release_db(conn)
+
+
+

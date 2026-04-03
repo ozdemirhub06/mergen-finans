@@ -379,19 +379,26 @@ st.markdown("""
     }
     
     /* --- EXPANDER TASARIMI (SADE & CONSOLAS FONT) --- */
-    [data-testid="stExpander"] {
-        border: 1px solid rgba(255,255,255,0.1) !important;
-        border-radius: 6px !important;
-        background: transparent !important;
-    }
-    [data-testid="stExpander"] summary p {
-        font-family: Consolas, monospace !important;
-        color: #d0d0d0 !important;
-        font-size: 1.05em !important;
-    }
-    [data-testid="stExpander"] summary:hover p {
-        color: #00ff00 !important;
-    }
+    [data-testid="stExpander"] {
+        border: 1px solid rgba(255,255,255,0.15) !important;
+        border-radius: 6px !important;
+        background: transparent !important;
+    }
+    [data-testid="stExpander"] summary {
+        padding: 5px 15px !important; /* Kutuyu daraltır ve inceltir */
+    }
+    [data-testid="stExpander"] summary p, 
+    [data-testid="stExpander"] summary span {
+        font-family: Consolas, monospace !important; /* Yazı tipini kesin olarak zorlar */
+        color: #d0d0d0 !important;
+        font-size: 1em !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.5px !important;
+    }
+    [data-testid="stExpander"] summary:hover p,
+    [data-testid="stExpander"] summary:hover span {
+        color: #00ff00 !important;
+    }
             /* --- İNATÇI BEYAZ YAZILARI ZORLA SİYAH YAP (FORM BUTONLARI DAHİL) --- */
     button[kind="primary"] p,
     button[kind="primary"] span,

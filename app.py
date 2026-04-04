@@ -268,8 +268,8 @@ st.markdown("""
         background: rgba(10, 10, 10, 0.45) !important; 
         backdrop-filter: blur(25px) saturate(150%) !important; 
         -webkit-backdrop-filter: blur(25px) saturate(150%) !important; 
-        border-right: 1px solid rgba(0, 255, 0, 0.15) !important;
-        box-shadow: inset -2px 0px 15px rgba(0, 255, 0, 0.03) !important;
+        border-right: 1px solid rgba(60, 57, 253, 0.15) !important;
+        box-shadow: inset -2px 0px 15px rgba(60, 57, 253, 0.03) !important;
         padding-bottom: 0px !important; /* BOŞLUK MİLİMETRİK OLARAK SIFIRLANDI */
         overflow: hidden !important; /* İç astarın kayma motoru felç edildi */
     }
@@ -293,7 +293,7 @@ st.markdown("""
         border: 2px solid #3c39fd !important;
         padding: 4px !important;
         border-radius: 50% !important; 
-        box-shadow: 0 0 15px rgba(0, 255, 0, 0.15) !important;
+        box-shadow: 0 0 15px rgba(60, 57, 253, 0.15) !important;
         aspect-ratio: 1 / 1 !important; /* Fotoğrafı kare formata zorlar */
         object-fit: cover !important; /* Fotoğrafı ezmeden çerçevenin içine oturtur */
     }
@@ -301,7 +301,7 @@ st.markdown("""
     
     /* Sidebar'daki ayırıcı çizgileri (hr) hafif yeşil yapıyoruz */
     [data-testid="stSidebar"] hr {
-        border-bottom: 1px solid rgba(0, 255, 0, 0.15) !important;
+        border-bottom: 1px solid rgba(60, 57, 253, 0.15) !important;
     }
 
     /* --- ANA MENÜ TASARIMI (SİBER BLOKLAR) --- */
@@ -326,14 +326,14 @@ st.markdown("""
     
     /* 3. Hover (Fareyle Üzerine Gelince) */
     [data-testid="stSidebar"] div[role="radiogroup"] label:hover {
-        background: rgba(0, 255, 0, 0.05) !important;
-        border-color: rgba(0, 255, 0, 0.3) !important;
+        background: rgba(60, 57, 253, 0.05) !important;
+        border-color: rgba(60, 57, 253, 0.3) !important;
     }
     
     /* 4. SEÇİLİ OLAN MENÜ (Akıllı Seçici) */
     [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {
         background: linear-gradient(90deg, rgba(60,57,253,0.15) 0%, rgba(0,0,0,0) 100%) !important;
-        border-color: rgba(0, 255, 0, 0.3) !important;
+        border-color: rgba(60, 57, 253, 0.3) !important;
         border-left: 3px solid #3c39fd !important; /* Çizgiyi de incelttik */
         box-shadow: inset 2px 0px 10px rgba(60,57,253,0.05) !important;
     }
@@ -457,9 +457,9 @@ st.markdown("""
     /* 1. Metin İçi Küçük Yükleme Çarkları (Veri Hesaplanıyor vs.) */
     div[data-testid="stSpinner"] div[class*="spinner"] {
         border-width: 4px !important;
-        border-color: rgba(0, 255, 0, 0.1) !important;
+        border-color: rgba(60, 57, 253, 0.1) !important;
         border-top-color: #3c39fd !important;
-        border-left-color: rgba(0, 255, 0, 0.2) !important;
+        border-left-color: rgba(60, 57, 253, 0.2) !important;
     }
     div[data-testid="stSpinner"] div[class*="stMarkdown"] p,
     div[data-testid="stSpinner"] span,
@@ -467,7 +467,7 @@ st.markdown("""
         color: #3c39fd !important;
         font-family: 'Consolas', monospace !important;
         font-weight: bold !important;
-        text-shadow: 0 0 8px rgba(0, 255, 0, 0.5) !important;
+        text-shadow: 0 0 8px rgba(60, 57, 253, 0.5) !important;
     }
 
     /* 2. Sağ Üstteki Koşan Adamı İptal Edip, Merkeze Dev Neon Halka Ekleme */
@@ -482,12 +482,12 @@ st.markdown("""
         left: 50%;
         width: 50px;
         height: 50px;
-        border: 4px solid rgba(0, 255, 0, 0.1);
+        border: 4px solid rgba(60, 57, 253, 0.1);
         border-left-color: #3c39fd;
         border-radius: 50%;
         animation: siber-spin 0.8s linear infinite;
         z-index: 99999;
-        box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        box-shadow: 0 0 15px rgba(60, 57, 253, 0.3);
     }
     @keyframes siber-spin {
         0% { transform: translate(-50%, -50%) rotate(0deg); }
@@ -1413,7 +1413,7 @@ f"</div></div>"
                         else:
                             fig.add_trace(go.Scatter(x=x_vals, y=df_chart['Close'], mode='lines', line=dict(color=renk_f, width=2), name='Fiyat'), row=1, col=1)
 
-                        colors = ['rgba(0, 255, 0, 0.4)' if row['Close'] >= row['Open'] else 'rgba(255, 82, 82, 0.4)' for _, row in df_chart.iterrows()]
+                        colors = ['rgba(60, 57, 253, 0.4)' if row['Close'] >= row['Open'] else 'rgba(255, 82, 82, 0.4)' for _, row in df_chart.iterrows()]
                         fig.add_trace(go.Bar(x=x_vals, y=df_chart['Volume'], marker_color=colors, name='Hacim'), row=2, col=1)
 
                         fig.update_layout(dragmode=False,height=320, margin=dict(t=5,b=0,l=0,r=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", xaxis_rangeslider_visible=False, showlegend=False, font=dict(family="Consolas", color="gray", size=10))
@@ -1747,7 +1747,7 @@ else:
     if logo_b64:
         st.markdown(f"<style>div[data-testid='stElementContainer']:has(#asistan-marker) + div[data-testid='stElementContainer'] button::before {{ content: '' !important; background-image: url('data:image/{logo_mime};base64,{logo_b64}'); background-size: contain; background-repeat: no-repeat; background-position: center; width: 100%; height: 100%; position: absolute; z-index: 1; }}</style>", unsafe_allow_html=True)
     else:
-        st.markdown("<style>div[data-testid='stElementContainer']:has(#asistan-marker) + div[data-testid='stElementContainer'] button::before { content: 'M' !important; position: absolute; color: #3c39fd; font-family: Consolas, monospace; font-size: 26px; font-weight: bold; text-shadow: 0 0 10px rgba(0, 255, 0, 0.8); z-index: 1; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; top: 0; left: 0; }</style>", unsafe_allow_html=True)
+        st.markdown("<style>div[data-testid='stElementContainer']:has(#asistan-marker) + div[data-testid='stElementContainer'] button::before { content: 'M' !important; position: absolute; color: #3c39fd; font-family: Consolas, monospace; font-size: 26px; font-weight: bold; text-shadow: 0 0 10px rgba(60, 57, 253, 0.8); z-index: 1; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; top: 0; left: 0; }</style>", unsafe_allow_html=True)
 
     # Bildirim varsa Konuşma Balonunu (Speech Bubble) ekrana basıyoruz
     if okunmamis > 0 and son_mesaj:
@@ -1803,7 +1803,7 @@ else:
         
         # Vektörel SVG Çizimleri (Açık = Gri, Kapalı/Çizgili = Neon Yeşil)
         svg_acik = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="gray" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>'
-        svg_kapali = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%2300ff00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
+        svg_kapali = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%233c39fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
         
         aktif_svg_b64 = base64.b64encode((svg_kapali if is_ghost else svg_acik).encode('utf-8')).decode('utf-8')
 
@@ -3439,7 +3439,7 @@ else:
                                 texttemplate='%{text:,.0f} ₺',
                                 textposition='outside',
                                 textfont=dict(color='#3c39fd', size=11),
-                                marker_color='rgba(0, 255, 0, 0.10)',
+                                marker_color='rgba(60, 57, 253, 0.10)',
                                 marker_line_color='#3c39fd',
                                 marker_line_width=1.5,
                                 width=0.35,
@@ -3543,9 +3543,9 @@ else:
                             break
                             
                     # --- SOFT TASARIM (SEÇİLİ DURUMU YUMUŞATILDI) ---
-                    border_color = "rgba(0, 255, 0, 0.4)" if is_active else "rgba(255,255,255,0.05)"
-                    bg_color = "rgba(0, 255, 0, 0.03)" if is_active else "rgba(10,10,10,0.3)"
-                    box_shadow = "0 0 12px rgba(0, 255, 0, 0.1)" if is_active else "0 4px 6px rgba(0,0,0,0.3)"
+                    border_color = "rgba(60, 57, 253, 0.4)" if is_active else "rgba(255,255,255,0.05)"
+                    bg_color = "rgba(60, 57, 253, 0.03)" if is_active else "rgba(10,10,10,0.3)"
+                    box_shadow = "0 0 12px rgba(60, 57, 253, 0.1)" if is_active else "0 4px 6px rgba(0,0,0,0.3)"
                     text_color = "#3c39fd" if is_active else "white"
                     
                     kart_html = f"""
@@ -4515,7 +4515,7 @@ else:
                                     else:
                                         fig.add_trace(go.Scatter(x=x_vals, y=df_chart['Close'], mode='lines', line=dict(color=renk_f, width=1.5), name='Fiyat'), row=1, col=1)
 
-                                    colors = ['rgba(0, 255, 0, 0.4)' if row['Close'] >= row['Open'] else 'rgba(255, 82, 82, 0.4)' for _, row in df_chart.iterrows()]
+                                    colors = ['rgba(60, 57, 253, 0.4)' if row['Close'] >= row['Open'] else 'rgba(255, 82, 82, 0.4)' for _, row in df_chart.iterrows()]
                                     fig.add_trace(go.Bar(x=x_vals, y=df_chart['Volume'], marker_color=colors, name='Hacim'), row=2, col=1)
 
                                     fig.update_layout(dragmode=False,height=230, margin=dict(t=5,b=0,l=0,r=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", xaxis_rangeslider_visible=False, showlegend=False, font=dict(family="Consolas", color="gray", size=9))
@@ -4977,7 +4977,7 @@ else:
                                         if ops_rsi:
                                             fig.add_trace(go.Scatter(x=df_grafik['Tarih_Str'], y=df_grafik['RSI'], line=dict(color='#00bcd4', width=1.5), name='RSI'), row=g_satir, col=1)
                                             fig.add_hline(y=70, line_dash="dot", line_color="rgba(255, 82, 82, 0.5)", row=g_satir, col=1)
-                                            fig.add_hline(y=30, line_dash="dot", line_color="rgba(0, 255, 0, 0.5)", row=g_satir, col=1)
+                                            fig.add_hline(y=30, line_dash="dot", line_color="rgba(60, 57, 253, 0.5)", row=g_satir, col=1)
                                             g_satir += 1
 
                                         if ops_macd:
@@ -5092,7 +5092,7 @@ else:
                                 right: -10px;
                                 opacity: 0;
                                 transition: opacity 0.3s;
-                                border: 1px solid rgba(0, 255, 0, 0.3);
+                                border: 1px solid rgba(60, 57, 253, 0.3);
                                 font-family: system-ui, -apple-system, sans-serif;
                                 font-size: 0.85rem;
                                 box-shadow: 0px 8px 16px rgba(0,0,0,0.8);
@@ -5121,7 +5121,7 @@ else:
                             .siber-tooltip:hover .info-icon {
                                 border-color: #3c39fd;
                                 color: #3c39fd;
-                                background-color: rgba(0, 255, 0, 0.1);
+                                background-color: rgba(60, 57, 253, 0.1);
                             }
                             </style>
                             """, unsafe_allow_html=True)
@@ -5214,7 +5214,7 @@ else:
                                 fig_mevsim = go.Figure()
                                 
                                 # İçleri şeffaf (cam gibi), dış çizgileri (border) tam neon renkler
-                                fill_colors = ['rgba(0, 255, 0, 0.15)' if val >= 0 else 'rgba(255, 82, 82, 0.15)' for val in df_mevsim['Ort. Getiri']]
+                                fill_colors = ['rgba(60, 57, 253, 0.15)' if val >= 0 else 'rgba(255, 82, 82, 0.15)' for val in df_mevsim['Ort. Getiri']]
                                 line_colors = ['#3c39fd' if val >= 0 else '#FF5252' for val in df_mevsim['Ort. Getiri']]
                                 
                                 fig_mevsim.add_trace(go.Bar(

@@ -3523,30 +3523,76 @@ else:
             st.markdown("##### Kurum Filtresi")
             if 'aktif_banka' not in st.session_state or st.session_state.aktif_banka not in k_bankalar: st.session_state.aktif_banka = k_bankalar[0]
             
-            # Sütun sayısını banka sayısına göre dinamik ayarla (en fazla 5)
+            # Sütun sayısını banka sayısına göre dinamik ayarla (Kartlar genişlediği için en fazla 4 sütun)
             sutun_sayisi = len(k_bankalar) if len(k_bankalar) > 0 else 1
-            cols = st.columns(min(sutun_sayisi, 5))
+            cols = st.columns(min(sutun_sayisi, 4))
+            
+            is_ghost = st.session_state.get('hayalet_modu', False)
             
             for idx, b_adi in enumerate(k_bankalar):
-                with cols[idx % 5]:
+                with cols[idx % 4]:
                     is_active = (st.session_state.aktif_banka == b_adi)
                     
-                    # Kartı bir bütün olarak sarmalayacak çerçeve (Container)
-                    with st.container(border=True):
-                        # Logoyu alıp HTML ile tam ortaya hizalıyoruz
-                        ly = next((f"Banka Logoları/{b_adi}{ext}" for ext in ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG'] if os.path.exists(f"Banka Logoları/{b_adi}{ext}")), None)
+                    # Veritabanından o kuruma ait Varlık ve Borç bilgisini çekme
+                    if b_adi == "Midas":
+                        kurum_varlik = mevcut_bakiye
+                        kurum_borc = 0.0
+                    else:
+                        conn = get_db()
+                        c = conn.cursor()
+                        c.execute("SELECT SUM(bakiye) FROM banka_hesaplari WHERE kullanici_adi=%s AND banka_adi=%s", (k_adi, b_adi))
+                        v_res = c.fetchone()
+                        kurum_varlik = v_res[0] if v_res and v_res[0] else 0.0
                         
-                        if ly: 
-                            with open(ly, "rb") as f: b64 = base64.b64encode(f.read()).decode()
-                            img_html = f"<div style='display: flex; justify-content: center; margin-bottom: 10px;'><img src='data:image/png;base64,{b64}' style='width: 45px; height: 45px; border-radius: 8px; object-fit: contain; background: white; padding: 2px;'></div>"
-                        else:
-                            bas_harf = b_adi[0].upper()
-                            img_html = f"<div style='display: flex; justify-content: center; margin-bottom: 10px;'><div style='width: 45px; height: 45px; border-radius: 8px; border: 1px solid rgba(0,255,0,0.4); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #00ff00; background: rgba(0,255,0,0.05); font-size: 18px;'>{bas_harf}</div></div>"
+                        c.execute("SELECT SUM(guncel_borc) FROM kredi_kartlari WHERE kullanici_adi=%s AND banka_adi=%s", (k_adi, b_adi))
+                        b_res = c.fetchone()
+                        kurum_borc = b_res[0] if b_res and b_res[0] else 0.0
+                        release_db(conn)
                         
-                        st.markdown(img_html, unsafe_allow_html=True)
-                        
-                        # Buton hemen logonun altında, sınırları dolduracak şekilde konumlanıyor
-                        if st.button(b_adi, key=f"btn_{b_adi}", use_container_width=True, type="primary" if is_active else "secondary"):
+                    # Hayalet Modu Maskelemesi
+                    gosterilen_varlik = H_MASK if is_ghost else f"{kurum_varlik:,.2f}"
+                    gosterilen_borc = H_MASK if is_ghost else f"{kurum_borc:,.2f}"
+
+                    # Logoyu HTML olarak hazırla
+                    bas_harf = b_adi[0].upper()
+                    img_html = f"<div style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(0,255,0,0.4); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #00ff00; background: rgba(0,255,0,0.05); font-size: 16px;'>{bas_harf}</div>"
+                    
+                    for ext in ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG']:
+                        p = f"Banka Logoları/{b_adi}{ext}"
+                        if os.path.exists(p):
+                            with open(p, "rb") as f: b64 = base64.b64encode(f.read()).decode()
+                            img_html = f"<img src='data:image/png;base64,{b64}' style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(0,255,0,0.4); padding: 3px; object-fit: contain; background: #ffffff;'>"
+                            break
+                            
+                    border_color = "#00ff00" if is_active else "rgba(255,255,255,0.08)"
+                    bg_color = "rgba(0, 255, 0, 0.05)" if is_active else "rgba(10,10,10,0.5)"
+                    
+                    varlik_satir = f"<div style='font-size: 0.80em; color: #4CAF50; font-weight: bold; font-family: Consolas;'>Varlık: {gosterilen_varlik} ₺</div>" if kurum_varlik > 0 else "<div></div>"
+                    borc_satir = f"<div style='font-size: 0.80em; color: #FF5252; font-weight: bold; font-family: Consolas;'>Borç: -{gosterilen_borc} ₺</div>" if kurum_borc > 0 else "<div></div>"
+                    
+                    if kurum_varlik == 0 and kurum_borc == 0:
+                        varlik_satir = f"<div style='font-size: 0.80em; color: gray; font-weight: bold; font-family: Consolas;'>Bakiye Yok</div>"
+                    
+                    kart_html = f"""
+                    <div style='border: 1px solid {border_color}; border-radius: 10px; padding: 15px; background: {bg_color}; margin-bottom: -15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); height: 110px; display: flex; flex-direction: column; justify-content: space-between;'>
+                        <div style='display: flex; align-items: center;'>
+                            <div>{img_html}</div>
+                            <div style='margin-left: 12px; line-height: 1.2;'>
+                                <div style='font-size: 0.65em; color: gray; text-transform: uppercase; letter-spacing: 0.5px;'>KURUM</div>
+                                <div style='font-size: 0.9em; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; color: white;'>{b_adi}</div>
+                            </div>
+                        </div>
+                        <div style='display: flex; justify-content: space-between; align-items: flex-end;'>
+                            {varlik_satir}
+                            {borc_satir}
+                        </div>
+                    </div>
+                    """
+                    
+                    with st.container():
+                        st.markdown(kart_html, unsafe_allow_html=True)
+                        btn_yazi = "SEÇİLİ" if is_active else "İNCELE"
+                        if st.button(btn_yazi, key=f"btn_{b_adi}", use_container_width=True, type="primary" if is_active else "secondary"):
                             st.session_state.aktif_banka = b_adi
                             st.rerun()
             
@@ -3567,11 +3613,24 @@ else:
             with t_vd:
                 vd_ler = df_bh[df_bh['hesap_turu'] == 'Vadesiz']
                 if not vd_ler.empty:
+                    is_ghost = st.session_state.get('hayalet_modu', False)
                     for _, r in vd_ler.iterrows():
-                        with st.container(border=True):
-                            c1, c2 = st.columns([3, 1])
-                            c1.markdown(f"**{r['hesap_adi']}**<br><span style='font-size:0.85em;color:gray;'>Vadesiz TL</span>", unsafe_allow_html=True)
-                            c2.markdown(f"<div style='text-align:right; color:#4CAF50; font-size:1.3em; font-weight:bold;'>{r['bakiye']:,.2f} TL</div>", unsafe_allow_html=True)
+                        gosterilen_bakiye = H_MASK if is_ghost else f"{r['bakiye']:,.2f}"
+                        
+                        vd_html = f"""
+                        <div style='background: linear-gradient(135deg, rgba(20,20,20,0.9) 0%, rgba(5,5,5,0.95) 100%); border: 1px solid rgba(0,255,0,0.2); border-left: 4px solid #00ff00; border-radius: 8px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;'>
+                            <div>
+                                <div style='color: gray; font-size: 0.75em; letter-spacing: 1px; margin-bottom: 3px;'>VADESİZ TL HESABI</div>
+                                <div style='color: white; font-size: 1.15em; font-weight: bold; font-family: Consolas, monospace;'>{r['hesap_adi']}</div>
+                            </div>
+                            <div style='text-align: right;'>
+                                <div style='color: gray; font-size: 0.75em; letter-spacing: 1px; margin-bottom: 3px;'>KULLANILABİLİR BAKİYE</div>
+                                <div style='color: #00ff00; font-size: 1.4em; font-weight: bold; font-family: Consolas, monospace;'>{gosterilen_bakiye} ₺</div>
+                            </div>
+                        </div>
+                        """
+                        st.markdown(vd_html, unsafe_allow_html=True)
+
                     if sb != "Midas":
                         with st.expander("Hesap Kaydını Sil"):
                             sv = st.selectbox("Hesap Seçimi:", vd_ler['hesap_adi'].tolist(), key=f"sv_{sb}")
@@ -3602,17 +3661,27 @@ else:
                             onceki_anapara = bakiye / (1 + net_oran)
                             son_yatan_net = bakiye - onceki_anapara
                             
-                            with st.container(border=True):
-                                c1, c2, c3 = st.columns([2, 1.5, 1])
-                                c1.markdown(f"**{r['hesap_adi']}**<br><span style='font-size:0.85em;color:gray;'>Vadeli Hesap</span>", unsafe_allow_html=True)
-                                
-                                if son_yatan_net > 0:
-                                    bakiye_html = f"<span style='font-size:0.8em;color:gray;'>Güncel Bakiye</span><br><span style='color:#4CAF50; font-weight:bold; font-size:1.2em;'>{bakiye:,.2f} TL</span><br><span style='font-size:0.75em;color:#FFD700;'>+ {son_yatan_net:,.2f} TL Son Yatan Faiz</span>"
-                                else:
-                                    bakiye_html = f"<span style='font-size:0.8em;color:gray;'>Bakiye</span><br><span style='color:#4CAF50; font-weight:bold; font-size:1.2em;'>{bakiye:,.2f} TL</span>"
-                                    
-                                c2.markdown(f"<div style='text-align:right;'>{bakiye_html}</div>", unsafe_allow_html=True)
-                                c3.markdown(f"<div style='text-align:right;'><span style='font-size:0.8em;color:gray;'>Faiz</span><br><span style='font-weight:bold; font-size:1.2em;'>%{faiz}</span></div>", unsafe_allow_html=True)
+                            is_ghost = st.session_state.get('hayalet_modu', False)
+                            gosterilen_bakiye = H_MASK if is_ghost else f"{bakiye:,.2f}"
+                            gosterilen_faiz = H_MASK if is_ghost else f"{son_yatan_net:,.2f}"
+                            
+                            faiz_etiketi = f"<div style='color: #FFD700; font-size: 0.85em; font-weight: bold; margin-top: 4px;'>+ {gosterilen_faiz} ₺ Son Yatan Faiz</div>" if son_yatan_net > 0 else ""
+
+                            vl_html = f"""
+                            <div style='background: linear-gradient(135deg, rgba(20,20,20,0.9) 0%, rgba(5,5,5,0.95) 100%); border: 1px solid rgba(255,215,0,0.2); border-left: 4px solid #FFD700; border-radius: 8px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;'>
+                                <div>
+                                    <div style='color: gray; font-size: 0.75em; letter-spacing: 1px; margin-bottom: 3px;'>VADELİ MEVDUAT HESABI</div>
+                                    <div style='color: white; font-size: 1.15em; font-weight: bold; font-family: Consolas, monospace;'>{r['hesap_adi']}</div>
+                                    <div style='color: #FFD700; font-size: 0.9em; margin-top: 4px; font-family: Consolas, monospace;'>Brüt Faiz: %{faiz}</div>
+                                </div>
+                                <div style='text-align: right;'>
+                                    <div style='color: gray; font-size: 0.75em; letter-spacing: 1px; margin-bottom: 3px;'>GÜNCEL BAKİYE</div>
+                                    <div style='color: #4CAF50; font-size: 1.4em; font-weight: bold; font-family: Consolas, monospace;'>{gosterilen_bakiye} ₺</div>
+                                    {faiz_etiketi}
+                                </div>
+                            </div>
+                            """
+                            st.markdown(vl_html, unsafe_allow_html=True)
                         # --- VADELİ HESAP GÜNCELLEME VE SİLME OPERASYONU ---
                         st.markdown("---")
                         c_guncelle, c_sil = st.columns(2)

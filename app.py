@@ -2023,45 +2023,37 @@ else:
             st.markdown("##### Nakit Bakiye ve Alım Gücü")
             
             is_ghost = st.session_state.get('hayalet_modu', False)
-            # --- 1. NAKİT BAKİYE KARTLARI (EMOJİSİZ SİBER TASARIM) ---
+            # --- 1. NAKİT BAKİYE KARTLARI (BEMBEYAZ SİBER TASARIM) ---
             nakit_kartlari = [
                 {"isim": "TL Alım Gücü" if net_takas_tl > 0 else "TL Kasası", "alt": "Türk Lirası", 
-                 "deger": H_MASK if is_ghost else f"{alim_gucu_tl:,.2f} TL", "renk": "white", 
-                 "detay": (H_MASK if is_ghost else f"Nakit: {nakit_tl:,.2f} | Net Takas: {net_takas_tl:,.2f}") if net_takas_tl > 0 else "Kullanılabilir Nakit", "ikon": "TL", "sembol": "₺", "s_renk": "#001b3b"},
+                 "deger": H_MASK if is_ghost else f"{alim_gucu_tl:,.2f} TL", 
+                 "detay": (H_MASK if is_ghost else f"Nakit: {nakit_tl:,.2f} | Net Takas: {net_takas_tl:,.2f}") if net_takas_tl > 0 else "Kullanılabilir Nakit", "sembol": "₺"},
                 {"isim": "USD Kasası", "alt": "Amerikan Doları", 
-                 "deger": H_MASK if is_ghost else f"{nakit_usd:,.2f} $", "renk": "white", 
-                 "detay": f"Anlık Kur: {anlik_dolar:.2f} TL", "ikon": "USD", "sembol": "$", "s_renk": "#4CAF50"},
+                 "deger": H_MASK if is_ghost else f"{nakit_usd:,.2f} $", 
+                 "detay": f"Anlık Kur: {anlik_dolar:.2f} TL", "sembol": "$"},
                 {"isim": "Toplam TL Karşılığı", "alt": "Tüm Varlıklar", 
-                 "deger": H_MASK if is_ghost else f"{toplam_nakit_tl:,.2f} TL", "renk": "white", 
-                 "detay": "T+2 ve Döviz Dahil", "ikon": "TOPLAM", "sembol": "+", "s_renk": "#ffb300"}
+                 "deger": H_MASK if is_ghost else f"{toplam_nakit_tl:,.2f} TL", 
+                 "detay": "T+2 ve Döviz Dahil", "sembol": "+"}
             ]
             
             cols_n = st.columns(3)
             for idx, kart in enumerate(nakit_kartlari):
                 with cols_n[idx]:
-                    sembol = kart.get('sembol', kart['ikon'][0])
-                    s_renk = kart.get('s_renk', '#3c39fd')
-                    img_html = f"<div style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid {s_renk}; display: flex; align-items: center; justify-content: center; font-weight: bold; color: {s_renk}; background: transparent; font-size: 18px;'>{sembol}</div>"
+                    sembol = kart['sembol']
+                    # İkon çerçevesi ve içi bembeyaz
+                    img_html = f"<div style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid white; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; background: transparent; font-size: 18px;'>{sembol}</div>"
                     
-                    for ext in ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG']:
-                        p = f"Banka Logoları/{kart['ikon']}{ext}"
-                        if os.path.exists(p):
-                            with open(p, "rb") as f:
-                                b64 = base64.b64encode(f.read()).decode()
-                                img_html = f"<img src='data:image/png;base64,{b64}' style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(60,57,253,0.4); padding: 3px; object-fit: contain; background: #ffffff;'>"
-                            break
-                            
                     kart_html = f"""
                     <div style='border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 15px; background: rgba(10,10,10,0.5); margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: all 0.3s ease;'>
                         <div style='display: flex; align-items: center; margin-bottom: 15px;'>
                             <div>{img_html}</div>
                             <div style='margin-left: 12px; line-height: 1.2;'>
                                 <div style='font-size: 0.70em; color: gray; text-transform: uppercase; letter-spacing: 0.5px;'>{kart['alt']}</div>
-                                <div style='font-size: 0.95em; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'>{kart['isim']}</div>
+                                <div style='font-size: 0.95em; font-weight: bold; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'>{kart['isim']}</div>
                             </div>
                         </div>
                         <div style='text-align: right;'>
-                            <div style='font-size: 1.35em; font-weight: bold; color: {kart['renk']};'>{kart['deger']}</div>
+                            <div style='font-size: 1.35em; font-weight: bold; color: white;'>{kart['deger']}</div>
                             <div style='font-size: 0.8em; color: gray; margin-top: 4px; font-family: monospace;'>{kart['detay']}</div>
                         </div>
                     </div>
@@ -2254,6 +2246,23 @@ else:
                 button[kind="tertiary"]:active p {
                     color: #ffffff !important;
                 }
+                /* --- ASİSTAN BUTONU KURTARMA OPERASYONU --- */
+    div[data-testid="stElementContainer"]:has(#asistan-marker) { display: none !important; }
+    div[data-testid="stElementContainer"]:has(#asistan-marker) + div[data-testid="stElementContainer"] button {
+        position: fixed !important; bottom: 30px !important; right: 30px !important;
+        width: 70px !important; height: 70px !important; border-radius: 50% !important;
+        background: transparent !important; border: none !important; box-shadow: none !important; 
+        z-index: 99999 !important; transition: all 0.3s ease !important; 
+        animation: float-logo 4s ease-in-out infinite !important;
+        display: flex !important; align-items: center !important; justify-content: center !important; padding: 0 !important;
+        overflow: visible !important;
+    }
+    div[data-testid="stElementContainer"]:has(#asistan-marker) + div[data-testid="stElementContainer"] button p { 
+        color: transparent !important; position: relative; margin: 0 !important; z-index: -1 !important; 
+    }
+    div[data-testid="stElementContainer"]:has(#asistan-marker) + div[data-testid="stElementContainer"] button:hover { 
+        transform: scale(1.1) translateY(-5px) !important; filter: brightness(1.2);
+    }            
                 </style>
                 """, unsafe_allow_html=True)
 
@@ -2321,7 +2330,7 @@ else:
                                 with c1:
                                     st.markdown(f"""
                                     <div style='display: flex; align-items: center; margin-top: 5px; margin-bottom: 5px;'>
-                                        <div style='min-width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(60,57,253,0.4); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #3c39fd; background: rgba(60,57,253,0.05); font-size: 18px;'>
+                                        <div style='min-width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; background: transparent; font-size: 18px;'>
                                             {bas_harf}
                                         </div>
                                         <div style='margin-left: 15px; line-height: 1.3;'>
@@ -2366,11 +2375,11 @@ else:
                     renk, isaret = ("#4CAF50", "+") if kz_tl >= 0 else ("#FF5252", "")
                     bas_harf = e_maden[0].upper()
                     
-                    # Siber Tasarımlı Maden Kartı
+                   # Siber Tasarımlı Maden Kartı
                     kart_html = f"""
                     <div style='border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 15px; background: rgba(10,10,10,0.5); margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: all 0.3s ease; display: flex; justify-content: space-between; align-items: center;'>
                         <div style='display: flex; align-items: center;'>
-                            <div style='min-width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(60,57,253,0.4); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #3c39fd; background: rgba(60,57,253,0.05); font-size: 18px;'>
+                            <div style='min-width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; background: transparent; font-size: 18px;'>
                                 {bas_harf}
                             </div>
                             <div style='margin-left: 15px; line-height: 1.3;'>

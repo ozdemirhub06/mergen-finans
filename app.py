@@ -352,18 +352,21 @@ st.markdown("""
         text-shadow: 0 0 8px rgba(226, 232, 240, 0.4) !important;
     }
             
-    /* --- SEKMELERİ (TABS) NEON YEŞİL YAPMA --- */
+    /* --- SEKMELERİ (TABS) SOFT BEYAZ YAPMA --- */
     .stTabs [data-baseweb="tab-list"] {gap: 24px;}
     .stTabs [data-baseweb="tab"] {padding-top: 10px; padding-bottom: 10px;}
     .stTabs [data-baseweb="tab"] [data-testid="stMarkdownContainer"] p {
         color: gray !important; /* Seçili olmayan sekmeler gri */
+        transition: color 0.3s ease !important;
     }
     .stTabs div[aria-selected="true"] [data-testid="stMarkdownContainer"] p {
-        color: #3c39fd !important; /* Seçili sekme yazısı Neon Yeşil */
+        color: #e2e8f0 !important; /* Seçili sekme yazısı Soft Beyaz */
         font-weight: bold;
+        text-shadow: 0 0 8px rgba(226, 232, 240, 0.4) !important;
     }
     .stTabs div[aria-selected="true"] {
-        border-bottom-color: #3c39fd !important; /* Seçili sekme alt çizgisi Neon Yeşil */
+        border-bottom-color: #e2e8f0 !important; /* Seçili sekme alt çizgisi Soft Beyaz */
+        border-bottom-width: 3px !important; /* Çizgiyi biraz daha tok gösterir */
     }
     
     /* --- BİRİNCİL (PRIMARY) BUTONLARI GECE MAVİSİ GRADİENT YAPMA --- */
@@ -454,28 +457,28 @@ st.markdown("""
     }
 
     /* ==================================================================== */
-    /* --- YÜKLEME (SPINNER) EKRANI KESİN VE TEK ÇÖZÜMÜ (TEMİZLENDİ) --- */
+    /* --- YÜKLEME (SPINNER) EKRANI KESİN VE TEK ÇÖZÜMÜ (BEYAZ) --- */
     /* ==================================================================== */
 
     /* 1. Metin İçi Küçük Yükleme Çarkları (Veri Hesaplanıyor vs.) */
     div[data-testid="stSpinner"] div[class*="spinner"] {
         border-width: 4px !important;
-        border-color: rgba(60, 57, 253, 0.1) !important;
-        border-top-color: #3c39fd !important;
-        border-left-color: rgba(60, 57, 253, 0.2) !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        border-top-color: #ffffff !important;
+        border-left-color: rgba(255, 255, 255, 0.4) !important;
     }
     div[data-testid="stSpinner"] div[class*="stMarkdown"] p,
     div[data-testid="stSpinner"] span,
     [data-testid="stSpinner"] p {
-        color: #3c39fd !important;
+        color: #ffffff !important;
         font-family: 'Consolas', monospace !important;
         font-weight: bold !important;
-        text-shadow: 0 0 8px rgba(60, 57, 253, 0.5) !important;
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.5) !important;
     }
 
-    /* 2. Sağ Üstteki Koşan Adamı İptal Edip, Merkeze Dev Neon Halka Ekleme */
+    /* 2. Sağ Üstteki Koşan Adamı İptal Edip, Merkeze Dev Beyaz Halka Ekleme */
     [data-testid="stStatusWidget"] {
-        visibility: hidden !important; /* Ekranı bozmaması için sadece gizliyoruz, tamamen yok etmiyoruz ki ::after çalışsın */
+        visibility: hidden !important; 
     }
     [data-testid="stStatusWidget"]::after {
         content: "";
@@ -485,12 +488,12 @@ st.markdown("""
         left: 50%;
         width: 50px;
         height: 50px;
-        border: 4px solid rgba(60, 57, 253, 0.1);
-        border-left-color: #3c39fd;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-left-color: #ffffff;
         border-radius: 50%;
         animation: siber-spin 0.8s linear infinite;
         z-index: 99999;
-        box-shadow: 0 0 15px rgba(60, 57, 253, 0.3);
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
     }
     @keyframes siber-spin {
         0% { transform: translate(-50%, -50%) rotate(0deg); }
@@ -2808,7 +2811,7 @@ else:
             doviz_islem_modulu(k_adi, "portfoy_tab2")   
 
         with tab3: 
-            st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #3c39fd; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #3c39fd;'></div><div style='color: #3c39fd; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>TRANSFER İŞLEMLERİ</div></div>", unsafe_allow_html=True)
+            st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #3c39fd; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #3c39fd;'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>TRANSFER İŞLEMLERİ</div></div>", unsafe_allow_html=True)
             
             conn = get_db()
             try:
@@ -2899,7 +2902,7 @@ else:
                         finally: release_db(conn)
             
         with tab4: 
-            st.markdown("<div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;'><div style='display: flex; align-items: center;'><div style='width: 10px; height: 10px; background: #ffb300; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #ffb300;'></div><div style='color: #ffb300; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>PORTFÖY İŞLEM LOGLARI</div></div></div>", unsafe_allow_html=True)
+            st.markdown("<div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;'><div style='display: flex; align-items: center;'><div style='width: 10px; height: 10px; background: #ffb300; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #ffb300;'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>PORTFÖY İŞLEM LOGLARI</div></div></div>", unsafe_allow_html=True)
             
             zaman_filtresi_yat = st.selectbox("Zaman Aralığı:", ["Bugün", "Son 24 Saat", "Son 7 Gün", "Son 15 Gün", "Son 1 Ay", "Tümü"], index=2)
             st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 5px; margin-bottom: 15px;'>", unsafe_allow_html=True)
@@ -2931,7 +2934,7 @@ else:
                 with st.container(height=400, border=True):
                     if not df_b_gecmis.empty:
                         for _, r in df_b_gecmis.iterrows():
-                            renk = "#3c39fd" if r['tutar'] > 0 else "#FF5252"
+                            renk = "#4CAF50" if r['tutar'] > 0 else "#FF5252"
                             isaret = "+" if r['tutar'] > 0 else "-"
                             st.markdown(f"""
                             <div style='background: rgba(10,10,10,0.5); border-left: 3px solid {renk}; padding: 12px; border-radius: 4px; margin-bottom: 8px; border-top: 1px solid rgba(255,255,255,0.02); border-right: 1px solid rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.02);'>
@@ -3100,7 +3103,7 @@ else:
                         # Kartın altındaki ufak yazı (Borç veya Nakit durumu)
                         alt_yazi = "Nakit Kasa"
                         alt_renk = "gray"
-                        bakiye_renk = "#4CAF50" # Neon Yeşil
+                        bakiye_renk = "white" # Bembeyaz Asil Tasarım
                         
                         if item['tur'] == "Kart":
                             gosterilen_borc = H_MASK if is_ghost else f"{item['borc']:,.2f}"

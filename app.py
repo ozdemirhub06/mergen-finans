@@ -419,26 +419,26 @@ st.markdown("""
     /* --- BAŞLIKLARIN YANINDAKİ ZİNCİR (LİNK) İKONUNU GİZLE --- */
     h1 a, h2 a, h3 a, h4 a, h5 a, h6 a, a.header-anchor { display: none !important; }
     
-   /* --- SİSTEM ASİSTANI (HAREKETLİ LOGO VE SİBER PARTİKÜLLER) --- */
-    div[data-testid="stElementContainer"]:has(#asistan-marker) { display: none !important; }
-    div[data-testid="stElementContainer"]:has(#asistan-marker) + div[data-testid="stElementContainer"] button {
+   /* --- SİSTEM ASİSTANI (KURŞUN GEÇİRMEZ ZIRH) --- */
+    div[data-testid="stVerticalBlock"]:has(#asistan-marker) {
         position: fixed !important; bottom: 30px !important; right: 30px !important;
+        width: 70px !important; height: 70px !important; z-index: 99999 !important;
+    }
+    div[data-testid="stVerticalBlock"]:has(#asistan-marker) button {
         width: 70px !important; height: 70px !important; border-radius: 50% !important;
         background: transparent !important; border: none !important; box-shadow: none !important; 
-        z-index: 99999 !important; transition: all 0.3s ease !important; 
+        transition: all 0.3s ease !important; 
         animation: float-logo 4s ease-in-out infinite !important;
         display: flex !important; align-items: center !important; justify-content: center !important; padding: 0 !important;
-        overflow: visible !important;
+        position: absolute !important; top: 0 !important; left: 0 !important;
     }
-    div[data-testid="stElementContainer"]:has(#asistan-marker) + div[data-testid="stElementContainer"] button p { 
+    div[data-testid="stVerticalBlock"]:has(#asistan-marker) button p { 
         color: transparent !important; position: relative; margin: 0 !important; z-index: -1 !important; 
     }
-    div[data-testid="stElementContainer"]:has(#asistan-marker) + div[data-testid="stElementContainer"] button:hover { 
+    div[data-testid="stVerticalBlock"]:has(#asistan-marker) button:hover { 
         transform: scale(1.1) translateY(-5px) !important; filter: brightness(1.2);
     }
-    
-    /* --- PARTİKÜL EFEKTİ (SİBER MAVİ) --- */
-    div[data-testid="stElementContainer"]:has(#asistan-marker) + div[data-testid="stElementContainer"] button::after {
+    div[data-testid="stVerticalBlock"]:has(#asistan-marker) button::after {
         content: ''; position: absolute; top: 50%; left: 50%; width: 10px; height: 10px;
         background: transparent; border-radius: 50%; z-index: -1;
         animation: siber-particles 3s ease-out infinite; pointer-events: none;
@@ -459,8 +459,6 @@ st.markdown("""
     /* ==================================================================== */
     /* --- YÜKLEME (SPINNER) EKRANI KESİN VE TEK ÇÖZÜMÜ (BEYAZ) --- */
     /* ==================================================================== */
-
-    /* 1. Metin İçi Küçük Yükleme Çarkları (Veri Hesaplanıyor vs.) */
     div[data-testid="stSpinner"] div[class*="spinner"] {
         border-width: 4px !important;
         border-color: rgba(255, 255, 255, 0.1) !important;
@@ -468,32 +466,24 @@ st.markdown("""
         border-left-color: rgba(255, 255, 255, 0.4) !important;
     }
     div[data-testid="stSpinner"] div[class*="stMarkdown"] p,
-    div[data-testid="stSpinner"] span,
-    [data-testid="stSpinner"] p {
-        color: #ffffff !important;
-        font-family: 'Consolas', monospace !important;
-        font-weight: bold !important;
-        text-shadow: 0 0 8px rgba(255, 255, 255, 0.5) !important;
+    div[data-testid="stSpinner"] span, [data-testid="stSpinner"] p {
+        color: #ffffff !important; font-family: 'Consolas', monospace !important;
+        font-weight: bold !important; text-shadow: 0 0 8px rgba(255, 255, 255, 0.5) !important;
     }
-
-    /* 2. Sağ Üstteki Koşan Adamı İptal Edip, Merkeze Dev Beyaz Halka Ekleme */
+    
+    /* Sağ Üstteki İnatçı Streamlit Loading Barını Yok Et ve Ortaya Beyaz Halka Koy */
     [data-testid="stStatusWidget"] {
-        visibility: hidden !important; 
+        color: transparent !important; background: transparent !important;
     }
-    [data-testid="stStatusWidget"]::after {
-        content: "";
-        visibility: visible !important;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        width: 50px;
-        height: 50px;
-        border: 4px solid rgba(255, 255, 255, 0.1);
-        border-left-color: #ffffff;
-        border-radius: 50%;
-        animation: siber-spin 0.8s linear infinite;
-        z-index: 99999;
-        box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    [data-testid="stStatusWidget"] span, [data-testid="stStatusWidget"] img, [data-testid="stStatusWidget"] div {
+        display: none !important; opacity: 0 !important;
+    }
+    [data-testid="stStatusWidget"]::before {
+        content: ""; visibility: visible !important; position: fixed; top: 50%; left: 50%;
+        width: 60px; height: 60px; border: 4px solid rgba(255, 255, 255, 0.1);
+        border-left-color: #ffffff; border-radius: 50%;
+        animation: siber-spin 0.8s linear infinite; z-index: 99999;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.4); transform: translate(-50%, -50%);
     }
     @keyframes siber-spin {
         0% { transform: translate(-50%, -50%) rotate(0deg); }
@@ -1751,9 +1741,9 @@ else:
             except: pass
 
     if logo_b64:
-        st.markdown(f"<style>div[data-testid='stElementContainer']:has(#asistan-marker) + div[data-testid='stElementContainer'] button::before {{ content: '' !important; background-image: url('data:image/{logo_mime};base64,{logo_b64}'); background-size: contain; background-repeat: no-repeat; background-position: center; width: 100%; height: 100%; position: absolute; z-index: 1; }}</style>", unsafe_allow_html=True)
+        st.markdown(f"<style>div[data-testid='stVerticalBlock']:has(#asistan-marker) button::before {{ content: '' !important; background-image: url('data:image/{logo_mime};base64,{logo_b64}'); background-size: contain; background-repeat: no-repeat; background-position: center; width: 100%; height: 100%; position: absolute; z-index: 1; }}</style>", unsafe_allow_html=True)
     else:
-        st.markdown("<style>div[data-testid='stElementContainer']:has(#asistan-marker) + div[data-testid='stElementContainer'] button::before { content: 'M' !important; position: absolute; color: #3c39fd; font-family: Consolas, monospace; font-size: 26px; font-weight: bold; text-shadow: 0 0 10px rgba(60, 57, 253, 0.8); z-index: 1; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; top: 0; left: 0; }</style>", unsafe_allow_html=True)
+        st.markdown("<style>div[data-testid='stVerticalBlock']:has(#asistan-marker) button::before { content: 'M' !important; position: absolute; color: #3c39fd; font-family: Consolas, monospace; font-size: 26px; font-weight: bold; text-shadow: 0 0 10px rgba(60, 57, 253, 0.8); z-index: 1; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; top: 0; left: 0; }</style>", unsafe_allow_html=True)
 
     # Bildirim varsa Konuşma Balonunu (Speech Bubble) ekrana basıyoruz
     if okunmamis > 0 and son_mesaj:
@@ -1799,10 +1789,10 @@ else:
         """
         components.html(js_kodu, height=0, width=0)
 
-    st.markdown('<div id="asistan-marker"></div>', unsafe_allow_html=True)
-    if st.button("ASISTAN_LOGO"):
-        asistan_paneli_ac(k_adi)
-
+    with st.container():
+        st.markdown('<div id="asistan-marker" style="display:none;"></div>', unsafe_allow_html=True)
+        if st.button("ASISTAN_LOGO"):
+            asistan_paneli_ac(k_adi)
     with st.sidebar:
         # --- HAYALET MODU MOTORU VE İKON ENJEKSİYONU ---
         is_ghost = st.session_state.get('hayalet_modu', False)

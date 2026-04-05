@@ -290,12 +290,12 @@ st.markdown("""
         scrollbar-width: none !important;
     }
     [data-testid="stSidebar"] img {
-        border: 2px solid #3c39fd !important;
+        border: 2px solid rgba(226, 232, 240, 0.6) !important;
         padding: 4px !important;
         border-radius: 50% !important; 
-        box-shadow: 0 0 15px rgba(60, 57, 253, 0.15) !important;
-        aspect-ratio: 1 / 1 !important; /* Fotoğrafı kare formata zorlar */
-        object-fit: cover !important; /* Fotoğrafı ezmeden çerçevenin içine oturtur */
+        box-shadow: 0 0 10px rgba(226, 232, 240, 0.1) !important;
+        aspect-ratio: 1 / 1 !important;
+        object-fit: cover !important;
     }
     }
     
@@ -332,24 +332,24 @@ st.markdown("""
     
     /* 4. SEÇİLİ OLAN MENÜ (Akıllı Seçici) */
     [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {
-        background: linear-gradient(90deg, rgba(60,57,253,0.15) 0%, rgba(0,0,0,0) 100%) !important;
-        border-color: rgba(60, 57, 253, 0.3) !important;
-        border-left: 3px solid #3c39fd !important; /* Çizgiyi de incelttik */
-        box-shadow: inset 2px 0px 10px rgba(60,57,253,0.05) !important;
+        background: linear-gradient(145deg, #001b3b 0%, #0a0a0a 100%) !important;
+        border-color: rgba(0, 27, 59, 0.5) !important;
+        border-left: 3px solid #e2e8f0 !important; /* Soft beyaz şık çizgi */
+        box-shadow: inset 2px 0px 10px rgba(0, 27, 59, 0.5) !important;
     }
     
-    /* 5. Yazıların hizası ve rengi (Biraz küçültüldü) */
+    /* 5. Yazıların hizası ve rengi */
     [data-testid="stSidebar"] div[role="radiogroup"] label p {
         color: #888888 !important;
-        font-size: 0.95rem !important; /* Yazıyı ufalttık ki zarif dursun */
+        font-size: 0.95rem !important;
         font-weight: 600 !important;
         margin: 0 !important;
     }
     
     /* 6. Seçili menünün yazısını parlat */
     [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) p {
-        color: #3c39fd !important;
-        text-shadow: 0 0 8px rgba(60,57,253,0.4) !important;
+        color: #e2e8f0 !important; /* Soft Beyaz */
+        text-shadow: 0 0 8px rgba(226, 232, 240, 0.4) !important;
     }
             
     /* --- SEKMELERİ (TABS) NEON YEŞİL YAPMA --- */
@@ -366,16 +366,18 @@ st.markdown("""
         border-bottom-color: #3c39fd !important; /* Seçili sekme alt çizgisi Neon Yeşil */
     }
     
-    /* --- BİRİNCİL (PRIMARY) BUTONLARI NEON YEŞİL YAPMA --- */
+    /* --- BİRİNCİL (PRIMARY) BUTONLARI GECE MAVİSİ YAPMA --- */
     button[kind="primary"] {
-        background-color: #3c39fd !important;
-        color: #000000 !important; /* Siyah yazı */
-        border: none !important;
+        background: linear-gradient(145deg, #001b3b 0%, #050505 100%) !important;
+        color: #e2e8f0 !important;
+        border: 1px solid rgba(226, 232, 240, 0.2) !important;
         font-weight: bold !important;
+        transition: all 0.3s ease !important;
     }
     button[kind="primary"]:hover {
-        background-color: #201dc4 !important; /* Hover rengi (Koyu Yeşil) */
-        color: #000000 !important;
+        background: linear-gradient(145deg, #002855 0%, #0a0a0a 100%) !important;
+        border: 1px solid rgba(226, 232, 240, 0.5) !important;
+        color: #ffffff !important;
     }
     
     /* --- EXPANDER TASARIMI (SADE & CONSOLAS FONT) --- */
@@ -400,13 +402,14 @@ st.markdown("""
         color: #3c39fd !important;
     }
             /* --- İNATÇI BEYAZ YAZILARI ZORLA SİYAH YAP (FORM BUTONLARI DAHİL) --- */
+    button[ki/* --- İNATÇI YAZILARI ZORLA SOFT BEYAZ YAP (FORM BUTONLARI DAHİL) --- */
     button[kind="primary"] p,
     button[kind="primary"] span,
     button[kind="primaryFormSubmit"] p,
     button[kind="primaryFormSubmit"] span,
     [data-testid="baseButton-primary"] p,
     [data-testid="baseButton-primary"] span {
-        color: #000000 !important;
+        color: #e2e8f0 !important;
         font-weight: 600 !important;
     }
 
@@ -1801,35 +1804,7 @@ else:
         # --- HAYALET MODU MOTORU VE İKON ENJEKSİYONU ---
         is_ghost = st.session_state.get('hayalet_modu', False)
         
-        # Vektörel SVG Çizimleri (Açık = Gri, Kapalı/Çizgili = Neon Yeşil)
-        svg_acik = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="gray" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>'
-        svg_kapali = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%233c39fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>'
         
-        aktif_svg_b64 = base64.b64encode((svg_kapali if is_ghost else svg_acik).encode('utf-8')).decode('utf-8')
-
-        st.markdown(f"""
-        <style>
-        /* Hayalet Modu Buton Konteynerinin Boşluğunu Sıfırlama */
-        div[data-testid="stElementContainer"]:has(#ghost-marker),
-        div[data-testid="stElementContainer"]:has(#ghost-marker) + div[data-testid="stElementContainer"] {{
-            height: 0px !important; min-height: 0px !important; margin: 0 !important; padding: 0 !important;
-        }}
-        /* Butonun Kendisine SVG Basma */
-        div[data-testid="stElementContainer"]:has(#ghost-marker) + div[data-testid="stElementContainer"] button {{
-            position: absolute !important; top: -35px !important; right: 10px !important; width: 40px !important; height: 40px !important;
-            background-color: transparent !important; background-image: url('data:image/svg+xml;base64,{aktif_svg_b64}') !important;
-            background-size: 24px 24px !important; background-repeat: no-repeat !important; background-position: center !important;
-            border: none !important; box-shadow: none !important; transition: all 0.3s ease !important; z-index: 9999 !important;
-        }}
-        div[data-testid="stElementContainer"]:has(#ghost-marker) + div[data-testid="stElementContainer"] button p {{ display: none !important; }}
-        div[data-testid="stElementContainer"]:has(#ghost-marker) + div[data-testid="stElementContainer"] button:hover {{
-            transform: scale(1.1) !important; filter: drop-shadow(0 0 8px {'#3c39fd' if is_ghost else 'gray'}) !important; background-color: transparent !important;
-        }}
-        </style>
-        <div id="ghost-marker"></div>
-        """, unsafe_allow_html=True)
-        
-        st.button("GhostBtn", on_click=toggle_hayalet_modu)
 
         # --- 1. TARİH VE GÜN MODÜLÜ ---
 
@@ -1837,7 +1812,7 @@ else:
         aylar = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
         gunler = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"]
         simdi = datetime.datetime.now()
-        st.markdown(f"<div style='text-align: center; color: #3c39fd; font-family: monospace; font-size: 1.1rem; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px;'><b>{simdi.day} {aylar[simdi.month]} {simdi.year}</b><br><span style='font-size: 0.9rem; color: gray;'>{gunler[simdi.weekday()]}</span></div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='text-align: center; color: #e2e8f0; font-family: monospace; font-size: 1.1rem; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px;'><b>{simdi.day} {aylar[simdi.month]} {simdi.year}</b><br><span style='font-size: 0.9rem; color: gray;'>{gunler[simdi.weekday()]}</span></div>", unsafe_allow_html=True)
 
         # --- 2. PROFİL KISMI ---
         k_bilgi = kullanici_bilgileri_getir(k_adi)
@@ -1848,9 +1823,9 @@ else:
                     g_data = base64.b64decode(k_bilgi['profil_fotosu'])
                     st.image(g_data, use_container_width=True)
                 except:
-                    st.markdown("<div style='width: 100%; aspect-ratio: 1/1; border: 2px solid #3c39fd; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #3c39fd; font-size: 2em; background: rgba(60,57,253,0.05);'>U</div>", unsafe_allow_html=True)
+                    st.markdown("<div style='width: 100%; aspect-ratio: 1/1; border: 2px solid rgba(226, 232, 240, 0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #e2e8f0; font-size: 2em; background: rgba(226, 232, 240, 0.05);'>U</div>", unsafe_allow_html=True)
             else:
-                st.markdown("<div style='width: 100%; aspect-ratio: 1/1; border: 2px solid #3c39fd; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #3c39fd; font-size: 2em; background: rgba(60,57,253,0.05);'>U</div>", unsafe_allow_html=True)
+                st.markdown("<div style='width: 100%; aspect-ratio: 1/1; border: 2px solid rgba(226, 232, 240, 0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #e2e8f0; font-size: 2em; background: rgba(226, 232, 240, 0.05);'>U</div>", unsafe_allow_html=True)
         
         isim_yazi = k_bilgi['isim_soyisim'] if k_bilgi['isim_soyisim'] else "Bilinmeyen Kullanıcı"
         st.markdown(f"<div style='text-align: center; margin-top: 5px;'><h4 style='margin-bottom: 0px;'>{isim_yazi}</h4><span style='color: gray; font-size: 12px;'>Kod: {k_adi}</span></div>", unsafe_allow_html=True)
@@ -2051,21 +2026,22 @@ else:
             # --- 1. NAKİT BAKİYE KARTLARI (EMOJİSİZ SİBER TASARIM) ---
             nakit_kartlari = [
                 {"isim": "TL Alım Gücü" if net_takas_tl > 0 else "TL Kasası", "alt": "Türk Lirası", 
-                 "deger": H_MASK if is_ghost else f"{alim_gucu_tl:,.2f} TL", "renk": "#4CAF50", 
-                 "detay": (H_MASK if is_ghost else f"Nakit: {nakit_tl:,.2f} | Net Takas: {net_takas_tl:,.2f}") if net_takas_tl > 0 else "Kullanılabilir Nakit", "ikon": "TL"},
+                 "deger": H_MASK if is_ghost else f"{alim_gucu_tl:,.2f} TL", "renk": "white", 
+                 "detay": (H_MASK if is_ghost else f"Nakit: {nakit_tl:,.2f} | Net Takas: {net_takas_tl:,.2f}") if net_takas_tl > 0 else "Kullanılabilir Nakit", "ikon": "TL", "sembol": "₺", "s_renk": "#001b3b"},
                 {"isim": "USD Kasası", "alt": "Amerikan Doları", 
-                 "deger": H_MASK if is_ghost else f"{nakit_usd:,.2f} $", "renk": "#4CAF50", 
-                 "detay": f"Anlık Kur: {anlik_dolar:.2f} TL", "ikon": "USD"},
+                 "deger": H_MASK if is_ghost else f"{nakit_usd:,.2f} $", "renk": "white", 
+                 "detay": f"Anlık Kur: {anlik_dolar:.2f} TL", "ikon": "USD", "sembol": "$", "s_renk": "#4CAF50"},
                 {"isim": "Toplam TL Karşılığı", "alt": "Tüm Varlıklar", 
-                 "deger": H_MASK if is_ghost else f"{toplam_nakit_tl:,.2f} TL", "renk": "#3c39fd", 
-                 "detay": "T+2 ve Döviz Dahil", "ikon": "TOPLAM"}
+                 "deger": H_MASK if is_ghost else f"{toplam_nakit_tl:,.2f} TL", "renk": "white", 
+                 "detay": "T+2 ve Döviz Dahil", "ikon": "TOPLAM", "sembol": "+", "s_renk": "#ffb300"}
             ]
             
             cols_n = st.columns(3)
             for idx, kart in enumerate(nakit_kartlari):
                 with cols_n[idx]:
-                    bas_harf = kart['ikon'][0]
-                    img_html = f"<div style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(60,57,253,0.4); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #3c39fd; background: rgba(60,57,253,0.05); font-size: 16px;'>{bas_harf}</div>"
+                    sembol = kart.get('sembol', kart['ikon'][0])
+                    s_renk = kart.get('s_renk', '#3c39fd')
+                    img_html = f"<div style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid {s_renk}; display: flex; align-items: center; justify-content: center; font-weight: bold; color: {s_renk}; background: transparent; font-size: 18px;'>{sembol}</div>"
                     
                     for ext in ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG']:
                         p = f"Banka Logoları/{kart['ikon']}{ext}"

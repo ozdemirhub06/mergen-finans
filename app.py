@@ -366,7 +366,7 @@ st.markdown("""
         border-bottom-color: #3c39fd !important; /* Seçili sekme alt çizgisi Neon Yeşil */
     }
     
-    /* --- BİRİNCİL (PRIMARY) BUTONLARI GECE MAVİSİ YAPMA --- */
+    /* --- BİRİNCİL (PRIMARY) BUTONLARI GECE MAVİSİ GRADİENT YAPMA --- */
     button[kind="primary"] {
         background: linear-gradient(145deg, #001b3b 0%, #050505 100%) !important;
         color: #e2e8f0 !important;
@@ -416,7 +416,7 @@ st.markdown("""
     /* --- BAŞLIKLARIN YANINDAKİ ZİNCİR (LİNK) İKONUNU GİZLE --- */
     h1 a, h2 a, h3 a, h4 a, h5 a, h6 a, a.header-anchor { display: none !important; }
     
-    /* --- SİSTEM ASİSTANI (HAREKETLİ LOGO VE PARTİKÜLLER) --- */
+   /* --- SİSTEM ASİSTANI (HAREKETLİ LOGO VE SİBER PARTİKÜLLER) --- */
     div[data-testid="stElementContainer"]:has(#asistan-marker) { display: none !important; }
     div[data-testid="stElementContainer"]:has(#asistan-marker) + div[data-testid="stElementContainer"] button {
         position: fixed !important; bottom: 30px !important; right: 30px !important;
@@ -434,24 +434,24 @@ st.markdown("""
         transform: scale(1.1) translateY(-5px) !important; filter: brightness(1.2);
     }
     
-    /* PARTİKÜL EFEKTİ */
+    /* --- PARTİKÜL EFEKTİ (SİBER MAVİ) --- */
     div[data-testid="stElementContainer"]:has(#asistan-marker) + div[data-testid="stElementContainer"] button::after {
         content: ''; position: absolute; top: 50%; left: 50%; width: 10px; height: 10px;
         background: transparent; border-radius: 50%; z-index: -1;
-        animation: green-particles 3s ease-out infinite; pointer-events: none;
+        animation: siber-particles 3s ease-out infinite; pointer-events: none;
     }
 
+    /* --- ANİMASYON MOTORLARI --- */
     @keyframes float-logo { 
-        0% { transform: translateY(0px); filter: drop-shadow(0 0 5px rgba(60,57,253,0.3)); } 
-        50% { transform: translateY(-10px); filter: drop-shadow(0 0 15px rgba(60,57,253,0.6)); } 
-        100% { transform: translateY(0px); filter: drop-shadow(0 0 5px rgba(60,57,253,0.3)); } 
+        0% { transform: translateY(0px); filter: drop-shadow(0 0 5px rgba(60,57,253,0.4)); } 
+        50% { transform: translateY(-10px); filter: drop-shadow(0 0 18px rgba(60,57,253,0.9)); } 
+        100% { transform: translateY(0px); filter: drop-shadow(0 0 5px rgba(60,57,253,0.4)); } 
     }
-    @keyframes green-particles {
+    @keyframes siber-particles {
         0% { box-shadow: 0 0 0 transparent, 0 0 0 transparent, 0 0 0 transparent; }
-        50% { box-shadow: -20px -30px 4px rgba(60,57,253,0.5), 30px -10px 6px rgba(60,57,253,0.4), -10px 30px 4px rgba(60,57,253,0.6); }
+        50% { box-shadow: -20px -30px 4px rgba(60,57,253,0.6), 30px -10px 6px rgba(60,57,253,0.5), -10px 30px 4px rgba(60,57,253,0.7); }
         100% { box-shadow: -40px -60px 0 transparent, 60px -20px 0 transparent, -20px 60px 0 transparent; }
     }
-    @keyframes slide-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 
     /* ==================================================================== */
     /* --- YÜKLEME (SPINNER) EKRANI KESİN VE TEK ÇÖZÜMÜ (TEMİZLENDİ) --- */
@@ -1216,7 +1216,7 @@ def emtia_fiyat_hesapla(maden_turu, anlik_usd_kuru):
 
 def doviz_islem_modulu(k_adi, sayfa_key):
     st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 10px; margin-bottom: 15px;'>", unsafe_allow_html=True)
-    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00bcd4; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00bcd4;'></div><div style='color: #00bcd4; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>DÖVİZ İŞLEM TERMİNALİ</div></div>", unsafe_allow_html=True)
+    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00bcd4; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00bcd4;'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>DÖVİZ İŞLEM TERMİNALİ</div></div>", unsafe_allow_html=True)
     
     conn = get_db()
     try:
@@ -2408,8 +2408,8 @@ else:
                         with st.container(border=True):
                             df_dagilim = pd.DataFrame(dagilim_data)
                             
-                            # Sadece Bizim Neon Yeşilimiz ve Diğer Yeşil Tonları
-                            siber_renkler = ['#3c39fd', '#201dc4', '#009900', '#006600', '#4d4d4d', '#808080', '#cccccc']
+                            # Siber Mavi, Buz Mavisi ve Cyan Tonlarından Oluşan Geniş Palet
+                            siber_renkler = ['#00e5ff', '#29b6f6', '#0277bd', '#7c4dff', '#b388ff', '#00b8d4', '#1565c0', '#5c6bc0', '#00acc1', '#1976d2', '#8c9eff', '#0097a7', '#0d47a1', '#3949ab', '#4dd0e1', '#283593', '#80deea', '#3f51b5', '#b2ebf2', '#9fa8da']
                             
                             # hole=0.75 ile daha şık, ince bir siber-halka (donut) yapısına dönüştü
                             fig = px.pie(df_dagilim, values='Değer', names='Varlık', hole=0.75, color_discrete_sequence=siber_renkler)
@@ -2512,7 +2512,7 @@ else:
             # 1. SOL BLOK: BORSA VE FON İŞLEMLERİ
             # ==========================================
             with c_borsa:
-                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #3c39fd; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #3c39fd;'></div><div style='color: #3c39fd; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>BORSA VE FON İŞLEMLERİ</div></div>", unsafe_allow_html=True)
+                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #3c39fd; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #3c39fd;'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>BORSA VE FON İŞLEMLERİ</div></div>", unsafe_allow_html=True)
                 with st.container(border=True):
                     st.markdown("<span style='color: gray; font-size: 0.85em;'>İşlem Yönü:</span>", unsafe_allow_html=True)
                     tip = st.radio("İşlem Yönü (Borsa):", ["ALIM", "SATIM"], horizontal=True, label_visibility="collapsed")
@@ -2715,7 +2715,7 @@ else:
             # 2. SAĞ BLOK: KIYMETLİ MADEN İŞLEMLERİ
             # ==========================================
             with c_maden:
-                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #FFD700; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #FFD700;'></div><div style='color: #FFD700; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>KIYMETLİ MADEN İŞLEMLERİ</div></div>", unsafe_allow_html=True)
+                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #FFD700; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #FFD700;'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>KIYMETLİ MADEN İŞLEMLERİ</div></div>", unsafe_allow_html=True)
                 with st.container(border=True):
                     st.markdown("<span style='color: gray; font-size: 0.85em;'>İşlem Yönü:</span>", unsafe_allow_html=True)
                     e_islem_tipi = st.radio("İşlem Yönü (Maden):", ["ALIM", "SATIM"], horizontal=True, key="emtia_islem_tipi", label_visibility="collapsed")
@@ -3321,7 +3321,7 @@ else:
                             st.markdown("<span style='color: #3c39fd; font-weight: bold;'>Kategori Dağılımı</span>", unsafe_allow_html=True)
                             df_grup = df_filtreli.groupby('kategori')['tutar'].sum().reset_index()
                             
-                            siber_renkler = ['#3c39fd', '#201dc4', '#009900', '#4d4d4d', '#262626', '#808080', '#006600', '#1a1a1a']
+                            siber_renkler = ['#00e5ff', '#29b6f6', '#0277bd', '#7c4dff', '#b388ff', '#00b8d4', '#1565c0', '#5c6bc0', '#00acc1', '#1976d2', '#8c9eff', '#0097a7', '#0d47a1', '#3949ab', '#4dd0e1', '#283593', '#80deea', '#3f51b5', '#b2ebf2', '#9fa8da']
                             
                             fig = px.pie(df_grup, values='tutar', names='kategori', hole=0.6, color_discrete_sequence=siber_renkler)
                             fig.update_traces(
@@ -5451,9 +5451,9 @@ else:
 
             st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 15px; margin-bottom: 15px;'>", unsafe_allow_html=True)
             
-            # --- PASTA GRAFİKLER (HARCAMA SEKMESİ TASARIMI) ---
+           # --- PASTA GRAFİKLER (HARCAMA SEKMESİ TASARIMI) ---
             col3, col4 = st.columns(2)
-            siber_renkler = ['#3c39fd', '#201dc4', '#009900', '#4d4d4d', '#262626', '#808080']
+            siber_renkler = ['#00e5ff', '#29b6f6', '#0277bd', '#7c4dff', '#b388ff', '#00b8d4', '#1565c0', '#5c6bc0', '#00acc1', '#1976d2', '#8c9eff', '#0097a7', '#0d47a1', '#3949ab', '#4dd0e1', '#283593', '#80deea', '#3f51b5', '#b2ebf2', '#9fa8da']
 
             with col3:
                 with st.container(border=True, height=360):

@@ -248,8 +248,8 @@ st.markdown("""
     [data-testid="collapsedControl"] svg, 
     [data-testid="stSidebarCollapsedControl"] svg,
     [data-testid="stSidebarCollapseButton"] svg {
-        fill: #3c39fd !important;
-        color: #3c39fd !important;
+        fill: #00ff00 !important;
+        color: #00ff00 !important;
     }
     
     /* --- SİDEBAR MENÜ DÜZENLEMESİ (BUZLU CAM VE SIFIR SCROLL) --- */
@@ -268,8 +268,8 @@ st.markdown("""
         background: rgba(10, 10, 10, 0.45) !important; 
         backdrop-filter: blur(25px) saturate(150%) !important; 
         -webkit-backdrop-filter: blur(25px) saturate(150%) !important; 
-        border-right: 1px solid rgba(60, 57, 253, 0.15) !important;
-        box-shadow: inset -2px 0px 15px rgba(60, 57, 253, 0.03) !important;
+        border-right: 1px solid rgba(0, 255, 0, 0.15) !important;
+        box-shadow: inset -2px 0px 15px rgba(0, 255, 0, 0.03) !important;
         padding-bottom: 0px !important; /* BOŞLUK MİLİMETRİK OLARAK SIFIRLANDI */
         overflow: hidden !important; /* İç astarın kayma motoru felç edildi */
     }
@@ -290,18 +290,18 @@ st.markdown("""
         scrollbar-width: none !important;
     }
     [data-testid="stSidebar"] img {
-        border: 2px solid rgba(226, 232, 240, 0.6) !important;
+        border: 2px solid #e2e8f0 !important;
         padding: 4px !important;
         border-radius: 50% !important; 
-        box-shadow: 0 0 10px rgba(226, 232, 240, 0.1) !important;
-        aspect-ratio: 1 / 1 !important;
-        object-fit: cover !important;
+        box-shadow: 0 0 15px rgba(226, 232, 240, 0.15) !important;
+        aspect-ratio: 1 / 1 !important; /* Fotoğrafı kare formata zorlar */
+        object-fit: cover !important; /* Fotoğrafı ezmeden çerçevenin içine oturtur */
     }
     }
     
     /* Sidebar'daki ayırıcı çizgileri (hr) hafif yeşil yapıyoruz */
     [data-testid="stSidebar"] hr {
-        border-bottom: 1px solid rgba(60, 57, 253, 0.15) !important;
+        border-bottom: 1px solid rgba(0, 255, 0, 0.15) !important;
     }
 
     /* --- ANA MENÜ TASARIMI (SİBER BLOKLAR) --- */
@@ -326,61 +326,56 @@ st.markdown("""
     
     /* 3. Hover (Fareyle Üzerine Gelince) */
     [data-testid="stSidebar"] div[role="radiogroup"] label:hover {
-        background: rgba(60, 57, 253, 0.05) !important;
-        border-color: rgba(60, 57, 253, 0.3) !important;
+        background: rgba(0, 255, 0, 0.05) !important;
+        border-color: rgba(0, 255, 0, 0.3) !important;
     }
     
     /* 4. SEÇİLİ OLAN MENÜ (Akıllı Seçici) */
     [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) {
-        background: linear-gradient(145deg, #001b3b 0%, #0a0a0a 100%) !important;
+        background: linear-gradient(90deg, rgba(0,27,59,0.8) 0%, rgba(0,0,0,0) 100%) !important;
         border-color: rgba(0, 27, 59, 0.5) !important;
-        border-left: 3px solid #e2e8f0 !important; /* Soft beyaz şık çizgi */
-        box-shadow: inset 2px 0px 10px rgba(0, 27, 59, 0.5) !important;
+        border-left: 3px solid #e2e8f0 !important; 
+        box-shadow: inset 2px 0px 10px rgba(0,27,59,0.3) !important;
     }
     
-    /* 5. Yazıların hizası ve rengi */
+    /* 5. Yazıların hizası ve rengi (Biraz küçültüldü) */
     [data-testid="stSidebar"] div[role="radiogroup"] label p {
         color: #888888 !important;
-        font-size: 0.95rem !important;
+        font-size: 0.95rem !important; /* Yazıyı ufalttık ki zarif dursun */
         font-weight: 600 !important;
         margin: 0 !important;
     }
     
     /* 6. Seçili menünün yazısını parlat */
     [data-testid="stSidebar"] div[role="radiogroup"] label:has(input:checked) p {
-        color: #e2e8f0 !important; /* Soft Beyaz */
+        color: #e2e8f0 !important;
         text-shadow: 0 0 8px rgba(226, 232, 240, 0.4) !important;
     }
             
-    /* --- SEKMELERİ (TABS) SOFT BEYAZ YAPMA --- */
+    /* --- SEKMELERİ (TABS) NEON YEŞİL YAPMA --- */
     .stTabs [data-baseweb="tab-list"] {gap: 24px;}
     .stTabs [data-baseweb="tab"] {padding-top: 10px; padding-bottom: 10px;}
     .stTabs [data-baseweb="tab"] [data-testid="stMarkdownContainer"] p {
         color: gray !important; /* Seçili olmayan sekmeler gri */
-        transition: color 0.3s ease !important;
     }
     .stTabs div[aria-selected="true"] [data-testid="stMarkdownContainer"] p {
-        color: #e2e8f0 !important; /* Seçili sekme yazısı Soft Beyaz */
+        color: #00ff00 !important; /* Seçili sekme yazısı Neon Yeşil */
         font-weight: bold;
-        text-shadow: 0 0 8px rgba(226, 232, 240, 0.4) !important;
     }
     .stTabs div[aria-selected="true"] {
-        border-bottom-color: #e2e8f0 !important; /* Seçili sekme alt çizgisi Soft Beyaz */
-        border-bottom-width: 3px !important; /* Çizgiyi biraz daha tok gösterir */
+        border-bottom-color: #00ff00 !important; /* Seçili sekme alt çizgisi Neon Yeşil */
     }
     
-    /* --- BİRİNCİL (PRIMARY) BUTONLARI GECE MAVİSİ GRADİENT YAPMA --- */
-    button[kind="primary"] {
+    /* --- BUTONLARI GECE MAVİSİ GRADİENT YAPMA --- */
+    button[kind="primary"], button[kind="secondary"] {
         background: linear-gradient(145deg, #001b3b 0%, #050505 100%) !important;
-        color: #e2e8f0 !important;
-        border: 1px solid rgba(226, 232, 240, 0.2) !important;
-        font-weight: bold !important;
-        transition: all 0.3s ease !important;
+        color: #e2e8f0 !important; 
+        border: 1px solid rgba(226, 232, 240, 0.1) !important;
+        font-weight: bold !important; transition: all 0.3s ease !important;
     }
-    button[kind="primary"]:hover {
-        background: linear-gradient(145deg, #002855 0%, #0a0a0a 100%) !important;
-        border: 1px solid rgba(226, 232, 240, 0.5) !important;
-        color: #ffffff !important;
+    button[kind="primary"]:hover, button[kind="secondary"]:hover {
+        background: linear-gradient(145deg, #002855 0%, #0a0a0a 100%) !important; 
+        border: 1px solid rgba(226, 232, 240, 0.3) !important; color: #ffffff !important;
     }
     
     /* --- EXPANDER TASARIMI (SADE & CONSOLAS FONT) --- */
@@ -402,16 +397,13 @@ st.markdown("""
     }
     [data-testid="stExpander"] summary:hover p,
     [data-testid="stExpander"] summary:hover span {
-        color: #3c39fd !important;
+        color: #00ff00 !important;
     }
-            /* --- İNATÇI BEYAZ YAZILARI ZORLA SİYAH YAP (FORM BUTONLARI DAHİL) --- */
-    button[ki/* --- İNATÇI YAZILARI ZORLA SOFT BEYAZ YAP (FORM BUTONLARI DAHİL) --- */
-    button[kind="primary"] p,
-    button[kind="primary"] span,
-    button[kind="primaryFormSubmit"] p,
-    button[kind="primaryFormSubmit"] span,
-    [data-testid="baseButton-primary"] p,
-    [data-testid="baseButton-primary"] span {
+            /* --- İNATÇI YAZILARI ZORLA BEYAZ YAP (FORM BUTONLARI DAHİL) --- */
+    button[kind="primary"] p, button[kind="primary"] span,
+    button[kind="secondary"] p, button[kind="secondary"] span,
+    button[kind="primaryFormSubmit"] p, button[kind="primaryFormSubmit"] span,
+    [data-testid="baseButton-primary"] p, [data-testid="baseButton-primary"] span {
         color: #e2e8f0 !important;
         font-weight: 600 !important;
     }
@@ -419,71 +411,81 @@ st.markdown("""
     /* --- BAŞLIKLARIN YANINDAKİ ZİNCİR (LİNK) İKONUNU GİZLE --- */
     h1 a, h2 a, h3 a, h4 a, h5 a, h6 a, a.header-anchor { display: none !important; }
     
-   /* --- SİSTEM ASİSTANI (KURŞUN GEÇİRMEZ ZIRH) --- */
-    div[data-testid="stVerticalBlock"]:has(#asistan-marker) {
+    /* --- SİSTEM ASİSTANI (HAREKETLİ LOGO VE PARTİKÜLLER) --- */
+    div[data-testid="stElementContainer"]:has(#asistan-marker) { display: none !important; }
+    div[data-testid="stElementContainer"]:has(#asistan-marker) + div[data-testid="stElementContainer"] button {
         position: fixed !important; bottom: 30px !important; right: 30px !important;
-        width: 70px !important; height: 70px !important; z-index: 99999 !important;
-    }
-    div[data-testid="stVerticalBlock"]:has(#asistan-marker) button {
         width: 70px !important; height: 70px !important; border-radius: 50% !important;
         background: transparent !important; border: none !important; box-shadow: none !important; 
-        transition: all 0.3s ease !important; 
+        z-index: 99999 !important; transition: all 0.3s ease !important; 
         animation: float-logo 4s ease-in-out infinite !important;
         display: flex !important; align-items: center !important; justify-content: center !important; padding: 0 !important;
-        position: absolute !important; top: 0 !important; left: 0 !important;
+        overflow: visible !important;
     }
-    div[data-testid="stVerticalBlock"]:has(#asistan-marker) button p { 
+    div[data-testid="stElementContainer"]:has(#asistan-marker) + div[data-testid="stElementContainer"] button p { 
         color: transparent !important; position: relative; margin: 0 !important; z-index: -1 !important; 
     }
-    div[data-testid="stVerticalBlock"]:has(#asistan-marker) button:hover { 
+    div[data-testid="stElementContainer"]:has(#asistan-marker) + div[data-testid="stElementContainer"] button:hover { 
         transform: scale(1.1) translateY(-5px) !important; filter: brightness(1.2);
     }
-    div[data-testid="stVerticalBlock"]:has(#asistan-marker) button::after {
+    
+    /* PARTİKÜL EFEKTİ */
+    div[data-testid="stElementContainer"]:has(#asistan-marker) + div[data-testid="stElementContainer"] button::after {
         content: ''; position: absolute; top: 50%; left: 50%; width: 10px; height: 10px;
         background: transparent; border-radius: 50%; z-index: -1;
-        animation: siber-particles 3s ease-out infinite; pointer-events: none;
+        animation: green-particles 3s ease-out infinite; pointer-events: none;
     }
 
-    /* --- ANİMASYON MOTORLARI --- */
     @keyframes float-logo { 
-        0% { transform: translateY(0px); filter: drop-shadow(0 0 5px rgba(60,57,253,0.4)); } 
-        50% { transform: translateY(-10px); filter: drop-shadow(0 0 18px rgba(60,57,253,0.9)); } 
-        100% { transform: translateY(0px); filter: drop-shadow(0 0 5px rgba(60,57,253,0.4)); } 
+        0% { transform: translateY(0px); filter: drop-shadow(0 0 5px rgba(0,255,0,0.3)); } 
+        50% { transform: translateY(-10px); filter: drop-shadow(0 0 15px rgba(0,255,0,0.6)); } 
+        100% { transform: translateY(0px); filter: drop-shadow(0 0 5px rgba(0,255,0,0.3)); } 
     }
-    @keyframes siber-particles {
+    @keyframes green-particles {
         0% { box-shadow: 0 0 0 transparent, 0 0 0 transparent, 0 0 0 transparent; }
-        50% { box-shadow: -20px -30px 4px rgba(60,57,253,0.6), 30px -10px 6px rgba(60,57,253,0.5), -10px 30px 4px rgba(60,57,253,0.7); }
+        50% { box-shadow: -20px -30px 4px rgba(0,255,0,0.5), 30px -10px 6px rgba(0,255,0,0.4), -10px 30px 4px rgba(0,255,0,0.6); }
         100% { box-shadow: -40px -60px 0 transparent, 60px -20px 0 transparent, -20px 60px 0 transparent; }
     }
+    @keyframes slide-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 
     /* ==================================================================== */
-    /* --- YÜKLEME (SPINNER) EKRANI KESİN VE TEK ÇÖZÜMÜ (BEYAZ) --- */
+    /* --- YÜKLEME (SPINNER) EKRANI KESİN VE TEK ÇÖZÜMÜ (TEMİZLENDİ) --- */
     /* ==================================================================== */
+
+    /* 1. Metin İçi Küçük Yükleme Çarkları (Veri Hesaplanıyor vs.) */
     div[data-testid="stSpinner"] div[class*="spinner"] {
         border-width: 4px !important;
-        border-color: rgba(255, 255, 255, 0.1) !important;
-        border-top-color: #ffffff !important;
-        border-left-color: rgba(255, 255, 255, 0.4) !important;
+        border-color: rgba(0, 255, 0, 0.1) !important;
+        border-top-color: #00FF00 !important;
+        border-left-color: rgba(0, 255, 0, 0.2) !important;
     }
     div[data-testid="stSpinner"] div[class*="stMarkdown"] p,
-    div[data-testid="stSpinner"] span, [data-testid="stSpinner"] p {
-        color: #ffffff !important; font-family: 'Consolas', monospace !important;
-        font-weight: bold !important; text-shadow: 0 0 8px rgba(255, 255, 255, 0.5) !important;
+    div[data-testid="stSpinner"] span,
+    [data-testid="stSpinner"] p {
+        color: #00FF00 !important;
+        font-family: 'Consolas', monospace !important;
+        font-weight: bold !important;
+        text-shadow: 0 0 8px rgba(0, 255, 0, 0.5) !important;
     }
-    
-    /* Sağ Üstteki İnatçı Streamlit Loading Barını Yok Et ve Ortaya Beyaz Halka Koy */
+
+    /* 2. Sağ Üstteki Koşan Adamı İptal Edip, Merkeze Dev Neon Halka Ekleme */
     [data-testid="stStatusWidget"] {
-        color: transparent !important; background: transparent !important;
+        visibility: hidden !important; /* Ekranı bozmaması için sadece gizliyoruz, tamamen yok etmiyoruz ki ::after çalışsın */
     }
-    [data-testid="stStatusWidget"] span, [data-testid="stStatusWidget"] img, [data-testid="stStatusWidget"] div {
-        display: none !important; opacity: 0 !important;
-    }
-    [data-testid="stStatusWidget"]::before {
-        content: ""; visibility: visible !important; position: fixed; top: 50%; left: 50%;
-        width: 60px; height: 60px; border: 4px solid rgba(255, 255, 255, 0.1);
-        border-left-color: #ffffff; border-radius: 50%;
-        animation: siber-spin 0.8s linear infinite; z-index: 99999;
-        box-shadow: 0 0 15px rgba(255, 255, 255, 0.4); transform: translate(-50%, -50%);
+    [data-testid="stStatusWidget"]::after {
+        content: "";
+        visibility: visible !important;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(0, 255, 0, 0.1);
+        border-left-color: #00ff00;
+        border-radius: 50%;
+        animation: siber-spin 0.8s linear infinite;
+        z-index: 99999;
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
     }
     @keyframes siber-spin {
         0% { transform: translate(-50%, -50%) rotate(0deg); }
@@ -578,15 +580,15 @@ def apply_card_style():
             border-radius: 6px;
             background: rgba(15, 15, 15, 0.95);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            border-left: 3px solid #3c39fd;
+            border-left: 3px solid #00ff00;
             margin-bottom: 10px; 
         }
-        .kart-baslik { color: #3c39fd; margin-top: 0; margin-bottom: 10px; font-family: Consolas, monospace; font-size: 0.9em; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; text-transform: uppercase;}
+        .kart-baslik { color: #00ff00; margin-top: 0; margin-bottom: 10px; font-family: Consolas, monospace; font-size: 0.9em; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; text-transform: uppercase;}
         .kart-veri { color: white; font-weight: bold; font-size: 1.1em; font-family: Consolas, monospace; }
         .kart-etiket { color: gray; font-size: 0.8em; font-family: Consolas, monospace; }
         .analiz-metni { color: #d0d0d0; font-size: 0.85em; line-height: 1.5; font-family: Consolas, monospace; }
         .hedef-bar-bg { width: 100%; background: rgba(255,255,255,0.1); border-radius: 4px; height: 8px; margin-top: 5px; }
-        .hedef-bar-fg { background: #3c39fd; height: 100%; border-radius: 4px; box-shadow: 0 0 8px rgba(60,57,253,0.5); }
+        .hedef-bar-fg { background: #00ff00; height: 100%; border-radius: 4px; box-shadow: 0 0 8px rgba(0,255,0,0.5); }
         </style>
     """, unsafe_allow_html=True)
 
@@ -740,15 +742,15 @@ def kullanici_bilgileri_sayfasi(k_adi):
         with c_profil:
             bas_harf = k_bilgi['isim_soyisim'][0].upper() if k_bilgi['isim_soyisim'] else "U"
             if k_bilgi['profil_fotosu']:
-                try: st.markdown(f"<img src='data:image/png;base64,{k_bilgi['profil_fotosu']}' style='width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 2px solid #3c39fd; padding: 3px;'>", unsafe_allow_html=True)
-                except: st.markdown(f"<div style='width: 90px; height: 90px; border: 2px solid #3c39fd; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #3c39fd; font-size: 2em; font-family: Consolas;'>{bas_harf}</div>", unsafe_allow_html=True)
-            else: st.markdown(f"<div style='width: 90px; height: 90px; border: 2px solid #3c39fd; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #3c39fd; font-size: 2em; font-family: Consolas;'>{bas_harf}</div>", unsafe_allow_html=True)
+                try: st.markdown(f"<img src='data:image/png;base64,{k_bilgi['profil_fotosu']}' style='width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 2px solid #00ff00; padding: 3px;'>", unsafe_allow_html=True)
+                except: st.markdown(f"<div style='width: 90px; height: 90px; border: 2px solid #00ff00; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #00ff00; font-size: 2em; font-family: Consolas;'>{bas_harf}</div>", unsafe_allow_html=True)
+            else: st.markdown(f"<div style='width: 90px; height: 90px; border: 2px solid #00ff00; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #00ff00; font-size: 2em; font-family: Consolas;'>{bas_harf}</div>", unsafe_allow_html=True)
         
         with c_bilgi:
             isim = k_bilgi['isim_soyisim'] if k_bilgi['isim_soyisim'] else "Kullanıcı"
             st.markdown(f"<div style='font-size: 1.5em; font-weight: bold; color: white; font-family: Consolas;'>{isim}</div>", unsafe_allow_html=True)
             st.markdown(f"<div style='color: gray; font-size: 0.85em; font-family: Consolas; margin-bottom: 5px;'>@{k_adi} | Yaş: {yas} | {meslek}</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='color: #3c39fd; font-family: Consolas;'>Aylık Gelir: {gelir:,.0f} TL</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='color: #00ff00; font-family: Consolas;'>Aylık Gelir: {gelir:,.0f} TL</div>", unsafe_allow_html=True)
 
         st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin: 10px 0;'>", unsafe_allow_html=True)
 
@@ -759,7 +761,7 @@ def kullanici_bilgileri_sayfasi(k_adi):
             <div class='bilgi-karti'>
                 <div class='kart-baslik'>BİRİKİM HEDEFİ: {hedef_adi}</div>
                 <div style='display: flex; justify-content: space-between;'>
-                    <div><div class='kart-etiket'>Mevcut</div><div class='kart-veri' style='color:#3c39fd;'>{toplam_varlik:,.0f} ₺</div></div>
+                    <div><div class='kart-etiket'>Mevcut</div><div class='kart-veri' style='color:#00ff00;'>{toplam_varlik:,.0f} ₺</div></div>
                     <div style='text-align:right;'><div class='kart-etiket'>Hedef</div><div class='kart-veri'>{hedef_tutar:,.0f} ₺</div></div>
                 </div>
                 <div style='margin-top:10px;'>
@@ -774,7 +776,7 @@ def kullanici_bilgileri_sayfasi(k_adi):
             analiz = f"<span style='color: white; font-weight: bold;'>Profil: {profil} Yatırımcı</span><br>"
             
             if oran_hisse > 0:
-                analiz += f"• <span style='color:#3c39fd;'>İyi Yapılanlar:</span> Borsa/Fon varlıkları tutuluyor.<br>"
+                analiz += f"• <span style='color:#00ff00;'>İyi Yapılanlar:</span> Borsa/Fon varlıkları tutuluyor.<br>"
             if oran_emtia < 5:
                 analiz += f"• <span style='color:#FF5252;'>Dikkat:</span> Emtia (%{oran_emtia:.1f}) çok düşük, risk dağıtımı yetersiz.<br>"
             if net_kazanc < 0:
@@ -801,7 +803,7 @@ def kullanici_bilgileri_sayfasi(k_adi):
                 if not dagilim.empty:
                     import plotly.express as px
                     # Temaya uygun tamamen siber/neon yeşil tonları
-                    siber_yesiller = ['#3c39fd', '#201dc4', '#009900', '#006600']
+                    siber_yesiller = ['#00ff00', '#00cc00', '#009900', '#006600']
                     
                     fig = px.pie(dagilim, values='Oran', names='Varlık', hole=0.6, color_discrete_sequence=siber_yesiller)
                     
@@ -835,7 +837,7 @@ def kullanici_bilgileri_sayfasi(k_adi):
             st.markdown("</div>", unsafe_allow_html=True)
 
         with col4:
-            r_renk = "#3c39fd" if net_kazanc >= 0 else "#FF5252"
+            r_renk = "#00ff00" if net_kazanc >= 0 else "#FF5252"
             r_is = "+" if net_kazanc >= 0 else ""
             st.markdown(f"""
             <div class='bilgi-karti' style='height: 195px;'>
@@ -1209,7 +1211,7 @@ def emtia_fiyat_hesapla(maden_turu, anlik_usd_kuru):
 
 def doviz_islem_modulu(k_adi, sayfa_key):
     st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 10px; margin-bottom: 15px;'>", unsafe_allow_html=True)
-    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00bcd4; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00bcd4;'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>DÖVİZ İŞLEM TERMİNALİ</div></div>", unsafe_allow_html=True)
+    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00bcd4; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00bcd4;'></div><div style='color: #00bcd4; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>DÖVİZ İŞLEM TERMİNALİ</div></div>", unsafe_allow_html=True)
     
     conn = get_db()
     try:
@@ -1308,7 +1310,7 @@ def doviz_islem_modulu(k_adi, sayfa_key):
 # --- 4. GİRİŞ VE SİSTEM DÖNGÜSÜ ---
 def akilli_hisse_analiz_motoru(key_prefix):
     with st.container(border=True):
-        st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #3c39fd; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #3c39fd;'></div><div style='color: #3c39fd; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>QUANT ANALİZ RADARI</div></div>", unsafe_allow_html=True)
+        st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff00;'></div><div style='color: #00ff00; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>QUANT ANALİZ RADARI</div></div>", unsafe_allow_html=True)
         c1, c2, c3 = st.columns([1, 1.5, 1])
         # WIDGET KEY'LERİ DEĞİŞTİRİLDİ (ÇAKIŞMA HATASI GİDERİLDİ)
         secili_borsa = c1.selectbox("Piyasa", ["BİST", "NASDAQ", "S&P 500", "KRİPTO"], key=f"q_ui_borsa_{key_prefix}", label_visibility="collapsed")
@@ -1330,7 +1332,7 @@ def akilli_hisse_analiz_motoru(key_prefix):
                 st.session_state.pop(f'kayitli_hisse_{key_prefix}', None)
                 st.rerun()
                 
-            st.markdown("<hr style='border-color: rgba(60,57,253,0.1); margin-top: 5px; margin-bottom: 15px;'>", unsafe_allow_html=True)
+            st.markdown("<hr style='border-color: rgba(0,255,0,0.1); margin-top: 5px; margin-bottom: 15px;'>", unsafe_allow_html=True)
             
             if s_borsa == "BİST" and not t_kod.endswith(".IS"): t_kod += ".IS"
             elif s_borsa == "KRİPTO" and not t_kod.endswith("-USD"): t_kod += "-USD"
@@ -1343,7 +1345,7 @@ def akilli_hisse_analiz_motoru(key_prefix):
                     son_f = float(df_raw['Close'].iloc[-1])
                     onceki_f = float(df_raw['Close'].iloc[-2]) if len(df_raw) > 1 else son_f
                     deg_yuzde = ((son_f - onceki_f) / onceki_f) * 100 if onceki_f > 0 else 0.0
-                    renk_f = "#3c39fd" if deg_yuzde >= 0 else "#FF5252"
+                    renk_f = "#00ff00" if deg_yuzde >= 0 else "#FF5252"
                     isaret = "+" if deg_yuzde >= 0 else ""
                     hacim = float(df_raw['Volume'].iloc[-1]) if 'Volume' in df_raw.columns else 0.0
                     
@@ -1363,7 +1365,7 @@ def akilli_hisse_analiz_motoru(key_prefix):
                     if not pd.isna(std20): b_alt = sma20 - (std20 * 2); v_val = 3.0 if son_f < b_alt * 1.05 else (1.5 if b_alt < son_f < sma20 else 0.5)
                     
                     puan = t_val + m_val + v_val
-                    renk_p = "#3c39fd" if puan >= 7.5 else ("#ffb300" if puan >= 5 else "#FF5252")
+                    renk_p = "#00ff00" if puan >= 7.5 else ("#ffb300" if puan >= 5 else "#FF5252")
                     karar = "GÜÇLÜ AL" if puan >= 8.5 else ("AL" if puan >= 7 else ("İZLE" if puan >= 5 else "ZAYIF/SAT"))
 
                     html_cikti = (
@@ -1404,12 +1406,12 @@ f"</div></div>"
                         
                         if g_tur == "Mum Grafik":
                             fig.add_trace(go.Candlestick(x=x_vals, open=df_chart['Open'], high=df_chart['High'], low=df_chart['Low'], close=df_chart['Close'], 
-                                                         increasing_line_color='#3c39fd', decreasing_line_color='#FF5252', increasing_fillcolor='#3c39fd', decreasing_fillcolor='#FF5252',
+                                                         increasing_line_color='#00ff00', decreasing_line_color='#FF5252', increasing_fillcolor='#00ff00', decreasing_fillcolor='#FF5252',
                                                          line=dict(width=1), name='Fiyat'), row=1, col=1)
                         else:
                             fig.add_trace(go.Scatter(x=x_vals, y=df_chart['Close'], mode='lines', line=dict(color=renk_f, width=2), name='Fiyat'), row=1, col=1)
 
-                        colors = ['rgba(60, 57, 253, 0.4)' if row['Close'] >= row['Open'] else 'rgba(255, 82, 82, 0.4)' for _, row in df_chart.iterrows()]
+                        colors = ['rgba(0, 255, 0, 0.4)' if row['Close'] >= row['Open'] else 'rgba(255, 82, 82, 0.4)' for _, row in df_chart.iterrows()]
                         fig.add_trace(go.Bar(x=x_vals, y=df_chart['Volume'], marker_color=colors, name='Hacim'), row=2, col=1)
 
                         fig.update_layout(dragmode=False,height=320, margin=dict(t=5,b=0,l=0,r=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", xaxis_rangeslider_visible=False, showlegend=False, font=dict(family="Consolas", color="gray", size=10))
@@ -1459,9 +1461,9 @@ if not st.session_state.iceride_mi:
             animation: logo-pulse-float 4s ease-in-out infinite;
         }}
         @keyframes logo-pulse-float {{
-            0% {{ transform: translateY(0px) scale(1); filter: drop-shadow(0 0 10px rgba(60,57,253,0.2)); }}
-            50% {{ transform: translateY(-20px) scale(1.1); filter: drop-shadow(0 0 35px rgba(60,57,253,0.9)); }}
-            100% {{ transform: translateY(0px) scale(1); filter: drop-shadow(0 0 10px rgba(60,57,253,0.2)); }}
+            0% {{ transform: translateY(0px) scale(1); filter: drop-shadow(0 0 10px rgba(0,255,0,0.2)); }}
+            50% {{ transform: translateY(-20px) scale(1.1); filter: drop-shadow(0 0 35px rgba(0,255,0,0.9)); }}
+            100% {{ transform: translateY(0px) scale(1); filter: drop-shadow(0 0 10px rgba(0,255,0,0.2)); }}
         }}
         .giris-logo-anim::before, .giris-logo-anim::after {{
             content: ''; position: absolute; top: 50%; left: 50%;
@@ -1475,7 +1477,7 @@ if not st.session_state.iceride_mi:
         }}
         @keyframes burst {{
             0% {{ box-shadow: 0 0 0 transparent; opacity: 1; transform: translate(-50%, -50%) scale(0.1); }}
-            40% {{ box-shadow: -100px -100px 4px #3c39fd, 100px 100px 6px rgba(60,57,253,0.8), 100px -100px 4px rgba(60,57,253,0.6), -100px 100px 5px rgba(60,57,253,0.9), 0px -140px 4px #3c39fd, 0px 140px 6px rgba(60,57,253,0.7), -140px 0px 5px rgba(60,57,253,0.8), 140px 0px 4px rgba(60,57,253,0.9), -70px -150px 3px #3c39fd, 150px 70px 4px rgba(60,57,253,0.7); opacity: 0.9; }}
+            40% {{ box-shadow: -100px -100px 4px #00ff00, 100px 100px 6px rgba(0,255,0,0.8), 100px -100px 4px rgba(0,255,0,0.6), -100px 100px 5px rgba(0,255,0,0.9), 0px -140px 4px #00ff00, 0px 140px 6px rgba(0,255,0,0.7), -140px 0px 5px rgba(0,255,0,0.8), 140px 0px 4px rgba(0,255,0,0.9), -70px -150px 3px #00ff00, 150px 70px 4px rgba(0,255,0,0.7); opacity: 0.9; }}
             100% {{ box-shadow: -250px -250px 0 transparent, 250px 250px 0 transparent, 250px -250px 0 transparent, -250px 250px 0 transparent, 0px -300px 0 transparent, 0px 300px 0 transparent, -300px 0px 0 transparent, 300px 0px 0 transparent, -150px -350px 0 transparent, 350px 150px 0 transparent; opacity: 0; transform: translate(-50%, -50%) scale(1.5); }}
         }}
         </style>
@@ -1487,7 +1489,7 @@ if not st.session_state.iceride_mi:
     with merkez_kolon:
         st.markdown("<h1 style='text-align: center; margin-bottom: 0px;'>Mergen Finans</h1>", unsafe_allow_html=True)
         st.markdown("<p style='text-align: center; color: gray; margin-top: 0px;'>Sistem Girişi</p>", unsafe_allow_html=True)
-        st.markdown("<hr style='border: 1px solid rgba(60,57,253,0.2); margin-bottom: 30px;'>", unsafe_allow_html=True)
+        st.markdown("<hr style='border: 1px solid rgba(0,255,0,0.2); margin-bottom: 30px;'>", unsafe_allow_html=True)
         
         k_adi_input = st.text_input("Kullanıcı Kodu")
         sifre_input = st.text_input("Parola", type="password")
@@ -1596,7 +1598,7 @@ else:
     @st.dialog("Sistem Bildirim Merkezi")
     def asistan_paneli_ac(k_adi):
         # 1. BAŞLIK VE YENİ HESAP MAKİNESİ MODÜLÜ
-        st.markdown("<span style='color: #3c39fd; font-weight: bold; font-size: 1.1em;'>Sistem Analizleri ve Araçlar</span>", unsafe_allow_html=True)
+        st.markdown("<span style='color: #00ff00; font-weight: bold; font-size: 1.1em;'>Sistem Analizleri ve Araçlar</span>", unsafe_allow_html=True)
         
         with st.expander("Hesap Makinesi"):
             hesap_makinesi_html = """
@@ -1605,14 +1607,14 @@ else:
             <head>
             <style>
                 body { background-color: transparent; font-family: Consolas, monospace; display: flex; justify-content: center; margin: 0; color: white; user-select: none; }
-                .calc { background: rgba(15,15,15,0.9); border: 1px solid rgba(60,57,253,0.3); border-radius: 8px; padding: 15px; width: 100%; box-shadow: inset 0 0 20px rgba(60,57,253,0.05); }
-                .display { background: rgba(5,5,5,0.9); border: 1px solid rgba(60,57,253,0.2); border-radius: 4px; height: 45px; text-align: right; padding: 10px; font-size: 1.6em; margin-bottom: 15px; color: #3c39fd; text-shadow: 0 0 8px rgba(60,57,253,0.4); overflow: hidden; white-space: nowrap; letter-spacing: 2px; }
+                .calc { background: rgba(15,15,15,0.9); border: 1px solid rgba(0,255,0,0.3); border-radius: 8px; padding: 15px; width: 100%; box-shadow: inset 0 0 20px rgba(0,255,0,0.05); }
+                .display { background: rgba(5,5,5,0.9); border: 1px solid rgba(0,255,0,0.2); border-radius: 4px; height: 45px; text-align: right; padding: 10px; font-size: 1.6em; margin-bottom: 15px; color: #00ff00; text-shadow: 0 0 8px rgba(0,255,0,0.4); overflow: hidden; white-space: nowrap; letter-spacing: 2px; }
                 .keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
                 button { background: rgba(25,25,25,0.9); border: 1px solid rgba(255,255,255,0.05); color: white; padding: 12px 0; font-size: 1.3em; border-radius: 4px; cursor: pointer; transition: all 0.1s; font-family: Consolas, monospace; font-weight: bold; }
-                button:active { transform: scale(0.95); background: rgba(60,57,253,0.2); }
+                button:active { transform: scale(0.95); background: rgba(0,255,0,0.2); }
                 .op { color: #00bcd4; background: rgba(0, 188, 212, 0.05); border-color: rgba(0, 188, 212, 0.2); }
                 .clear { color: #FF5252; background: rgba(255, 82, 82, 0.05); border-color: rgba(255, 82, 82, 0.2); }
-                .eq { background: rgba(60,57,253,0.15); color: #3c39fd; border-color: rgba(60,57,253,0.4); box-shadow: 0 0 10px rgba(60,57,253,0.2); }
+                .eq { background: rgba(0,255,0,0.15); color: #00ff00; border-color: rgba(0,255,0,0.4); box-shadow: 0 0 10px rgba(0,255,0,0.2); }
             </style>
             </head>
             <body>
@@ -1708,7 +1710,7 @@ else:
                 for b in bildirimler:
                     tarih_str = b[2].strftime("%d.%m.%Y %H:%M")
                     st.markdown(f"""
-                    <div style='border-left: 3px solid #3c39fd; background: rgba(60,57,253,0.05); padding: 12px; margin-bottom: 12px; border-radius: 0 5px 5px 0;'>
+                    <div style='border-left: 3px solid #00ff00; background: rgba(0,255,0,0.05); padding: 12px; margin-bottom: 12px; border-radius: 0 5px 5px 0;'>
                         <div style='font-size: 0.8em; color: gray; margin-bottom: 2px;'>{tarih_str}</div>
                         <div style='font-weight: bold; color: white; margin-bottom: 4px;'>{b[0]}</div>
                         <div style='font-size: 0.95em; color: #d0d0d0; line-height: 1.4;'>{b[1]}</div>
@@ -1741,18 +1743,18 @@ else:
             except: pass
 
     if logo_b64:
-        st.markdown(f"<style>div[data-testid='stVerticalBlock']:has(#asistan-marker) button::before {{ content: '' !important; background-image: url('data:image/{logo_mime};base64,{logo_b64}'); background-size: contain; background-repeat: no-repeat; background-position: center; width: 100%; height: 100%; position: absolute; z-index: 1; }}</style>", unsafe_allow_html=True)
+        st.markdown(f"<style>div[data-testid='stElementContainer']:has(#asistan-marker) + div[data-testid='stElementContainer'] button::before {{ content: '' !important; background-image: url('data:image/{logo_mime};base64,{logo_b64}'); background-size: contain; background-repeat: no-repeat; background-position: center; width: 100%; height: 100%; position: absolute; z-index: 1; }}</style>", unsafe_allow_html=True)
     else:
-        st.markdown("<style>div[data-testid='stVerticalBlock']:has(#asistan-marker) button::before { content: 'M' !important; position: absolute; color: #3c39fd; font-family: Consolas, monospace; font-size: 26px; font-weight: bold; text-shadow: 0 0 10px rgba(60, 57, 253, 0.8); z-index: 1; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; top: 0; left: 0; }</style>", unsafe_allow_html=True)
+        st.markdown("<style>div[data-testid='stElementContainer']:has(#asistan-marker) + div[data-testid='stElementContainer'] button::before { content: 'M' !important; position: absolute; color: #00ff00; font-family: Consolas, monospace; font-size: 26px; font-weight: bold; text-shadow: 0 0 10px rgba(0, 255, 0, 0.8); z-index: 1; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; top: 0; left: 0; }</style>", unsafe_allow_html=True)
 
     # Bildirim varsa Konuşma Balonunu (Speech Bubble) ekrana basıyoruz
     if okunmamis > 0 and son_mesaj:
         bubble_html = f"""
-        <div id="asistan-bubble" style="position: fixed; bottom: 45px; right: 110px; width: 300px; background: rgba(12,12,12,0.95); border: 1px solid rgba(60,57,253,0.3); border-radius: 8px; padding: 15px; box-shadow: 0 5px 15px rgba(60,57,253,0.1); z-index: 99998; animation: slide-in 0.3s ease-out; transition: opacity 0.5s ease;">
+        <div id="asistan-bubble" style="position: fixed; bottom: 45px; right: 110px; width: 300px; background: rgba(12,12,12,0.95); border: 1px solid rgba(0,255,0,0.3); border-radius: 8px; padding: 15px; box-shadow: 0 5px 15px rgba(0,255,0,0.1); z-index: 99998; animation: slide-in 0.3s ease-out; transition: opacity 0.5s ease;">
             <div id="asistan-close-btn" style="position: absolute; top: 5px; right: 12px; color: #888; font-size: 18px; font-weight: bold; cursor: pointer; transition: color 0.3s ease;">×</div>
-            <div style="color: #3c39fd; font-size: 0.75em; font-weight: bold; letter-spacing: 1px; margin-bottom: 8px; border-bottom: 1px solid rgba(60,57,253,0.1); padding-bottom: 4px; padding-right: 15px;">SİSTEM BİLDİRİMİ ({okunmamis})</div>
+            <div style="color: #00ff00; font-size: 0.75em; font-weight: bold; letter-spacing: 1px; margin-bottom: 8px; border-bottom: 1px solid rgba(0,255,0,0.1); padding-bottom: 4px; padding-right: 15px;">SİSTEM BİLDİRİMİ ({okunmamis})</div>
             <div style="color: #e0e0e0; font-size: 0.9em; line-height: 1.4; font-family: 'system-ui', sans-serif;">{son_mesaj}</div>
-            <div style="position: absolute; right: -6px; bottom: 15px; width: 10px; height: 10px; background: rgba(12,12,12,0.95); border-right: 1px solid rgba(60,57,253,0.3); border-bottom: 1px solid rgba(60,57,253,0.3); transform: rotate(-45deg);"></div>
+            <div style="position: absolute; right: -6px; bottom: 15px; width: 10px; height: 10px; background: rgba(12,12,12,0.95); border-right: 1px solid rgba(0,255,0,0.3); border-bottom: 1px solid rgba(0,255,0,0.3); transform: rotate(-45deg);"></div>
         </div>
         """
         st.markdown(bubble_html, unsafe_allow_html=True)
@@ -1768,7 +1770,7 @@ else:
                 
                 if (bubble && closeBtn) {
                     // Çarpının üzerine gelince neon yeşil yap
-                    closeBtn.onmouseover = () => { closeBtn.style.color = '#3c39fd'; };
+                    closeBtn.onmouseover = () => { closeBtn.style.color = '#00ff00'; };
                     closeBtn.onmouseout = () => { closeBtn.style.color = '#888'; };
                     
                     // Çarpıya tıklanınca anında kapat
@@ -1789,17 +1791,12 @@ else:
         """
         components.html(js_kodu, height=0, width=0)
 
-    with st.container():
-        st.markdown('<div id="asistan-marker" style="display:none;"></div>', unsafe_allow_html=True)
-        if st.button("ASISTAN_LOGO"):
-            asistan_paneli_ac(k_adi)
-    with st.sidebar:
-        # --- HAYALET MODU MOTORU VE İKON ENJEKSİYONU ---
-        is_ghost = st.session_state.get('hayalet_modu', False)
-        
-        
+    st.markdown('<div id="asistan-marker"></div>', unsafe_allow_html=True)
+    if st.button("ASISTAN_LOGO"):
+        asistan_paneli_ac(k_adi)
 
-        # --- 1. TARİH VE GÜN MODÜLÜ ---
+    with st.sidebar:
+        
 
         # --- 1. TARİH VE GÜN MODÜLÜ ---
         aylar = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
@@ -1816,9 +1813,9 @@ else:
                     g_data = base64.b64decode(k_bilgi['profil_fotosu'])
                     st.image(g_data, use_container_width=True)
                 except:
-                    st.markdown("<div style='width: 100%; aspect-ratio: 1/1; border: 2px solid rgba(226, 232, 240, 0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #e2e8f0; font-size: 2em; background: rgba(226, 232, 240, 0.05);'>U</div>", unsafe_allow_html=True)
+                    st.markdown("<div style='width: 100%; aspect-ratio: 1/1; border: 2px solid #00ff00; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #00ff00; font-size: 2em; background: rgba(0,255,0,0.05);'>U</div>", unsafe_allow_html=True)
             else:
-                st.markdown("<div style='width: 100%; aspect-ratio: 1/1; border: 2px solid rgba(226, 232, 240, 0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #e2e8f0; font-size: 2em; background: rgba(226, 232, 240, 0.05);'>U</div>", unsafe_allow_html=True)
+                st.markdown("<div style='width: 100%; aspect-ratio: 1/1; border: 2px solid #00ff00; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #00ff00; font-size: 2em; background: rgba(0,255,0,0.05);'>U</div>", unsafe_allow_html=True)
         
         isim_yazi = k_bilgi['isim_soyisim'] if k_bilgi['isim_soyisim'] else "Bilinmeyen Kullanıcı"
         st.markdown(f"<div style='text-align: center; margin-top: 5px;'><h4 style='margin-bottom: 0px;'>{isim_yazi}</h4><span style='color: gray; font-size: 12px;'>Kod: {k_adi}</span></div>", unsafe_allow_html=True)
@@ -2016,37 +2013,44 @@ else:
             st.markdown("##### Nakit Bakiye ve Alım Gücü")
             
             is_ghost = st.session_state.get('hayalet_modu', False)
-            # --- 1. NAKİT BAKİYE KARTLARI (BEMBEYAZ SİBER TASARIM) ---
+            # --- 1. NAKİT BAKİYE KARTLARI (EMOJİSİZ SİBER TASARIM) ---
             nakit_kartlari = [
                 {"isim": "TL Alım Gücü" if net_takas_tl > 0 else "TL Kasası", "alt": "Türk Lirası", 
-                 "deger": H_MASK if is_ghost else f"{alim_gucu_tl:,.2f} TL", 
-                 "detay": (H_MASK if is_ghost else f"Nakit: {nakit_tl:,.2f} | Net Takas: {net_takas_tl:,.2f}") if net_takas_tl > 0 else "Kullanılabilir Nakit", "sembol": "₺"},
+                 "deger": H_MASK if is_ghost else f"{alim_gucu_tl:,.2f} TL", "renk": "#4CAF50", 
+                 "detay": (H_MASK if is_ghost else f"Nakit: {nakit_tl:,.2f} | Net Takas: {net_takas_tl:,.2f}") if net_takas_tl > 0 else "Kullanılabilir Nakit", "ikon": "TL"},
                 {"isim": "USD Kasası", "alt": "Amerikan Doları", 
-                 "deger": H_MASK if is_ghost else f"{nakit_usd:,.2f} $", 
-                 "detay": f"Anlık Kur: {anlik_dolar:.2f} TL", "sembol": "$"},
+                 "deger": H_MASK if is_ghost else f"{nakit_usd:,.2f} $", "renk": "#4CAF50", 
+                 "detay": f"Anlık Kur: {anlik_dolar:.2f} TL", "ikon": "USD"},
                 {"isim": "Toplam TL Karşılığı", "alt": "Tüm Varlıklar", 
-                 "deger": H_MASK if is_ghost else f"{toplam_nakit_tl:,.2f} TL", 
-                 "detay": "T+2 ve Döviz Dahil", "sembol": "+"}
+                 "deger": H_MASK if is_ghost else f"{toplam_nakit_tl:,.2f} TL", "renk": "#00ff00", 
+                 "detay": "T+2 ve Döviz Dahil", "ikon": "TOPLAM"}
             ]
             
             cols_n = st.columns(3)
             for idx, kart in enumerate(nakit_kartlari):
                 with cols_n[idx]:
-                    sembol = kart['sembol']
-                    # İkon çerçevesi ve içi bembeyaz
-                    img_html = f"<div style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid white; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; background: transparent; font-size: 18px;'>{sembol}</div>"
+                    bas_harf = kart['ikon'][0]
+                    img_html = f"<div style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(0,255,0,0.4); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #00ff00; background: rgba(0,255,0,0.05); font-size: 16px;'>{bas_harf}</div>"
                     
+                    for ext in ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG']:
+                        p = f"Banka Logoları/{kart['ikon']}{ext}"
+                        if os.path.exists(p):
+                            with open(p, "rb") as f:
+                                b64 = base64.b64encode(f.read()).decode()
+                                img_html = f"<img src='data:image/png;base64,{b64}' style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(0,255,0,0.4); padding: 3px; object-fit: contain; background: #ffffff;'>"
+                            break
+                            
                     kart_html = f"""
                     <div style='border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 15px; background: rgba(10,10,10,0.5); margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: all 0.3s ease;'>
                         <div style='display: flex; align-items: center; margin-bottom: 15px;'>
                             <div>{img_html}</div>
                             <div style='margin-left: 12px; line-height: 1.2;'>
                                 <div style='font-size: 0.70em; color: gray; text-transform: uppercase; letter-spacing: 0.5px;'>{kart['alt']}</div>
-                                <div style='font-size: 0.95em; font-weight: bold; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'>{kart['isim']}</div>
+                                <div style='font-size: 0.95em; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;'>{kart['isim']}</div>
                             </div>
                         </div>
                         <div style='text-align: right;'>
-                            <div style='font-size: 1.35em; font-weight: bold; color: white;'>{kart['deger']}</div>
+                            <div style='font-size: 1.35em; font-weight: bold; color: {kart['renk']};'>{kart['deger']}</div>
                             <div style='font-size: 0.8em; color: gray; margin-top: 4px; font-family: monospace;'>{kart['detay']}</div>
                         </div>
                     </div>
@@ -2067,9 +2071,9 @@ else:
                             i_tarih = pd.to_datetime(r_t['islem_tarihi']).strftime('%d.%m.%Y')
                             
                             # Eksi ve Artı değerleri şık gösterme motoru (Hata Düzeltildi)
-                            t_renk = "#3c39fd" if r_t['tutar'] >= 0 else "#FF5252"
+                            t_renk = "#00ff00" if r_t['tutar'] >= 0 else "#FF5252"
                             t_isaret = "+" if r_t['tutar'] >= 0 else ""
-                            isim_renk = "#3c39fd" if r_t['tutar'] >= 0 else "#ffb300"
+                            isim_renk = "#00ff00" if r_t['tutar'] >= 0 else "#ffb300"
                             
                             st.markdown(f"""
                             <div style='display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 8px 0; align-items: center;'>
@@ -2141,14 +2145,14 @@ else:
                     
                     # Emoji yerine şık baş harf (Avatar) tasarımı
                     bas_harf = b[0].upper()
-                    img_html = f"<div style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(60,57,253,0.4); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #3c39fd; background: rgba(60,57,253,0.05); font-size: 16px;'>{bas_harf}</div>"
+                    img_html = f"<div style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(0,255,0,0.4); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #00ff00; background: rgba(0,255,0,0.05); font-size: 16px;'>{bas_harf}</div>"
                     
                     for ext in ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG']:
                         p = f"Banka Logoları/{b}{ext}"
                         if os.path.exists(p):
                             with open(p, "rb") as f:
                                 b64 = base64.b64encode(f.read()).decode()
-                                img_html = f"<img src='data:image/png;base64,{b64}' style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(60,57,253,0.4); padding: 3px; object-fit: contain; background: #ffffff;'>"
+                                img_html = f"<img src='data:image/png;base64,{b64}' style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(0,255,0,0.4); padding: 3px; object-fit: contain; background: #ffffff;'>"
                             break
                             
                     endeks_html = f"""
@@ -2234,28 +2238,11 @@ else:
                 }
 
                 button[kind="tertiary"]:hover p {
-                    color: #3c39fd !important;
+                    color: #00ff00 !important;
                 }
                 button[kind="tertiary"]:active p {
                     color: #ffffff !important;
                 }
-                /* --- ASİSTAN BUTONU KURTARMA OPERASYONU --- */
-    div[data-testid="stElementContainer"]:has(#asistan-marker) { display: none !important; }
-    div[data-testid="stElementContainer"]:has(#asistan-marker) + div[data-testid="stElementContainer"] button {
-        position: fixed !important; bottom: 30px !important; right: 30px !important;
-        width: 70px !important; height: 70px !important; border-radius: 50% !important;
-        background: transparent !important; border: none !important; box-shadow: none !important; 
-        z-index: 99999 !important; transition: all 0.3s ease !important; 
-        animation: float-logo 4s ease-in-out infinite !important;
-        display: flex !important; align-items: center !important; justify-content: center !important; padding: 0 !important;
-        overflow: visible !important;
-    }
-    div[data-testid="stElementContainer"]:has(#asistan-marker) + div[data-testid="stElementContainer"] button p { 
-        color: transparent !important; position: relative; margin: 0 !important; z-index: -1 !important; 
-    }
-    div[data-testid="stElementContainer"]:has(#asistan-marker) + div[data-testid="stElementContainer"] button:hover { 
-        transform: scale(1.1) translateY(-5px) !important; filter: brightness(1.2);
-    }            
                 </style>
                 """, unsafe_allow_html=True)
 
@@ -2323,7 +2310,7 @@ else:
                                 with c1:
                                     st.markdown(f"""
                                     <div style='display: flex; align-items: center; margin-top: 5px; margin-bottom: 5px;'>
-                                        <div style='min-width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; background: transparent; font-size: 18px;'>
+                                        <div style='min-width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(226, 232, 240, 0.6); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #e2e8f0; background: transparent; font-size: 18px;'>
                                             {bas_harf}
                                         </div>
                                         <div style='margin-left: 15px; line-height: 1.3;'>
@@ -2368,11 +2355,11 @@ else:
                     renk, isaret = ("#4CAF50", "+") if kz_tl >= 0 else ("#FF5252", "")
                     bas_harf = e_maden[0].upper()
                     
-                   # Siber Tasarımlı Maden Kartı
+                    # Siber Tasarımlı Maden Kartı
                     kart_html = f"""
                     <div style='border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 15px; background: rgba(10,10,10,0.5); margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: all 0.3s ease; display: flex; justify-content: space-between; align-items: center;'>
                         <div style='display: flex; align-items: center;'>
-                            <div style='min-width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; background: transparent; font-size: 18px;'>
+                            <div style='min-width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(226, 232, 240, 0.6); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #e2e8f0; background: transparent; font-size: 18px;'>
                                 {bas_harf}
                             </div>
                             <div style='margin-left: 15px; line-height: 1.3;'>
@@ -2401,8 +2388,8 @@ else:
                         with st.container(border=True):
                             df_dagilim = pd.DataFrame(dagilim_data)
                             
-                            # Siber Mavi, Buz Mavisi ve Cyan Tonlarından Oluşan Geniş Palet
-                            siber_renkler = ['#00e5ff', '#29b6f6', '#0277bd', '#7c4dff', '#b388ff', '#00b8d4', '#1565c0', '#5c6bc0', '#00acc1', '#1976d2', '#8c9eff', '#0097a7', '#0d47a1', '#3949ab', '#4dd0e1', '#283593', '#80deea', '#3f51b5', '#b2ebf2', '#9fa8da']
+                            # Sadece Bizim Neon Yeşilimiz ve Diğer Yeşil Tonları
+                            siber_renkler = ['#00ff00', '#00cc00', '#009900', '#006600', '#4d4d4d', '#808080', '#cccccc']
                             
                             # hole=0.75 ile daha şık, ince bir siber-halka (donut) yapısına dönüştü
                             fig = px.pie(df_dagilim, values='Değer', names='Varlık', hole=0.75, color_discrete_sequence=siber_renkler)
@@ -2438,9 +2425,9 @@ else:
         <div style='font-size: 0.85em; color: gray; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;'>Toplam Maliyet (Yatırılan)</div>
         <div style='font-size: 1.6em; font-weight: bold; color: white; font-family: Consolas, monospace;'>{genel_maliyet_toplami:,.2f} TL</div>
     </div>
-    <div style='border: 1px solid rgba(60,57,253,0.15); border-left: 4px solid #3c39fd; border-radius: 8px; padding: 15px; background: rgba(60,57,253,0.02); box-shadow: 0 4px 6px rgba(0,0,0,0.2);'>
+    <div style='border: 1px solid rgba(0,255,0,0.15); border-left: 4px solid #00ff00; border-radius: 8px; padding: 15px; background: rgba(0,255,0,0.02); box-shadow: 0 4px 6px rgba(0,0,0,0.2);'>
         <div style='font-size: 0.85em; color: gray; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;'>Güncel Portföy Büyüklüğü</div>
-        <div style='font-size: 1.8em; font-weight: bold; color: #3c39fd; font-family: Consolas, monospace;'>{genel_guncel_toplam:,.2f} TL</div>
+        <div style='font-size: 1.8em; font-weight: bold; color: #00ff00; font-family: Consolas, monospace;'>{genel_guncel_toplam:,.2f} TL</div>
     </div>
     <div style='border: 1px solid rgba(255,255,255,0.05); border-left: 4px solid {renk_ana}; border-radius: 8px; padding: 15px; background: rgba(10,10,10,0.6); box-shadow: 0 4px 6px rgba(0,0,0,0.2);'>
         <div style='font-size: 0.85em; color: gray; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;'>Net Kâr / Zarar Durumu</div>
@@ -2505,7 +2492,7 @@ else:
             # 1. SOL BLOK: BORSA VE FON İŞLEMLERİ
             # ==========================================
             with c_borsa:
-                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #3c39fd; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #3c39fd;'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>BORSA VE FON İŞLEMLERİ</div></div>", unsafe_allow_html=True)
+                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff00;'></div><div style='color: #00ff00; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>BORSA VE FON İŞLEMLERİ</div></div>", unsafe_allow_html=True)
                 with st.container(border=True):
                     st.markdown("<span style='color: gray; font-size: 0.85em;'>İşlem Yönü:</span>", unsafe_allow_html=True)
                     tip = st.radio("İşlem Yönü (Borsa):", ["ALIM", "SATIM"], horizontal=True, label_visibility="collapsed")
@@ -2708,7 +2695,7 @@ else:
             # 2. SAĞ BLOK: KIYMETLİ MADEN İŞLEMLERİ
             # ==========================================
             with c_maden:
-                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #FFD700; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #FFD700;'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>KIYMETLİ MADEN İŞLEMLERİ</div></div>", unsafe_allow_html=True)
+                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #FFD700; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #FFD700;'></div><div style='color: #FFD700; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>KIYMETLİ MADEN İŞLEMLERİ</div></div>", unsafe_allow_html=True)
                 with st.container(border=True):
                     st.markdown("<span style='color: gray; font-size: 0.85em;'>İşlem Yönü:</span>", unsafe_allow_html=True)
                     e_islem_tipi = st.radio("İşlem Yönü (Maden):", ["ALIM", "SATIM"], horizontal=True, key="emtia_islem_tipi", label_visibility="collapsed")
@@ -2801,7 +2788,7 @@ else:
             doviz_islem_modulu(k_adi, "portfoy_tab2")   
 
         with tab3: 
-            st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #3c39fd; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #3c39fd;'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>TRANSFER İŞLEMLERİ</div></div>", unsafe_allow_html=True)
+            st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff00;'></div><div style='color: #00ff00; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>TRANSFER İŞLEMLERİ</div></div>", unsafe_allow_html=True)
             
             conn = get_db()
             try:
@@ -2892,7 +2879,7 @@ else:
                         finally: release_db(conn)
             
         with tab4: 
-            st.markdown("<div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;'><div style='display: flex; align-items: center;'><div style='width: 10px; height: 10px; background: #ffb300; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #ffb300;'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>PORTFÖY İŞLEM LOGLARI</div></div></div>", unsafe_allow_html=True)
+            st.markdown("<div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;'><div style='display: flex; align-items: center;'><div style='width: 10px; height: 10px; background: #ffb300; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #ffb300;'></div><div style='color: #ffb300; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>PORTFÖY İŞLEM LOGLARI</div></div></div>", unsafe_allow_html=True)
             
             zaman_filtresi_yat = st.selectbox("Zaman Aralığı:", ["Bugün", "Son 24 Saat", "Son 7 Gün", "Son 15 Gün", "Son 1 Ay", "Tümü"], index=2)
             st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 5px; margin-bottom: 15px;'>", unsafe_allow_html=True)
@@ -2924,7 +2911,7 @@ else:
                 with st.container(height=400, border=True):
                     if not df_b_gecmis.empty:
                         for _, r in df_b_gecmis.iterrows():
-                            renk = "#4CAF50" if r['tutar'] > 0 else "#FF5252"
+                            renk = "#00ff00" if r['tutar'] > 0 else "#FF5252"
                             isaret = "+" if r['tutar'] > 0 else "-"
                             st.markdown(f"""
                             <div style='background: rgba(10,10,10,0.5); border-left: 3px solid {renk}; padding: 12px; border-radius: 4px; margin-bottom: 8px; border-top: 1px solid rgba(255,255,255,0.02); border-right: 1px solid rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.02);'>
@@ -2947,7 +2934,7 @@ else:
                 with st.container(height=400, border=True):
                     if not df_n_gecmis.empty:
                         for _, r in df_n_gecmis.iterrows():
-                            renk = "#3c39fd" if r['tutar'] > 0 else "#FF5252"
+                            renk = "#00ff00" if r['tutar'] > 0 else "#FF5252"
                             isaret = "+" if r['tutar'] > 0 else "-"
                             st.markdown(f"""
                             <div style='background: rgba(10,10,10,0.5); border-left: 3px solid {renk}; padding: 12px; border-radius: 4px; margin-bottom: 8px; border-top: 1px solid rgba(255,255,255,0.02); border-right: 1px solid rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.02);'>
@@ -3076,7 +3063,7 @@ else:
                         
                         # Emoji yerine profesyonel baş harf logosu (Avatar)
                         bas_harf = b_adi[0].upper() if b_adi else "B"
-                        img_html = f"<div style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(60,57,253,0.4); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #3c39fd; background: rgba(60,57,253,0.05); font-size: 16px;'>{bas_harf}</div>"
+                        img_html = f"<div style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(0,255,0,0.4); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #00ff00; background: rgba(0,255,0,0.05); font-size: 16px;'>{bas_harf}</div>"
                         
                         # Eğer logo klasörde varsa onu Base64 formatına çevirip HTML içine gömüyoruz
                         for ext in ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG']:
@@ -3084,7 +3071,7 @@ else:
                             if os.path.exists(p):
                                 with open(p, "rb") as f:
                                     b64 = base64.b64encode(f.read()).decode()
-                                    img_html = f"<img src='data:image/png;base64,{b64}' style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(60,57,253,0.4); padding: 3px; object-fit: contain; background: #ffffff;'>"
+                                    img_html = f"<img src='data:image/png;base64,{b64}' style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(0,255,0,0.4); padding: 3px; object-fit: contain; background: #ffffff;'>"
                                 break
                         
                         # --- HAYALET MODU MASKELERİ ---
@@ -3093,7 +3080,7 @@ else:
                         # Kartın altındaki ufak yazı (Borç veya Nakit durumu)
                         alt_yazi = "Nakit Kasa"
                         alt_renk = "gray"
-                        bakiye_renk = "white" # Bembeyaz Asil Tasarım
+                        bakiye_renk = "#4CAF50" # Neon Yeşil
                         
                         if item['tur'] == "Kart":
                             gosterilen_borc = H_MASK if is_ghost else f"{item['borc']:,.2f}"
@@ -3144,7 +3131,7 @@ else:
                 tum_kategoriler = sorted(list(set(["Yemek", "Market", "Sigara", "Yurt Gideri", "Atıştırmalık", "Zaruri İhtiyaç", "Kişisel Bakım", "Telefon Faturası", "Ulaşım", "Eğitim", "Giyim", "Kahve", "Diğer"] + oz_kat)))
 
                 # --- HARCAMA TERMİNALİ TASARIMI ---
-                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #3c39fd; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #3c39fd;'></div><div style='color: #3c39fd; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>HARCAMA İŞLEME TERMİNALİ</div></div>", unsafe_allow_html=True)
+                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff00;'></div><div style='color: #00ff00; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>HARCAMA İŞLEME TERMİNALİ</div></div>", unsafe_allow_html=True)
 
                 with st.container(border=True):
                     st.markdown("<div style='background: rgba(255, 82, 82, 0.05); padding: 10px 15px; border-radius: 6px; border: 1px solid rgba(255, 82, 82, 0.2); margin-bottom: 20px; font-size: 0.85em; color: #e0e0e0;'>Günlük harcamalarınızı ve kart işlemlerinizi buradan sisteme kaydedin. Çıkışlar doğrudan seçtiğiniz kaynaktan düşülecektir.</div>", unsafe_allow_html=True)
@@ -3311,10 +3298,10 @@ else:
                     with c_grafik:
                         # Yükseklik tam 420px olarak betonlandı
                         with st.container(border=True, height=420):
-                            st.markdown("<span style='color: #3c39fd; font-weight: bold;'>Kategori Dağılımı</span>", unsafe_allow_html=True)
+                            st.markdown("<span style='color: #00ff00; font-weight: bold;'>Kategori Dağılımı</span>", unsafe_allow_html=True)
                             df_grup = df_filtreli.groupby('kategori')['tutar'].sum().reset_index()
                             
-                            siber_renkler = ['#00e5ff', '#29b6f6', '#0277bd', '#7c4dff', '#b388ff', '#00b8d4', '#1565c0', '#5c6bc0', '#00acc1', '#1976d2', '#8c9eff', '#0097a7', '#0d47a1', '#3949ab', '#4dd0e1', '#283593', '#80deea', '#3f51b5', '#b2ebf2', '#9fa8da']
+                            siber_renkler = ['#00ff00', '#00cc00', '#009900', '#4d4d4d', '#262626', '#808080', '#006600', '#1a1a1a']
                             
                             fig = px.pie(df_grup, values='tutar', names='kategori', hole=0.6, color_discrete_sequence=siber_renkler)
                             fig.update_traces(
@@ -3337,7 +3324,7 @@ else:
                     with c_liste:
                         # Kaybolan liste geri geldi ve yüksekliği 420px olarak betonlandı
                         with st.container(border=True, height=420):
-                            st.markdown("<span style='color: #3c39fd; font-weight: bold;'>İşlem Dökümü</span>", unsafe_allow_html=True)
+                            st.markdown("<span style='color: #00ff00; font-weight: bold;'>İşlem Dökümü</span>", unsafe_allow_html=True)
                             for _, r in df_filtreli.iterrows():
                                 with st.container(border=True):
                                     c_d1, c_d2 = st.columns([3, 2])
@@ -3408,7 +3395,7 @@ else:
                 with c_trend:
                     # YÜKSEKLİK SABİTLENDİ (height=400)
                     with st.container(border=True, height=400):
-                        st.markdown("<span style='color: #3c39fd; font-weight: bold;'>Trend Grafiği</span>", unsafe_allow_html=True)
+                        st.markdown("<span style='color: #00ff00; font-weight: bold;'>Trend Grafiği</span>", unsafe_allow_html=True)
                         if not df_t.empty:
                             df_grup = df_t.groupby('GosterimTarihi', sort=False)['tutar'].sum().reset_index()
 
@@ -3416,9 +3403,9 @@ else:
                             fig_bar.update_traces(
                                 texttemplate='%{text:,.0f} ₺',
                                 textposition='outside',
-                                textfont=dict(color='#3c39fd', size=11),
-                                marker_color='rgba(60, 57, 253, 0.10)',
-                                marker_line_color='#3c39fd',
+                                textfont=dict(color='#00ff00', size=11),
+                                marker_color='rgba(0, 255, 0, 0.10)',
+                                marker_line_color='#00ff00',
                                 marker_line_width=1.5,
                                 width=0.35,
                                 hoverinfo="x+y"
@@ -3444,7 +3431,7 @@ else:
                 with c_yan:
                     # YÜKSEKLİK SABİTLENDİ (height=400) -> Eşit nizami duruş
                     with st.container(border=True, height=400):
-                        st.markdown("<span style='color: #3c39fd; font-weight: bold;'>Gün / Dönem Analizi</span>", unsafe_allow_html=True)
+                        st.markdown("<span style='color: #00ff00; font-weight: bold;'>Gün / Dönem Analizi</span>", unsafe_allow_html=True)
                         if not df_t.empty:
                             secenekler = df_grup[df_grup['tutar'] > 0]['GosterimTarihi'].tolist()
                             if not secenekler: secenekler = ["Veri Yok"]
@@ -3460,7 +3447,7 @@ else:
                                     cat_g = cat_g.sort_values(by='tutar', ascending=False)
                                     for _, r in cat_g.iterrows():
                                         st.markdown(f"<div style='display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 4px 0;'><span style='color: gray; font-size: 0.9em;'>{r['kategori']}</span> <b style='color: #FF5252; font-size: 0.9em;'>{r['tutar']:,.2f} ₺</b></div>", unsafe_allow_html=True)
-                                    st.markdown(f"<div style='text-align: right; margin-top: 10px; font-weight: bold;'>Toplam: <span style='color: #3c39fd;'>{df_sec['tutar'].sum():,.2f} ₺</span></div>", unsafe_allow_html=True)
+                                    st.markdown(f"<div style='text-align: right; margin-top: 10px; font-weight: bold;'>Toplam: <span style='color: #00ff00;'>{df_sec['tutar'].sum():,.2f} ₺</span></div>", unsafe_allow_html=True)
                                 else:
                                     st.caption("Bu tarihte işlem yok.")
                         else:
@@ -3501,47 +3488,76 @@ else:
             st.markdown("##### Kurum Filtresi")
             if 'aktif_banka' not in st.session_state or st.session_state.aktif_banka not in k_bankalar: st.session_state.aktif_banka = k_bankalar[0]
             
-            # Sütun sayısını banka sayısına göre dinamik ayarla
+            # Sütun sayısını banka sayısına göre dinamik ayarla (Kartlar genişlediği için en fazla 4 sütun)
             sutun_sayisi = len(k_bankalar) if len(k_bankalar) > 0 else 1
             cols = st.columns(min(sutun_sayisi, 4))
+            
+            is_ghost = st.session_state.get('hayalet_modu', False)
             
             for idx, b_adi in enumerate(k_bankalar):
                 with cols[idx % 4]:
                     is_active = (st.session_state.aktif_banka == b_adi)
                     
+                    # Veritabanından o kuruma ait Varlık ve Borç bilgisini çekme
+                    if b_adi == "Midas":
+                        kurum_varlik = mevcut_bakiye
+                        kurum_borc = 0.0
+                    else:
+                        conn = get_db()
+                        c = conn.cursor()
+                        c.execute("SELECT SUM(bakiye) FROM banka_hesaplari WHERE kullanici_adi=%s AND banka_adi=%s", (k_adi, b_adi))
+                        v_res = c.fetchone()
+                        kurum_varlik = v_res[0] if v_res and v_res[0] else 0.0
+                        
+                        c.execute("SELECT SUM(guncel_borc) FROM kredi_kartlari WHERE kullanici_adi=%s AND banka_adi=%s", (k_adi, b_adi))
+                        b_res = c.fetchone()
+                        kurum_borc = b_res[0] if b_res and b_res[0] else 0.0
+                        release_db(conn)
+                        
+                    # Hayalet Modu Maskelemesi
+                    gosterilen_varlik = H_MASK if is_ghost else f"{kurum_varlik:,.2f}"
+                    gosterilen_borc = H_MASK if is_ghost else f"{kurum_borc:,.2f}"
+
                     # Logoyu HTML olarak hazırla
                     bas_harf = b_adi[0].upper()
-                    img_html = f"<div style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(60,57,253,0.4); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #3c39fd; background: rgba(60,57,253,0.05); font-size: 16px;'>{bas_harf}</div>"
+                    img_html = f"<div style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(0,255,0,0.4); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #00ff00; background: rgba(0,255,0,0.05); font-size: 16px;'>{bas_harf}</div>"
                     
                     for ext in ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG']:
                         p = f"Banka Logoları/{b_adi}{ext}"
                         if os.path.exists(p):
                             with open(p, "rb") as f: b64 = base64.b64encode(f.read()).decode()
-                            img_html = f"<img src='data:image/png;base64,{b64}' style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(60,57,253,0.4); padding: 3px; object-fit: contain; background: #ffffff;'>"
+                            img_html = f"<img src='data:image/png;base64,{b64}' style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(0,255,0,0.4); padding: 3px; object-fit: contain; background: #ffffff;'>"
                             break
                             
-                    # --- SOFT TASARIM (SEÇİLİ DURUMU YUMUŞATILDI) ---
-                    border_color = "rgba(60, 57, 253, 0.4)" if is_active else "rgba(255,255,255,0.05)"
-                    bg_color = "rgba(60, 57, 253, 0.03)" if is_active else "rgba(10,10,10,0.3)"
-                    box_shadow = "0 0 12px rgba(60, 57, 253, 0.1)" if is_active else "0 4px 6px rgba(0,0,0,0.3)"
-                    text_color = "#3c39fd" if is_active else "white"
+                    border_color = "#00ff00" if is_active else "rgba(255,255,255,0.08)"
+                    bg_color = "rgba(0, 255, 0, 0.05)" if is_active else "rgba(10,10,10,0.5)"
+                    
+                    varlik_satir = f"<div style='font-size: 0.80em; color: #4CAF50; font-weight: bold; font-family: Consolas;'>Varlık: {gosterilen_varlik} ₺</div>" if kurum_varlik > 0 else "<div></div>"
+                    borc_satir = f"<div style='font-size: 0.80em; color: #FF5252; font-weight: bold; font-family: Consolas;'>Borç: -{gosterilen_borc} ₺</div>" if kurum_borc > 0 else "<div></div>"
+                    
+                    if kurum_varlik == 0 and kurum_borc == 0:
+                        varlik_satir = f"<div style='font-size: 0.80em; color: gray; font-weight: bold; font-family: Consolas;'>Bakiye Yok</div>"
                     
                     kart_html = f"""
-                    <div style='border: 1px solid {border_color}; border-radius: 10px; padding: 12px; background: {bg_color}; margin-bottom: -15px; box-shadow: {box_shadow}; height: 75px; display: flex; align-items: center; transition: all 0.3s ease;'>
-                        <div>{img_html}</div>
-                        <div style='margin-left: 12px; line-height: 1.2;'>
-                            <div style='font-size: 0.65em; color: gray; text-transform: uppercase; letter-spacing: 0.5px;'>KURUM</div>
-                            <div style='font-size: 0.95em; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; color: {text_color}; font-family: Consolas, monospace;'>{b_adi}</div>
+                    <div style='border: 1px solid {border_color}; border-radius: 10px; padding: 15px; background: {bg_color}; margin-bottom: -15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); height: 110px; display: flex; flex-direction: column; justify-content: space-between;'>
+                        <div style='display: flex; align-items: center;'>
+                            <div>{img_html}</div>
+                            <div style='margin-left: 12px; line-height: 1.2;'>
+                                <div style='font-size: 0.65em; color: gray; text-transform: uppercase; letter-spacing: 0.5px;'>KURUM</div>
+                                <div style='font-size: 0.9em; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; color: white;'>{b_adi}</div>
+                            </div>
+                        </div>
+                        <div style='display: flex; justify-content: space-between; align-items: flex-end;'>
+                            {varlik_satir}
+                            {borc_satir}
                         </div>
                     </div>
                     """
                     
                     with st.container():
                         st.markdown(kart_html, unsafe_allow_html=True)
-                        
-                        # Butonu her zaman standart (secondary) yapıyoruz ki göz yormasın, renkler CSS'ten geliyor
                         btn_yazi = "SEÇİLİ" if is_active else "İNCELE"
-                        if st.button(btn_yazi, key=f"btn_{b_adi}", use_container_width=True):
+                        if st.button(btn_yazi, key=f"btn_{b_adi}", use_container_width=True, type="primary" if is_active else "secondary"):
                             st.session_state.aktif_banka = b_adi
                             st.rerun()
             
@@ -3567,14 +3583,14 @@ else:
                         gosterilen_bakiye = H_MASK if is_ghost else f"{r['bakiye']:,.2f}"
                         
                         vd_html = f"""
-                        <div style='background: linear-gradient(135deg, rgba(20,20,20,0.9) 0%, rgba(5,5,5,0.95) 100%); border: 1px solid rgba(60,57,253,0.2); border-left: 4px solid #3c39fd; border-radius: 8px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;'>
+                        <div style='background: linear-gradient(135deg, rgba(20,20,20,0.9) 0%, rgba(5,5,5,0.95) 100%); border: 1px solid rgba(0,255,0,0.2); border-left: 4px solid #00ff00; border-radius: 8px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;'>
                             <div>
                                 <div style='color: gray; font-size: 0.75em; letter-spacing: 1px; margin-bottom: 3px;'>VADESİZ TL HESABI</div>
                                 <div style='color: white; font-size: 1.15em; font-weight: bold; font-family: Consolas, monospace;'>{r['hesap_adi']}</div>
                             </div>
                             <div style='text-align: right;'>
                                 <div style='color: gray; font-size: 0.75em; letter-spacing: 1px; margin-bottom: 3px;'>KULLANILABİLİR BAKİYE</div>
-                                <div style='color: #3c39fd; font-size: 1.4em; font-weight: bold; font-family: Consolas, monospace;'>{gosterilen_bakiye} ₺</div>
+                                <div style='color: #00ff00; font-size: 1.4em; font-weight: bold; font-family: Consolas, monospace;'>{gosterilen_bakiye} ₺</div>
                             </div>
                         </div>
                         """
@@ -3761,7 +3777,7 @@ else:
                                         break
                                 
                                 st.markdown(f"""
-                                <div style='background: linear-gradient(135deg, rgba(20,20,20,0.95) 0%, rgba(5,5,5,0.98) 100%); border: 1px solid rgba(60,57,253,0.3); border-radius: 12px; padding: 20px; box-shadow: 0 8px 16px rgba(0,0,0,0.5), inset 0 0 15px rgba(60,57,253,0.05); position: relative; height: 210px; display: flex; flex-direction: column; justify-content: space-between;'>
+                                <div style='background: linear-gradient(135deg, rgba(20,20,20,0.95) 0%, rgba(5,5,5,0.98) 100%); border: 1px solid rgba(0,255,0,0.3); border-radius: 12px; padding: 20px; box-shadow: 0 8px 16px rgba(0,0,0,0.5), inset 0 0 15px rgba(0,255,0,0.05); position: relative; height: 210px; display: flex; flex-direction: column; justify-content: space-between;'>
                                     <div style='width: 35px; height: 25px; background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%); border-radius: 4px; position: absolute; top: 20px; left: 20px; box-shadow: inset 1px 1px 3px rgba(255,255,255,0.5);'></div>
                                     <div style='text-align: right; position: absolute; top: 15px; right: 20px;'>{kart_logo}</div>
                                     <div style='margin-top: 45px;'>
@@ -3771,7 +3787,7 @@ else:
                                     <div style='display: flex; justify-content: space-between; align-items: flex-end;'>
                                         <div>
                                             <div style='color: gray; font-size: 0.6em; letter-spacing: 1px;'>KULLANICI</div>
-                                            <div style='color: #3c39fd; font-size: 0.85em; font-weight: bold;'>{k_isim}</div>
+                                            <div style='color: #00ff00; font-size: 0.85em; font-weight: bold;'>{k_isim}</div>
                                         </div>
                                         <div style='text-align: right;'>
                                             <div style='color: gray; font-size: 0.6em; letter-spacing: 1px;'>TOPLAM LİMİT</div>
@@ -3786,7 +3802,7 @@ else:
                                 <div style='text-align: center; margin-top: 12px; font-size: 0.85em; color: gray;'>
                                     Dönem: <b style='color: white;'>{donem_yazisi}</b> | 
                                     Kesim: <b style='color: white;'>{gercek_kesim.strftime('%d.%m.%Y')}</b> 
-                                    (<b style='color: {'#FF5252' if kalan_gun <= 3 else '#3c39fd'};'>{kalan_gun} Gün</b>) | 
+                                    (<b style='color: {'#FF5252' if kalan_gun <= 3 else '#00ff00'};'>{kalan_gun} Gün</b>) | 
                                     Ödeme: <b style='color: white;'>{gercek_odeme.strftime('%d.%m.%Y')}</b>
                                 </div>
                                 """, unsafe_allow_html=True)
@@ -3795,12 +3811,12 @@ else:
                                 cg1, cg2 = st.columns(2)
                                 with cg1:
                                     oran1 = (borc / limit) * 100 if limit > 0 else 0
-                                    r1 = "#3c39fd" if oran1 < 50 else ("#ffb300" if oran1 < 80 else "#FF5252")
+                                    r1 = "#00ff00" if oran1 < 50 else ("#ffb300" if oran1 < 80 else "#FF5252")
                                     fig1 = go.Figure(go.Indicator(mode="gauge+number", value=borc, title={'text': "Banka Limiti", 'font': {'size': 13, 'color': 'gray'}},
                                         number={'valueformat': ",.0f", 'suffix': " ₺", 'font': {'size': 20, 'color': 'white'}},
                                         gauge={'axis': {'range': [None, limit], 'tickcolor': "rgba(255,255,255,0.1)"}, 'bar': {'color': r1},
                                         'bgcolor': "rgba(255,255,255,0.05)", 'borderwidth': 0,
-                                        'steps': [{'range': [0, limit*0.5], 'color': "rgba(60,57,253,0.05)"}, {'range': [limit*0.5, limit*0.8], 'color': "rgba(255,179,0,0.05)"}, {'range': [limit*0.8, limit], 'color': "rgba(255,82,82,0.05)"}]}))
+                                        'steps': [{'range': [0, limit*0.5], 'color': "rgba(0,255,0,0.05)"}, {'range': [limit*0.5, limit*0.8], 'color': "rgba(255,179,0,0.05)"}, {'range': [limit*0.8, limit], 'color': "rgba(255,82,82,0.05)"}]}))
                                     
                                     # Yükseklik ve tepe boşluğu artırıldı ki kafası kesilmesin
                                     fig1.update_layout(height=210, margin=dict(t=45, b=0, l=15, r=15), paper_bgcolor="rgba(0,0,0,0)", font=dict(family="Consolas"))
@@ -3828,7 +3844,7 @@ else:
                             with st.container(height=350, border=True):
                                 kart_harcamalari = df_harcamalar[df_harcamalar['kaynak_hesap'] == f"Kart: {kart_adi}"] if not df_harcamalar.empty else pd.DataFrame()
                                 if not kart_harcamalari.empty:
-                                    st.markdown(f"<div style='color: #3c39fd; font-size: 0.9em; font-weight: bold; margin-bottom: 10px;'>{donem_yazisi} Dönemi İçi Aktif Hareketler</div>", unsafe_allow_html=True)
+                                    st.markdown(f"<div style='color: #00ff00; font-size: 0.9em; font-weight: bold; margin-bottom: 10px;'>{donem_yazisi} Dönemi İçi Aktif Hareketler</div>", unsafe_allow_html=True)
                                     for _, h in kart_harcamalari.iterrows():
                                         st.markdown(f"<div style='display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 8px 0;'><div><div style='font-weight: bold; color: #e0e0e0; font-size: 0.95em;'>{h['kategori']}</div><div style='color: gray; font-size: 0.75em;'>{pd.to_datetime(h['tarih']).strftime('%d.%m.%Y %H:%M')} | {h['aciklama']}</div></div><div style='color: #FF5252; font-weight: bold; font-family: Consolas;'>-{h['tutar']:,.2f} ₺</div></div>", unsafe_allow_html=True)
                                 else: st.info("Bu dönem için karta ait harcama kaydı bulunmuyor.")
@@ -3837,7 +3853,7 @@ else:
                             with st.container(height=350, border=True):
                                 kartin_taksitleri = df_taksitler[df_taksitler['kart_adi'] == kart_adi] if not df_taksitler.empty else pd.DataFrame()
                                 if not kartin_taksitleri.empty:
-                                    st.markdown(f"<div style='color: #3c39fd; font-size: 0.9em; font-weight: bold; margin-bottom: 10px;'>Bu Ay Ekstreye Yansıyacak Toplam Taksit: {kartin_taksitleri['aylik_tutar'].sum():,.2f} ₺</div>", unsafe_allow_html=True)
+                                    st.markdown(f"<div style='color: #00ff00; font-size: 0.9em; font-weight: bold; margin-bottom: 10px;'>Bu Ay Ekstreye Yansıyacak Toplam Taksit: {kartin_taksitleri['aylik_tutar'].sum():,.2f} ₺</div>", unsafe_allow_html=True)
                                     for _, taksit in kartin_taksitleri.iterrows():
                                         st.markdown(f"<div style='display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 8px 0;'><div><div style='font-weight: bold; color: #e0e0e0; font-size: 0.9em;'>{taksit['aciklama']}</div><div style='color: gray; font-size: 0.75em;'>Kalan: {taksit['toplam_taksit'] - taksit['odenen_taksit']} Ay</div></div><div style='text-align: right;'><div style='color: #FF5252; font-weight: bold; font-size: 1.1em;'>{taksit['aylik_tutar']:,.2f} ₺</div><div style='background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.75em; color: gray;'>Taksit: {taksit['odenen_taksit'] + 1} / {taksit['toplam_taksit']}</div></div></div>", unsafe_allow_html=True)
                                 else: st.info("Bu karta ait devam eden taksitli işlem bulunmuyor.")
@@ -3848,7 +3864,7 @@ else:
                                 if not kartin_gecmisi.empty:
                                     for _, ekstre in kartin_gecmisi.iterrows():
                                         e_durum = ekstre['durum']
-                                        d_renk = "#3c39fd" if e_durum == "Ödendi" else "#FF5252"
+                                        d_renk = "#00ff00" if e_durum == "Ödendi" else "#FF5252"
                                         with st.container(border=True):
                                             st.markdown(f"<div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;'><div><div style='font-weight: bold; color: white; font-size: 1.1em;'>{ekstre['donem_adi']} Ekstresi</div><div style='color: gray; font-size: 0.8em;'>Son Ödeme: {pd.to_datetime(ekstre['son_odeme_tarihi']).strftime('%d.%m.%Y')}</div></div><div style='text-align: right;'><div style='color: {d_renk}; font-weight: bold; font-size: 1.2em;'>{ekstre['toplam_borc']:,.2f} ₺</div><div style='color: {d_renk}; font-size: 0.75em; border: 1px solid {d_renk}; border-radius: 4px; padding: 2px 5px;'>{e_durum.upper()}</div></div></div>", unsafe_allow_html=True)
                                             c_ode, c_indir = st.columns(2)
@@ -4342,8 +4358,8 @@ else:
                     degisim = ((son_f - ilk_f) / ilk_f) * 100
                     
                     # --- DİNAMİK RENK AYARI ---
-                    t_renk = '#3c39fd' if degisim >= 0 else '#FF5252' 
-                    b_renk = 'rgba(60,57,253,0.05)' if degisim >= 0 else 'rgba(255,82,82,0.05)'
+                    t_renk = '#00ff00' if degisim >= 0 else '#FF5252' 
+                    b_renk = 'rgba(0,255,0,0.05)' if degisim >= 0 else 'rgba(255,82,82,0.05)'
                     
                     isaret = "+" if degisim >= 0 else ""
                     f_metin = f"{son_f:,.4f}" if is_tefas else f"{son_f:,.2f}"
@@ -4366,8 +4382,8 @@ else:
                     if grafik_turu == "Mum Grafik" and not is_tefas:
                         fig = go.Figure(go.Candlestick(
                             x=x_ekseni, open=data['Open'], high=data['High'], low=data['Low'], close=data['Close'],
-                            increasing_line_color='#3c39fd', decreasing_line_color='#FF5252',
-                            increasing_fillcolor='#3c39fd', decreasing_fillcolor='#FF5252',
+                            increasing_line_color='#00ff00', decreasing_line_color='#FF5252',
+                            increasing_fillcolor='#00ff00', decreasing_fillcolor='#FF5252',
                             line=dict(width=1.5), name='Fiyat'
                         ))
                         min_v = data['Low'].min() * 0.99
@@ -4397,7 +4413,7 @@ else:
             # ================= SOL KARE: QUANT ANALİZ =================
             with ana_sol:
                 with st.container(border=True):
-                    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #3c39fd; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #3c39fd;'></div><div style='color: #3c39fd; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>QUANT ANALİZ RADARI</div></div>", unsafe_allow_html=True)
+                    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff00;'></div><div style='color: #00ff00; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>QUANT ANALİZ RADARI</div></div>", unsafe_allow_html=True)
                     
                     c1, c2, c3 = st.columns([1.2, 1.5, 1.3])
                     secili_borsa = c1.selectbox("Piyasa", ["BİST", "NASDAQ", "S&P 500", "KRİPTO"], key="q_borsa", label_visibility="collapsed")
@@ -4416,7 +4432,7 @@ else:
                         
                         st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
                         c_baslik, c_kapat = st.columns([3, 1])
-                        c_baslik.markdown(f"<div style='color: gray; font-size: 0.85em; padding-top: 5px;'>Aktif Analiz: <b style='color: #3c39fd;'>{t_kod}</b></div>", unsafe_allow_html=True)
+                        c_baslik.markdown(f"<div style='color: gray; font-size: 0.85em; padding-top: 5px;'>Aktif Analiz: <b style='color: #00ff00;'>{t_kod}</b></div>", unsafe_allow_html=True)
                         if c_kapat.button("✖ Kapat", key="q_kapat_btn", use_container_width=True):
                             st.session_state.pop('q_aktif_hisse', None)
                             st.rerun()
@@ -4433,7 +4449,7 @@ else:
                                 son_f = float(df_raw['Close'].iloc[-1])
                                 onceki_f = float(df_raw['Close'].iloc[-2]) if len(df_raw) > 1 else son_f
                                 deg_yuzde = ((son_f - onceki_f) / onceki_f) * 100 if onceki_f > 0 else 0.0
-                                renk_f = "#3c39fd" if deg_yuzde >= 0 else "#FF5252"
+                                renk_f = "#00ff00" if deg_yuzde >= 0 else "#FF5252"
                                 isaret = "+" if deg_yuzde >= 0 else ""
                                 hacim = float(df_raw['Volume'].iloc[-1]) if 'Volume' in df_raw.columns else 0.0
                                 
@@ -4453,7 +4469,7 @@ else:
                                 if not pd.isna(std20): b_alt = sma20 - (std20 * 2); v_val = 3.0 if son_f < b_alt * 1.05 else (1.5 if b_alt < son_f < sma20 else 0.5)
                                 
                                 puan = t_val + m_val + v_val
-                                renk_p = "#3c39fd" if puan >= 7.5 else ("#ffb300" if puan >= 5 else "#FF5252")
+                                renk_p = "#00ff00" if puan >= 7.5 else ("#ffb300" if puan >= 5 else "#FF5252")
                                 karar = "GÜÇLÜ AL" if puan >= 8.5 else ("AL" if puan >= 7 else ("İZLE" if puan >= 5 else "ZAYIF/SAT"))
 
                                 html_cikti = (
@@ -4488,12 +4504,12 @@ else:
                                     
                                     if g_tur == "Mum Grafik":
                                         fig.add_trace(go.Candlestick(x=x_vals, open=df_chart['Open'], high=df_chart['High'], low=df_chart['Low'], close=df_chart['Close'], 
-                                                                     increasing_line_color='#3c39fd', decreasing_line_color='#FF5252', increasing_fillcolor='#3c39fd', decreasing_fillcolor='#FF5252',
+                                                                     increasing_line_color='#00ff00', decreasing_line_color='#FF5252', increasing_fillcolor='#00ff00', decreasing_fillcolor='#FF5252',
                                                                      line=dict(width=1), name='Fiyat'), row=1, col=1)
                                     else:
                                         fig.add_trace(go.Scatter(x=x_vals, y=df_chart['Close'], mode='lines', line=dict(color=renk_f, width=1.5), name='Fiyat'), row=1, col=1)
 
-                                    colors = ['rgba(60, 57, 253, 0.4)' if row['Close'] >= row['Open'] else 'rgba(255, 82, 82, 0.4)' for _, row in df_chart.iterrows()]
+                                    colors = ['rgba(0, 255, 0, 0.4)' if row['Close'] >= row['Open'] else 'rgba(255, 82, 82, 0.4)' for _, row in df_chart.iterrows()]
                                     fig.add_trace(go.Bar(x=x_vals, y=df_chart['Volume'], marker_color=colors, name='Hacim'), row=2, col=1)
 
                                     fig.update_layout(dragmode=False,height=230, margin=dict(t=5,b=0,l=0,r=0), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", xaxis_rangeslider_visible=False, showlegend=False, font=dict(family="Consolas", color="gray", size=9))
@@ -4507,7 +4523,7 @@ else:
             # ================= SAĞ KARE: PİYASA ENDEKSLERİ =================
             with ana_sag:
                 with st.container(border=True):
-                    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #3c39fd; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #3c39fd;'></div><div style='color: #3c39fd; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>PİYASA ENDEKSLERİ</div></div>", unsafe_allow_html=True)
+                    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff00;'></div><div style='color: #00ff00; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>PİYASA ENDEKSLERİ</div></div>", unsafe_allow_html=True)
                     
                     if 'e_sec_state' not in st.session_state: st.session_state['e_sec_state'] = "Seçiniz..."
                     
@@ -4523,7 +4539,7 @@ else:
                     if st.session_state['e_sec_state'] != "Seçiniz...":
                         st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
                         c_ebaslik, c_ekapat = st.columns([3, 1])
-                        c_ebaslik.markdown(f"<div style='color: gray; font-size: 0.85em; padding-top: 5px;'>Aktif Endeks: <b style='color: #3c39fd;'>{st.session_state['e_sec_state']}</b></div>", unsafe_allow_html=True)
+                        c_ebaslik.markdown(f"<div style='color: gray; font-size: 0.85em; padding-top: 5px;'>Aktif Endeks: <b style='color: #00ff00;'>{st.session_state['e_sec_state']}</b></div>", unsafe_allow_html=True)
                         
                         if c_ekapat.button("✖ Kapat", key="e_kapat_btn", use_container_width=True):
                             st.session_state['e_sec_state'] = "Seçiniz..."
@@ -4643,7 +4659,7 @@ else:
                                     st.markdown(f"<div style='color: gray; font-size: 0.85em; margin-bottom: 10px;'>Güncel Fiyat: <b style='color: white; font-size: 1.2em;'>{son_kapanis:,.2f}</b></div>", unsafe_allow_html=True)
                                     
                                     def satir_ciz(etiket, deger, renk):
-                                        bg_color = "rgba(60,57,253,0.05)" if renk == "#3c39fd" else ("rgba(255,82,82,0.05)" if renk == "#FF5252" else "rgba(255,255,255,0.05)")
+                                        bg_color = "rgba(0,255,0,0.05)" if renk == "#00ff00" else ("rgba(255,82,82,0.05)" if renk == "#FF5252" else "rgba(255,255,255,0.05)")
                                         return f"<div style='display: flex; justify-content: space-between; padding: 8px 12px; margin-bottom: 4px; background: {bg_color}; border-left: 3px solid {renk}; border-radius: 4px;'><span style='color: gray; font-family: Consolas; font-size: 0.9em;'>{etiket}</span><span style='color: {renk}; font-family: Consolas; font-weight: bold;'>{deger:,.2f}</span></div>"
                                         
                                     html_pivot = ""
@@ -4651,9 +4667,9 @@ else:
                                     html_pivot += satir_ciz("DİRENÇ 2 (R2)", r2, "#FF5252")
                                     html_pivot += satir_ciz("DİRENÇ 1 (R1)", r1, "#FF5252")
                                     html_pivot += satir_ciz("PIVOT NOKTASI", pivot, "#ffffff")
-                                    html_pivot += satir_ciz("DESTEK 1 (S1)", s1, "#3c39fd")
-                                    html_pivot += satir_ciz("DESTEK 2 (S2)", s2, "#3c39fd")
-                                    html_pivot += satir_ciz("DESTEK 3 (S3)", s3, "#3c39fd")
+                                    html_pivot += satir_ciz("DESTEK 1 (S1)", s1, "#00ff00")
+                                    html_pivot += satir_ciz("DESTEK 2 (S2)", s2, "#00ff00")
+                                    html_pivot += satir_ciz("DESTEK 3 (S3)", s3, "#00ff00")
                                     
                                     st.markdown(html_pivot, unsafe_allow_html=True)
                                     
@@ -4670,7 +4686,7 @@ else:
                                         ("0.500 (Orta)", fib_500, "#ffffff"),
                                         ("0.618 (Altın Oran)", fib_618, "#00bcd4"),
                                         ("0.786", fib_786, "#00bcd4"),
-                                        ("1.000 (Dip)", fib_100, "#3c39fd")
+                                        ("1.000 (Dip)", fib_100, "#00ff00")
                                     ]
                                     
                                     farklar = [abs(son_kapanis - s[1]) for s in fib_seviyeler]
@@ -4690,7 +4706,7 @@ else:
                            # --- DİNAMİK YORUM MOTORU BAŞLANGICI ---
                             # Pivot Mantığı Hesabı
                             if son_kapanis > pivot:
-                                trend_yonu = "<span style='color: #3c39fd;'>Pozitif (Boğa)</span>"
+                                trend_yonu = "<span style='color: #00ff00;'>Pozitif (Boğa)</span>"
                                 yaklasan_hedef = r1 if son_kapanis < r1 else (r2 if son_kapanis < r2 else r3)
                                 pivot_yorumu = f"Güncel fiyat ({son_kapanis:,.2f}), Pivot noktasının ({pivot:,.2f}) üzerinde seyretmektedir. Bu durum kısa vadeli momentumun {trend_yonu} olduğuna işaret eder. Alım iştahının devamı halinde ilk teknik direnç hedefi <b>{yaklasan_hedef:,.2f}</b> seviyesidir."
                             else:
@@ -4806,8 +4822,8 @@ else:
                                         # DİNAMİK RENK HESAPLAMASI VE BAŞLIK ÇİZİMİ
                                         ilk_fiyat = df_grafik['Close'].iloc[0]
                                         son_fiyat_grafik = df_grafik['Close'].iloc[-1]
-                                        trend_renk = "#3c39fd" if son_fiyat_grafik >= ilk_fiyat else "#FF5252"
-                                        bg_renk = "rgba(60,57,253,0.1)" if trend_renk == "#3c39fd" else "rgba(255,82,82,0.1)"
+                                        trend_renk = "#00ff00" if son_fiyat_grafik >= ilk_fiyat else "#FF5252"
+                                        bg_renk = "rgba(0,255,0,0.1)" if trend_renk == "#00ff00" else "rgba(255,82,82,0.1)"
                                         
                                         # Gereksiz küçük yeşil kod BURADAN SİLİNDİ, kutu dinamik renge boyandı
                                         baslik_alani.markdown(f"""
@@ -4853,7 +4869,7 @@ else:
                                         if ops_h_ort:
                                             metin = ""
                                             if son_fiyat > son_sma20 and son_fiyat > son_sma50:
-                                                metin = f"Fiyat, kısa (SMA20: {son_sma20:.2f}) ve orta (SMA50: {son_sma50:.2f}) vadeli ortalamaların üzerinde seyrediyor. Mevcut periyot için <span style='color: #3c39fd; font-weight: 500;'>pozitif trend</span> hakim."
+                                                metin = f"Fiyat, kısa (SMA20: {son_sma20:.2f}) ve orta (SMA50: {son_sma50:.2f}) vadeli ortalamaların üzerinde seyrediyor. Mevcut periyot için <span style='color: #00ff00; font-weight: 500;'>pozitif trend</span> hakim."
                                             elif son_fiyat < son_sma20 and son_fiyat < son_sma50:
                                                 metin = f"Fiyat, hareketli ortalamaların (SMA20: {son_sma20:.2f}, SMA50: {son_sma50:.2f}) altında. Sistem <span style='color: #FF5252; font-weight: 500;'>düşüş trendi</span> sinyali veriyor."
                                             else:
@@ -4871,7 +4887,7 @@ else:
                                             if son_rsi >= 70:
                                                 metin = f"Güncel RSI değeri {son_rsi:.2f}. Varlık <span style='color: #FF5252; font-weight: 500;'>aşırı alım bölgesinde</span> bulunuyor, olası bir düzeltme/kâr satışı riski değerlendirilmelidir."
                                             elif son_rsi <= 30:
-                                                metin = f"Güncel RSI değeri {son_rsi:.2f}. Varlık <span style='color: #3c39fd; font-weight: 500;'>aşırı satım bölgesinde</span>. Olası bir tepki alımı veya dip oluşumu takip edilebilir."
+                                                metin = f"Güncel RSI değeri {son_rsi:.2f}. Varlık <span style='color: #00ff00; font-weight: 500;'>aşırı satım bölgesinde</span>. Olası bir tepki alımı veya dip oluşumu takip edilebilir."
                                             else:
                                                 metin = f"Güncel RSI değeri {son_rsi:.2f} ile nötr bölgede (30-70 arası). Momentuma dair belirgin bir aşırılık gözlenmiyor."
                                                 
@@ -4886,9 +4902,9 @@ else:
                                             metin = ""
                                             if son_macd > son_macd_signal:
                                                 if son_macd > 0:
-                                                    metin = f"MACD çizgisi ({son_macd:.3f}), Sinyal çizgisini ({son_macd_signal:.3f}) yukarı kesmiş ve sıfırın üzerinde. <span style='color: #3c39fd; font-weight: 500;'>Güçlü alım sinyali</span> teyit ediliyor."
+                                                    metin = f"MACD çizgisi ({son_macd:.3f}), Sinyal çizgisini ({son_macd_signal:.3f}) yukarı kesmiş ve sıfırın üzerinde. <span style='color: #00ff00; font-weight: 500;'>Güçlü alım sinyali</span> teyit ediliyor."
                                                 else:
-                                                    metin = f"MACD çizgisi Sinyal'in üzerinde ancak henüz sıfır hattının altında. Bu bir <span style='color: #3c39fd; font-weight: 500;'>toparlanma sinyali</span> olabilir."
+                                                    metin = f"MACD çizgisi Sinyal'in üzerinde ancak henüz sıfır hattının altında. Bu bir <span style='color: #00ff00; font-weight: 500;'>toparlanma sinyali</span> olabilir."
                                             else:
                                                 if son_macd < 0:
                                                     metin = f"MACD çizgisi ({son_macd:.3f}), Sinyal çizgisinin ({son_macd_signal:.3f}) altında ve negatif bölgede. <span style='color: #FF5252; font-weight: 500;'>Güçlü satış baskısı</span> devam ediyor."
@@ -4908,7 +4924,7 @@ else:
                                             if son_fiyat >= son_boll_up:
                                                 metin += f"Fiyat ({son_fiyat:.2f}), üst bandı ({son_boll_up:.2f}) test ediyor veya aşmış. <span style='color: #FF5252; font-weight: 500;'>Aşırı iyimserlik veya olası direnç seviyesi.</span> "
                                             elif son_fiyat <= son_boll_down:
-                                                metin += f"Fiyat ({son_fiyat:.2f}), alt banda ({son_boll_down:.2f}) değmiş veya altına inmiş. <span style='color: #3c39fd; font-weight: 500;'>Aşırı karamsarlık veya olası destek seviyesi.</span> "
+                                                metin += f"Fiyat ({son_fiyat:.2f}), alt banda ({son_boll_down:.2f}) değmiş veya altına inmiş. <span style='color: #00ff00; font-weight: 500;'>Aşırı karamsarlık veya olası destek seviyesi.</span> "
                                             else:
                                                 metin += f"Fiyat bant sınırları içerisinde seyrediyor. "
                                             
@@ -4955,13 +4971,13 @@ else:
                                         if ops_rsi:
                                             fig.add_trace(go.Scatter(x=df_grafik['Tarih_Str'], y=df_grafik['RSI'], line=dict(color='#00bcd4', width=1.5), name='RSI'), row=g_satir, col=1)
                                             fig.add_hline(y=70, line_dash="dot", line_color="rgba(255, 82, 82, 0.5)", row=g_satir, col=1)
-                                            fig.add_hline(y=30, line_dash="dot", line_color="rgba(60, 57, 253, 0.5)", row=g_satir, col=1)
+                                            fig.add_hline(y=30, line_dash="dot", line_color="rgba(0, 255, 0, 0.5)", row=g_satir, col=1)
                                             g_satir += 1
 
                                         if ops_macd:
                                             fig.add_trace(go.Scatter(x=df_grafik['Tarih_Str'], y=df_grafik['MACD'], line=dict(color='#bb86fc', width=1.5), name='MACD'), row=g_satir, col=1)
                                             fig.add_trace(go.Scatter(x=df_grafik['Tarih_Str'], y=df_grafik['MACD_SIGNAL'], line=dict(color='#ffb300', width=1), name='Sinyal'), row=g_satir, col=1)
-                                            hist_colors = ['#3c39fd' if val >= 0 else '#FF5252' for val in df_grafik['MACD_HIST']]
+                                            hist_colors = ['#00ff00' if val >= 0 else '#FF5252' for val in df_grafik['MACD_HIST']]
                                             fig.add_trace(go.Bar(x=df_grafik['Tarih_Str'], y=df_grafik['MACD_HIST'], marker_color=hist_colors, name='Hist'), row=g_satir, col=1)
 
                                         fig.update_layout(
@@ -4985,8 +5001,8 @@ else:
                                         if analiz_metni:
                                             st.markdown(f"""
                                             <div style='border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 20px; background: rgba(18,18,18,0.95); margin-top: 15px; font-family: system-ui, -apple-system, sans-serif;'>
-                                                <div style='display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(60,57,253,0.2); padding-bottom: 10px; margin-bottom: 15px;'>
-                                                    <span style='color: #3c39fd; font-weight: 700; font-size: 1.05em; letter-spacing: 0.5px;'>SİSTEM ANALİZ RAPORU</span>
+                                                <div style='display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(0,255,0,0.2); padding-bottom: 10px; margin-bottom: 15px;'>
+                                                    <span style='color: #00ff00; font-weight: 700; font-size: 1.05em; letter-spacing: 0.5px;'>SİSTEM ANALİZ RAPORU</span>
                                                     <span style='color: #888888; font-size: 0.85em;'>Periyot: {zaman_secim}</span>
                                                 </div>
                                                 {analiz_metni}
@@ -5070,7 +5086,7 @@ else:
                                 right: -10px;
                                 opacity: 0;
                                 transition: opacity 0.3s;
-                                border: 1px solid rgba(60, 57, 253, 0.3);
+                                border: 1px solid rgba(0, 255, 0, 0.3);
                                 font-family: system-ui, -apple-system, sans-serif;
                                 font-size: 0.85rem;
                                 box-shadow: 0px 8px 16px rgba(0,0,0,0.8);
@@ -5097,9 +5113,9 @@ else:
                                 transition: all 0.2s ease;
                             }
                             .siber-tooltip:hover .info-icon {
-                                border-color: #3c39fd;
-                                color: #3c39fd;
-                                background-color: rgba(60, 57, 253, 0.1);
+                                border-color: #00ff00;
+                                color: #00ff00;
+                                background-color: rgba(0, 255, 0, 0.1);
                             }
                             </style>
                             """, unsafe_allow_html=True)
@@ -5134,14 +5150,14 @@ else:
                                 st.markdown(ciz_gosterge("Piyasa Değeri (Market Cap)", format_mcap(mcap), "Şirketin Toplam Büyüklüğü", "#00bcd4", t_mcap), unsafe_allow_html=True)
                                 st.markdown("<br>", unsafe_allow_html=True)
                                 val_pe = f"{pe:.2f}" if pe > 0 else "N/A"
-                                st.markdown(ciz_gosterge("Fiyat / Kazanç (F/K)", val_pe, "Yatırımın Amortisman Süresi", "#ffb300" if pe > 20 else "#3c39fd", t_pe), unsafe_allow_html=True)
+                                st.markdown(ciz_gosterge("Fiyat / Kazanç (F/K)", val_pe, "Yatırımın Amortisman Süresi", "#ffb300" if pe > 20 else "#00ff00", t_pe), unsafe_allow_html=True)
                             
                             with c2:
                                 val_eps = f"{eps:.2f} {pb_str}" if eps else "N/A"
-                                st.markdown(ciz_gosterge("Hisse Başına Kâr (EPS)", val_eps, "Şirketin Net Kârlılık Gücü", "#3c39fd" if eps and eps > 0 else "#FF5252", t_eps), unsafe_allow_html=True)
+                                st.markdown(ciz_gosterge("Hisse Başına Kâr (EPS)", val_eps, "Şirketin Net Kârlılık Gücü", "#00ff00" if eps and eps > 0 else "#FF5252", t_eps), unsafe_allow_html=True)
                                 st.markdown("<br>", unsafe_allow_html=True)
                                 val_pb = f"{pb:.2f}" if pb > 0 else "N/A"
-                                st.markdown(ciz_gosterge("Piyasa / Defter Değeri (PD/DD)", val_pb, "Özsermaye Çarpanı", "#ffb300" if pb > 5 else "#3c39fd", t_pb), unsafe_allow_html=True)
+                                st.markdown(ciz_gosterge("Piyasa / Defter Değeri (PD/DD)", val_pb, "Özsermaye Çarpanı", "#ffb300" if pb > 5 else "#00ff00", t_pb), unsafe_allow_html=True)
 
                             with c3:
                                 val_div = f"%{div_yield:.2f}" if div_yield > 0 else "N/A"
@@ -5192,8 +5208,8 @@ else:
                                 fig_mevsim = go.Figure()
                                 
                                 # İçleri şeffaf (cam gibi), dış çizgileri (border) tam neon renkler
-                                fill_colors = ['rgba(60, 57, 253, 0.15)' if val >= 0 else 'rgba(255, 82, 82, 0.15)' for val in df_mevsim['Ort. Getiri']]
-                                line_colors = ['#3c39fd' if val >= 0 else '#FF5252' for val in df_mevsim['Ort. Getiri']]
+                                fill_colors = ['rgba(0, 255, 0, 0.15)' if val >= 0 else 'rgba(255, 82, 82, 0.15)' for val in df_mevsim['Ort. Getiri']]
+                                line_colors = ['#00ff00' if val >= 0 else '#FF5252' for val in df_mevsim['Ort. Getiri']]
                                 
                                 fig_mevsim.add_trace(go.Bar(
                                     x=df_mevsim['Ay'], 
@@ -5234,7 +5250,7 @@ else:
                                     
                                     st.markdown(f"""
                                     <div style='display: flex; justify-content: space-between; padding: 12px; background: rgba(10,10,10,0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; margin-top: 10px; font-family: Consolas, monospace;'>
-                                        <div><span style='color: gray; font-size: 0.85em;'>Tarihsel En Güçlü Ay:</span> <b style='color: #3c39fd; font-size: 1.1em;'>{en_iyi_ay['Ay']}</b> <span style='font-size: 0.85em; color: #d0d0d0;'>(Ort. Getiri: %{en_iyi_ay['Ort. Getiri']:.2f}, Yükselme İhtimali: %{en_iyi_ay['Kazanma Oranı']:.0f})</span></div>
+                                        <div><span style='color: gray; font-size: 0.85em;'>Tarihsel En Güçlü Ay:</span> <b style='color: #00ff00; font-size: 1.1em;'>{en_iyi_ay['Ay']}</b> <span style='font-size: 0.85em; color: #d0d0d0;'>(Ort. Getiri: %{en_iyi_ay['Ort. Getiri']:.2f}, Yükselme İhtimali: %{en_iyi_ay['Kazanma Oranı']:.0f})</span></div>
                                         <div style='text-align: right;'><span style='color: gray; font-size: 0.85em;'>Tarihsel En Zayıf Ay:</span> <b style='color: #FF5252; font-size: 1.1em;'>{en_kotu_ay['Ay']}</b> <span style='font-size: 0.85em; color: #d0d0d0;'>(Ort. Getiri: %{en_kotu_ay['Ort. Getiri']:.2f})</span></div>
                                     </div>
                                     """, unsafe_allow_html=True)
@@ -5243,7 +5259,7 @@ else:
                     except Exception as e:
                         st.error(f"Sistem Hatası: Mevsimsellik motoru çalıştırılırken hata oluştu. {e}")
         with t_varlik:
-            st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #3c39fd; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #3c39fd;'></div><div style='color: #3c39fd; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>VARLIK VE PERFORMANS TAKİP TERMİNALİ</div></div>", unsafe_allow_html=True)
+            st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff00;'></div><div style='color: #00ff00; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>VARLIK VE PERFORMANS TAKİP TERMİNALİ</div></div>", unsafe_allow_html=True)
 
             import plotly.graph_objects as go
             import pandas as pd
@@ -5383,7 +5399,7 @@ else:
                 degisim_oran = (degisim / ilk_deger) * 100 if ilk_deger != 0 else 0
                 
                 isaret = "+" if degisim >= 0 else ""
-                degisim_renk = "#3c39fd" if degisim >= 0 else "#FF5252"
+                degisim_renk = "#00ff00" if degisim >= 0 else "#FF5252"
                 
                 # HTML KPI Kartı (Dev Rakamlar)
                 html_card = f"""
@@ -5434,7 +5450,7 @@ else:
             col1, col2 = st.columns(2)
             with col1:
                 with st.container(border=True):
-                    fig1 = draw_neon_area_chart(df_f, 'Toplam_Varlik', '#3c39fd', 'TOPLAM VARLIK BÜYÜMESİ')
+                    fig1 = draw_neon_area_chart(df_f, 'Toplam_Varlik', '#00ff00', 'TOPLAM VARLIK BÜYÜMESİ')
                     st.plotly_chart(fig1, use_container_width=True, config={'displayModeBar': False})
 
             with col2:
@@ -5444,13 +5460,13 @@ else:
 
             st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 15px; margin-bottom: 15px;'>", unsafe_allow_html=True)
             
-           # --- PASTA GRAFİKLER (HARCAMA SEKMESİ TASARIMI) ---
+            # --- PASTA GRAFİKLER (HARCAMA SEKMESİ TASARIMI) ---
             col3, col4 = st.columns(2)
-            siber_renkler = ['#00e5ff', '#29b6f6', '#0277bd', '#7c4dff', '#b388ff', '#00b8d4', '#1565c0', '#5c6bc0', '#00acc1', '#1976d2', '#8c9eff', '#0097a7', '#0d47a1', '#3949ab', '#4dd0e1', '#283593', '#80deea', '#3f51b5', '#b2ebf2', '#9fa8da']
+            siber_renkler = ['#00ff00', '#00cc00', '#009900', '#4d4d4d', '#262626', '#808080']
 
             with col3:
                 with st.container(border=True, height=360):
-                    st.markdown("<span style='color: #3c39fd; font-weight: bold;'>Güncel Varlık Dağılımı</span>", unsafe_allow_html=True)
+                    st.markdown("<span style='color: #00ff00; font-weight: bold;'>Güncel Varlık Dağılımı</span>", unsafe_allow_html=True)
                     if varlik_dagilimi:
                         fig_varlik_pie = go.Figure(data=[go.Pie(
                             labels=list(varlik_dagilimi.keys()), values=list(varlik_dagilimi.values()), hole=.6, 
@@ -5464,7 +5480,7 @@ else:
 
             with col4:
                 with st.container(border=True, height=360):
-                    st.markdown("<span style='color: #3c39fd; font-weight: bold;'>Kâr Kaynağı Dağılımı</span>", unsafe_allow_html=True)
+                    st.markdown("<span style='color: #00ff00; font-weight: bold;'>Kâr Kaynağı Dağılımı</span>", unsafe_allow_html=True)
                     if kar_dagilimi:
                         fig_kar_pie = go.Figure(data=[go.Pie(
                             labels=list(kar_dagilimi.keys()), values=list(kar_dagilimi.values()), hole=.6, 
@@ -5479,7 +5495,7 @@ else:
             st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 15px; margin-bottom: 15px;'>", unsafe_allow_html=True)
             
             # --- 5. ALT KATEGORİ BÜYÜMELERİ ---
-            st.markdown("<h5 style='color: #3c39fd; text-align: center; padding-bottom: 10px;'>Alt Kategori Büyüme Raporları</h5>", unsafe_allow_html=True)
+            st.markdown("<h5 style='color: #00ff00; text-align: center; padding-bottom: 10px;'>Alt Kategori Büyüme Raporları</h5>", unsafe_allow_html=True)
             tab_vborsa, tab_vfaiz, tab_vppf = st.tabs(["Borsa İşlemleri", "Faiz / Vadeli", "PPF Fonları"])
 
             with tab_vborsa:
@@ -5504,7 +5520,7 @@ else:
         t_davet, t_kullanici = st.tabs(["Davetiye Yönetimi", "Kayıtlı Kullanıcılar"])
         with t_davet:
             with st.container(border=True):
-                st.markdown("<span style='color: #3c39fd; font-weight: bold;'>Yeni Davetiye Kodu Üret (Max 2 Kişilik)</span>", unsafe_allow_html=True)
+                st.markdown("<span style='color: #00ff00; font-weight: bold;'>Yeni Davetiye Kodu Üret (Max 2 Kişilik)</span>", unsafe_allow_html=True)
                 import random
                 import string
                 
@@ -5547,7 +5563,7 @@ else:
                     cols = st.columns(3)
                     for i, (d_kod, d_hak) in enumerate(davetiyeler):
                         with cols[i % 3]:
-                            renk = "#3c39fd" if d_hak > 0 else "#FF5252"
+                            renk = "#00ff00" if d_hak > 0 else "#FF5252"
                             durum_yazi = "Aktif" if d_hak > 0 else "Tükendi"
                             
                             kart_html = f"""
@@ -5596,15 +5612,15 @@ else:
                             bas_harf = k_isim[0].upper() if k_isim else k_kod[0].upper()
                             
                             if k_foto:
-                                img_html = f"<img src='data:image/png;base64,{k_foto}' style='width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #3c39fd; padding: 3px; background: rgba(60,57,253,0.05);'>"
+                                img_html = f"<img src='data:image/png;base64,{k_foto}' style='width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #00ff00; padding: 3px; background: rgba(0,255,0,0.05);'>"
                             else:
-                                img_html = f"<div style='width: 70px; height: 70px; border-radius: 50%; border: 2px solid #3c39fd; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; color: #3c39fd; background: rgba(60,57,253,0.05); font-family: Consolas;'>{bas_harf}</div>"
+                                img_html = f"<div style='width: 70px; height: 70px; border-radius: 50%; border: 2px solid #00ff00; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; color: #00ff00; background: rgba(0,255,0,0.05); font-family: Consolas;'>{bas_harf}</div>"
                             
                             isim_goster = k_isim if k_isim else "İsimsiz Kullanıcı"
                             
                             # Siber tasarımlı Kullanıcı Kartı HTML'i
                             kart_html = f"""
-                            <div style='background: rgba(15,15,15,0.8); border: 1px solid rgba(60,57,253,0.2); border-radius: 12px; padding: 20px 10px; text-align: center; margin-bottom: 15px; box-shadow: 0 6px 12px rgba(0,0,0,0.4); border-bottom: 3px solid #3c39fd;'>
+                            <div style='background: rgba(15,15,15,0.8); border: 1px solid rgba(0,255,0,0.2); border-radius: 12px; padding: 20px 10px; text-align: center; margin-bottom: 15px; box-shadow: 0 6px 12px rgba(0,0,0,0.4); border-bottom: 3px solid #00ff00;'>
                                 <div style='display: flex; justify-content: center; margin-bottom: 12px;'>
                                     {img_html}
                                 </div>

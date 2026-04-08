@@ -1495,7 +1495,7 @@ if not st.session_state.iceride_mi:
     with merkez_kolon:
         st.markdown("<h1 style='text-align: center; margin-bottom: 0px;'>Mergen Finans</h1>", unsafe_allow_html=True)
         st.markdown("<p style='text-align: center; color: gray; margin-top: 0px;'>Sistem Girişi</p>", unsafe_allow_html=True)
-        st.markdown("<hr style='border: 1px solid rgba(0,255,0,0.2); margin-bottom: 30px;'>", unsafe_allow_html=True)
+        st.markdown("<hr style='border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px;'>", unsafe_allow_html=True)
         
         k_adi_input = st.text_input("Kullanıcı Kodu")
         sifre_input = st.text_input("Parola", type="password")

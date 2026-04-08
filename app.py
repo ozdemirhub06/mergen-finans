@@ -2867,10 +2867,85 @@ else:
                                         st.rerun()
                                 finally: release_db(conn)
 
-            # ==========================================
+           # ==========================================
             # 3. ALT BLOK: DÖVİZ İŞLEMLERİ (TAM GENİŞLİK)
             # ==========================================
             doviz_islem_modulu(k_adi, "portfoy_tab2")   
+
+            # ==========================================
+            # 4. ALT BLOK: HATALI İŞLEMİ İPTAL ET (TERSİNE ÇEVİRME MOTORU)
+            # ==========================================
+            st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 15px; margin-bottom: 15px;'>", unsafe_allow_html=True)
+            with st.expander("Hatalı İşlemi İptal Et"):
+                st.markdown("<div style='color: #888; font-size: 0.9em; margin-bottom: 15px;'>Yanlış girilen bir alım veya satış işleminin miktarını ve kaynağını seçerek işlemi tamamen geri alabilirsiniz.</div>", unsafe_allow_html=True)
+                
+                c_iptal_1, c_iptal_2 = st.columns(2)
+                with c_iptal_1:
+                    iptal_tipi = st.selectbox("İptal Edilecek İşlem Türü", ["Hatalı ALIM İşlemini İptal Et", "Hatalı SATIŞ İşlemini İptal Et"])
+                    iptal_varlik = st.text_input("Varlık Kodu (Örn: AKBNK.IS)", key="iptal_varlik_kodu").upper()
+                
+                with c_iptal_2:
+                    iptal_lot = st.number_input("İptal Edilecek Lot / Adet", min_value=0.0, step=1.0, key="iptal_lot")
+                    iptal_fiyat = st.number_input("İşlem Yapılan Fiyat", min_value=0.0, step=0.01, key="iptal_fiyat")
+
+                # Veritabanından banka hesaplarını çekiyoruz
+                conn = get_db()
+                try:
+                    df_hesaplar_iptal = pd.read_sql_query("SELECT hesap_adi FROM banka_hesaplari WHERE kullanici_adi = %s", conn, params=(k_adi,))
+                    iptal_hesap_listesi = ["Takas Bakiye (BİST)"] + df_hesaplar_iptal['hesap_adi'].tolist()
+                finally:
+                    release_db(conn)
+
+                iptal_hesap = st.selectbox("Paranın İade / Çekim Yapılacağı Kaynak", iptal_hesap_listesi)
+
+                if st.button("İşlemi Geri Al", type="primary", key="btn_iptal_et", use_container_width=True):
+                    if iptal_lot <= 0 or iptal_fiyat <= 0 or not iptal_varlik:
+                        st.warning("Lütfen varlık kodunu, lot miktarını ve fiyatı eksiksiz girin.")
+                    else:
+                        toplam_tutar = iptal_lot * iptal_fiyat
+                        conn = get_db()
+                        c = conn.cursor()
+                        try:
+                            if iptal_tipi == "Hatalı ALIM İşlemini İptal Et":
+                                # 1. ALIM İPTALİ: Portföyden o lotu geri al, parayı hesaba iade et.
+                                c.execute("UPDATE portfoy SET lot = lot - %s WHERE kullanici_adi = %s AND varlik_adi = %s", (iptal_lot, k_adi, iptal_varlik))
+                                
+                                if iptal_hesap == "Takas Bakiye (BİST)":
+                                    # Takas bakiyesini güncellemek yerine direkt Yatırım Hesabına (ana kasaya) iade ediyoruz, çünkü takas aslında ana kasanın yansımasıdır.
+                                    c.execute("UPDATE bakiyeler SET bakiye = bakiye + %s WHERE kullanici_adi = %s", (toplam_tutar, k_adi))
+                                    c.execute("UPDATE hesaplar SET bakiye = bakiye + %s WHERE kullanici_adi = %s AND hesap_adi = 'Yatırım Hesabı'", (toplam_tutar, k_adi))
+                                else:
+                                    c.execute("UPDATE banka_hesaplari SET bakiye = bakiye + %s WHERE kullanici_adi = %s AND hesap_adi = %s", (toplam_tutar, k_adi, iptal_hesap))
+                                    
+                                st.success(f"Başarılı! {iptal_varlik} alımı iptal edildi. {toplam_tutar:,.2f} TL, {iptal_hesap} hesabına iade edildi.")
+
+                            elif iptal_tipi == "Hatalı SATIŞ İşlemini İptal Et":
+                                # 2. SATIŞ İPTALİ: Portföye o lotu geri yükle, parayı hesaptan geri çek.
+                                c.execute("UPDATE portfoy SET lot = lot + %s WHERE kullanici_adi = %s AND varlik_adi = %s", (iptal_lot, k_adi, iptal_varlik))
+                                
+                                if iptal_hesap == "Takas Bakiye (BİST)":
+                                    c.execute("UPDATE bakiyeler SET bakiye = bakiye - %s WHERE kullanici_adi = %s", (toplam_tutar, k_adi))
+                                    c.execute("UPDATE hesaplar SET bakiye = bakiye - %s WHERE kullanici_adi = %s AND hesap_adi = 'Yatırım Hesabı'", (toplam_tutar, k_adi))
+                                else:
+                                    c.execute("UPDATE banka_hesaplari SET bakiye = bakiye - %s WHERE kullanici_adi = %s AND hesap_adi = %s", (toplam_tutar, k_adi, iptal_hesap))
+                                    
+                                st.success(f"Başarılı! {iptal_varlik} satışı iptal edildi. {toplam_tutar:,.2f} TL, {iptal_hesap} hesabından geri çekildi.")
+                            
+                            # İptal işlemini de geçmişe not düşüyoruz ki kayıt dışı bir şey kalmasın
+                            islem_notu = f"{iptal_tipi} | {iptal_varlik}: {iptal_lot} Lot, Fiyat: {iptal_fiyat}"
+                            c.execute("INSERT INTO islem_gecmisi (kullanici_adi, islem_tipi, detay, tutar) VALUES (%s, %s, %s, %s)", (k_adi, "SİSTEM İPTALİ", islem_notu, 0.0))
+                            
+                            conn.commit()
+                            time.sleep(1.5)
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Kritik veritabanı hatası: {e}")
+                        finally:
+                            release_db(conn)
+
+
+        with tab3: 
+            st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #e2e8f0; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(226, 232, 240, 0.5);'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>TRANSFER İŞLEMLERİ</div></div>", unsafe_allow_html=True)   
 
         with tab3: 
             st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #e2e8f0; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(226, 232, 240, 0.5);'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>TRANSFER İŞLEMLERİ</div></div>", unsafe_allow_html=True)
@@ -3298,8 +3373,8 @@ else:
                                 }
                             }
                         ))
-                        # Yükseklik kısıldı, boşluklar daraltıldı (Kafası kesilmez)
-                        fig_genel_butce.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font={'family': "Consolas"}, height=180, margin=dict(l=10, r=10, t=10, b=0))
+                        # Milimetrik kesilme (clipping) düzeltildi
+                        fig_genel_butce.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font={'family': "Consolas"}, height=210, margin=dict(l=25, r=25, t=25, b=15))
                         st.plotly_chart(fig_genel_butce, use_container_width=True, config={'displayModeBar': False})
                         
                         # Kalan bütçe (Sol alt) ve Özel Limit Expander (Sağ alt)

@@ -2873,75 +2873,92 @@ else:
             doviz_islem_modulu(k_adi, "portfoy_tab2")   
 
             # ==========================================
-            # 4. ALT BLOK: HATALI İŞLEMİ İPTAL ET (TERSİNE ÇEVİRME MOTORU)
+            # 4. ALT BLOK: AKILLI İPTAL MOTORU (OTOMATİK)
             # ==========================================
             st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 15px; margin-bottom: 15px;'>", unsafe_allow_html=True)
-            with st.expander("Hatalı İşlemi İptal Et"):
-                st.markdown("<div style='color: #888; font-size: 0.9em; margin-bottom: 15px;'>Yanlış girilen bir alım veya satış işleminin miktarını ve kaynağını seçerek işlemi tamamen geri alabilirsiniz.</div>", unsafe_allow_html=True)
+            with st.expander("Hatalı İşlemi İptal Et (Otomatik)"):
+                st.markdown("<div style='color: #888; font-size: 0.9em; margin-bottom: 15px;'>Sistemdeki son borsa ve fon işlemleriniz aşağıdadır. İptal etmek istediğinizi seçtiğinizde lot ve bakiye (Takas veya Nakit) otomatik olarak iade edilir.</div>", unsafe_allow_html=True)
                 
-                c_iptal_1, c_iptal_2 = st.columns(2)
-                with c_iptal_1:
-                    iptal_tipi = st.selectbox("İptal Edilecek İşlem Türü", ["Hatalı ALIM İşlemini İptal Et", "Hatalı SATIŞ İşlemini İptal Et"])
-                    iptal_varlik = st.text_input("Varlık Kodu (Örn: AKBNK.IS)", key="iptal_varlik_kodu").upper()
-                
-                with c_iptal_2:
-                    iptal_lot = st.number_input("İptal Edilecek Lot / Adet", min_value=0.0, step=1.0, key="iptal_lot")
-                    iptal_fiyat = st.number_input("İşlem Yapılan Fiyat", min_value=0.0, step=0.01, key="iptal_fiyat")
-
-                # Veritabanından banka hesaplarını çekiyoruz
                 conn = get_db()
                 try:
-                    df_hesaplar_iptal = pd.read_sql_query("SELECT hesap_adi FROM banka_hesaplari WHERE kullanici_adi = %s", conn, params=(k_adi,))
-                    iptal_hesap_listesi = ["Takas Bakiye (BİST)"] + df_hesaplar_iptal['hesap_adi'].tolist()
+                    sorgu = "SELECT id, tarih, islem_tipi, detay, tutar FROM islem_gecmisi WHERE kullanici_adi = %s AND (islem_tipi LIKE 'BORSA%%' OR islem_tipi LIKE 'FON%%') AND islem_tipi NOT LIKE '%%İPTAL%%' ORDER BY id DESC LIMIT 15"
+                    df_iptal = pd.read_sql_query(sorgu, conn, params=(k_adi,))
                 finally:
                     release_db(conn)
 
-                iptal_hesap = st.selectbox("Paranın İade / Çekim Yapılacağı Kaynak", iptal_hesap_listesi)
+                if not df_iptal.empty:
+                    iptal_secenekler = []
+                    iptal_map = {}
+                    for _, r in df_iptal.iterrows():
+                        tarih_str = pd.to_datetime(r['tarih']).strftime('%d.%m %H:%M')
+                        # Uzun detayları kesmek yerine temiz bir liste sunuyoruz
+                        metin = f"{tarih_str} | {r['islem_tipi']} | {r['tutar']:,.2f} TL"
+                        iptal_secenekler.append(metin)
+                        iptal_map[metin] = r
 
-                if st.button("İşlemi Geri Al", type="primary", key="btn_iptal_et", use_container_width=True):
-                    if iptal_lot <= 0 or iptal_fiyat <= 0 or not iptal_varlik:
-                        st.warning("Lütfen varlık kodunu, lot miktarını ve fiyatı eksiksiz girin.")
-                    else:
-                        toplam_tutar = iptal_lot * iptal_fiyat
-                        conn = get_db()
-                        c = conn.cursor()
-                        try:
-                            if iptal_tipi == "Hatalı ALIM İşlemini İptal Et":
-                                # 1. ALIM İPTALİ: Portföyden o lotu geri al, parayı hesaba iade et.
-                                c.execute("UPDATE portfoy SET lot = lot - %s WHERE kullanici_adi = %s AND varlik_adi = %s", (iptal_lot, k_adi, iptal_varlik))
-                                
-                                if iptal_hesap == "Takas Bakiye (BİST)":
-                                    # Takas bakiyesini güncellemek yerine direkt Yatırım Hesabına (ana kasaya) iade ediyoruz, çünkü takas aslında ana kasanın yansımasıdır.
-                                    c.execute("UPDATE bakiyeler SET bakiye = bakiye + %s WHERE kullanici_adi = %s", (toplam_tutar, k_adi))
-                                    c.execute("UPDATE hesaplar SET bakiye = bakiye + %s WHERE kullanici_adi = %s AND hesap_adi = 'Yatırım Hesabı'", (toplam_tutar, k_adi))
-                                else:
-                                    c.execute("UPDATE banka_hesaplari SET bakiye = bakiye + %s WHERE kullanici_adi = %s AND hesap_adi = %s", (toplam_tutar, k_adi, iptal_hesap))
-                                    
-                                st.success(f"Başarılı! {iptal_varlik} alımı iptal edildi. {toplam_tutar:,.2f} TL, {iptal_hesap} hesabına iade edildi.")
+                    secilen_metin = st.selectbox("Geri Alınacak İşlem:", iptal_secenekler)
+                    secilen_islem = iptal_map[secilen_metin]
+                    
+                    # İşlem detayından Regex ile Lot ve Ticker çekme (Sistemin zekası burada)
+                    import re
+                    match = re.search(r'([0-9\.]+)\s+lot\s+([A-Za-z0-9\.\-\=]+)', secilen_islem['detay'])
+                    p_lot = float(match.group(1)) if match else 0.0
+                    p_ticker = match.group(2) if match else "Bilinmiyor"
+                    p_tutar = float(secilen_islem['tutar'])
+                    p_tip = secilen_islem['islem_tipi']
+                    p_id = secilen_islem['id']
 
-                            elif iptal_tipi == "Hatalı SATIŞ İşlemini İptal Et":
-                                # 2. SATIŞ İPTALİ: Portföye o lotu geri yükle, parayı hesaptan geri çek.
-                                c.execute("UPDATE portfoy SET lot = lot + %s WHERE kullanici_adi = %s AND varlik_adi = %s", (iptal_lot, k_adi, iptal_varlik))
-                                
-                                if iptal_hesap == "Takas Bakiye (BİST)":
-                                    c.execute("UPDATE bakiyeler SET bakiye = bakiye - %s WHERE kullanici_adi = %s", (toplam_tutar, k_adi))
-                                    c.execute("UPDATE hesaplar SET bakiye = bakiye - %s WHERE kullanici_adi = %s AND hesap_adi = 'Yatırım Hesabı'", (toplam_tutar, k_adi))
-                                else:
-                                    c.execute("UPDATE banka_hesaplari SET bakiye = bakiye - %s WHERE kullanici_adi = %s AND hesap_adi = %s", (toplam_tutar, k_adi, iptal_hesap))
+                    st.info(f"**Sistem Tespiti:** Bu işlem **{p_tip}** yönündedir. Varlık: **{p_lot} lot {p_ticker}**. İşlem tutarı: **{abs(p_tutar):,.2f} TL**.")
+
+                    if st.button("Seçili İşlemi Otomatik Geri Al", type="primary", use_container_width=True):
+                        if p_lot == 0.0 or p_ticker == "Bilinmiyor":
+                            st.error("Bu işlemin metin formatı otomatik geri alma motoruna uygun değil. Lütfen manuel düzeltme yapın.")
+                        else:
+                            conn = get_db()
+                            try:
+                                c = conn.cursor()
+                                kasa_adi = 'Yatırım Hesabı (USD)' if 'USD' in secilen_islem['detay'] else 'Yatırım Hesabı'
+
+                                if "ALIM" in p_tip:
+                                    # Alım iptali: Lotu portföyden düş, parayı hesaba ekle
+                                    c.execute("UPDATE portfoy SET lot = lot - %s WHERE kullanici_adi = %s AND varlik_adi = %s", (p_lot, k_adi, p_ticker))
+                                    c.execute("UPDATE hesaplar SET bakiye = bakiye + %s WHERE kullanici_adi = %s AND hesap_adi = %s", (abs(p_tutar), k_adi, kasa_adi))
+                                    if kasa_adi == 'Yatırım Hesabı': c.execute("UPDATE bakiyeler SET bakiye = bakiye + %s WHERE kullanici_adi = %s", (abs(p_tutar), k_adi))
                                     
-                                st.success(f"Başarılı! {iptal_varlik} satışı iptal edildi. {toplam_tutar:,.2f} TL, {iptal_hesap} hesabından geri çekildi.")
-                            
-                            # İptal işlemini de geçmişe not düşüyoruz ki kayıt dışı bir şey kalmasın
-                            islem_notu = f"{iptal_tipi} | {iptal_varlik}: {iptal_lot} Lot, Fiyat: {iptal_fiyat}"
-                            c.execute("INSERT INTO islem_gecmisi (kullanici_adi, islem_tipi, detay, tutar) VALUES (%s, %s, %s, %s)", (k_adi, "SİSTEM İPTALİ", islem_notu, 0.0))
-                            
-                            conn.commit()
-                            time.sleep(1.5)
-                            st.rerun()
-                        except Exception as e:
-                            st.error(f"Kritik veritabanı hatası: {e}")
-                        finally:
-                            release_db(conn)
+                                    # Fon alımıysa takastaki emri de sil
+                                    if "FON" in p_tip: 
+                                        c.execute("DELETE FROM takas_bekleyen_islemler WHERE kullanici_adi = %s AND varlik = %s AND islem_yonu = 'ALIM' AND durum = 'Bekliyor'", (k_adi, p_ticker))
+
+                                elif "SATIM" in p_tip:
+                                    # Satım iptali: Lotu geri ekle, parayı çek (Takastan veya Nakitten)
+                                    c.execute("SELECT id FROM portfoy WHERE kullanici_adi = %s AND varlik_adi = %s", (k_adi, p_ticker))
+                                    if c.fetchone():
+                                        c.execute("UPDATE portfoy SET lot = lot + %s WHERE kullanici_adi = %s AND varlik_adi = %s", (p_lot, k_adi, p_ticker))
+                                    else:
+                                        c.execute("INSERT INTO portfoy (kullanici_adi, varlik_adi, lot, maliyet, borsa) VALUES (%s, %s, %s, 0, 'BİST')", (k_adi, p_ticker, p_lot))
+                                    
+                                    if "T+2" in p_tip or "Takas" in p_tip:
+                                        # T+2 ise para hesaba değil takasa girmiştir, takastan siliyoruz
+                                        c.execute("DELETE FROM takas_bekleyen_islemler WHERE id IN (SELECT id FROM takas_bekleyen_islemler WHERE kullanici_adi = %s AND varlik = %s AND islem_yonu = 'SATIM' AND tutar = %s ORDER BY id DESC LIMIT 1)", (k_adi, p_ticker, abs(p_tutar)))
+                                    else:
+                                        # Anında nakitse parayı kasadan geri çekiyoruz
+                                        c.execute("UPDATE hesaplar SET bakiye = bakiye - %s WHERE kullanici_adi = %s AND hesap_adi = %s", (abs(p_tutar), k_adi, kasa_adi))
+                                        if kasa_adi == 'Yatırım Hesabı': c.execute("UPDATE bakiyeler SET bakiye = bakiye - %s WHERE kullanici_adi = %s", (abs(p_tutar), k_adi))
+
+                                # Hatalı işlemi geçmişten siliyoruz ve logluyoruz
+                                c.execute("DELETE FROM islem_gecmisi WHERE id = %s", (p_id,))
+                                c.execute("INSERT INTO islem_gecmisi (kullanici_adi, islem_tipi, detay, tutar) VALUES (%s, 'SİSTEM İPTALİ', %s, 0.0)", (k_adi, f"İptal Edilen: {p_tip} ({p_ticker})"))
+                                
+                                conn.commit()
+                                st.success("İşlem başarıyla geri alındı, takas ve kasalar eşitlendi!")
+                                time.sleep(1.5)
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"Hata: {e}")
+                            finally:
+                                release_db(conn)
+                else:
+                    st.info("İptal edilebilecek son borsa işleminiz bulunmuyor.")
 
 
         with tab3: 
@@ -4701,7 +4718,7 @@ else:
                         
                         st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
                         c_baslik, c_kapat = st.columns([3, 1])
-                        c_baslik.markdown(f"<div style='color: gray; font-size: 0.85em; padding-top: 5px;'>Aktif Analiz: <b style='color: #00ff00;'>{t_kod}</b></div>", unsafe_allow_html=True)
+                        c_baslik.markdown(f"<div style='color: gray; font-size: 0.85em; padding-top: 5px;'>Aktif Analiz: <b style='color: white;'>{t_kod}</b></div>", unsafe_allow_html=True)
                         if c_kapat.button("✖ Kapat", key="q_kapat_btn", use_container_width=True):
                             st.session_state.pop('q_aktif_hisse', None)
                             st.rerun()
@@ -4808,7 +4825,7 @@ else:
                     if st.session_state['e_sec_state'] != "Seçiniz...":
                         st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 10px; margin-bottom: 10px;'>", unsafe_allow_html=True)
                         c_ebaslik, c_ekapat = st.columns([3, 1])
-                        c_ebaslik.markdown(f"<div style='color: gray; font-size: 0.85em; padding-top: 5px;'>Aktif Endeks: <b style='color: #00ff00;'>{st.session_state['e_sec_state']}</b></div>", unsafe_allow_html=True)
+                        c_ebaslik.markdown(f"<div style='color: gray; font-size: 0.85em; padding-top: 5px;'>Aktif Endeks: <b style='color: white;'>{st.session_state['e_sec_state']}</b></div>", unsafe_allow_html=True)
                         
                         if c_ekapat.button("✖ Kapat", key="e_kapat_btn", use_container_width=True):
                             st.session_state['e_sec_state'] = "Seçiniz..."

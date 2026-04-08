@@ -2423,22 +2423,28 @@ else:
                     renk_ana = "#4CAF50" if genel_kz_tl >= 0 else "#FF5252"
                     isaret_ana = "+" if genel_kz_tl >= 0 else ""
                     
+                    # --- TÜRKÇE PARA FORMATI ÇEVİRİCİSİ (Örn: 10.000,00 TL) ---
+                    fmt_maliyet = f"{genel_maliyet_toplami:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+                    fmt_guncel = f"{genel_guncel_toplam:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+                    fmt_kz = f"{genel_kz_tl:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+                    fmt_yuzde = f"{genel_kz_yuzde:,.2f}".replace('.', ',')
+                    
                     # HTML'in bozulmaması için baştaki girintileri (boşlukları) temizledik
                     ozet_html = f"""
 <div style='display: flex; flex-direction: column; gap: 15px; height: 100%; justify-content: center;'>
     <div style='border: 1px solid rgba(255,255,255,0.05); border-left: 4px solid gray; border-radius: 8px; padding: 15px; background: rgba(10,10,10,0.6); box-shadow: 0 4px 6px rgba(0,0,0,0.2);'>
         <div style='font-size: 0.85em; color: gray; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;'>Toplam Maliyet (Yatırılan)</div>
-        <div style='font-size: 1.6em; font-weight: bold; color: white; font-family: Consolas, monospace;'>{genel_maliyet_toplami:,.2f} TL</div>
+        <div style='font-size: 1.6em; font-weight: bold; color: white; font-family: Consolas, monospace;'>{fmt_maliyet} TL</div>
     </div>
     <div style='border: 1px solid rgba(79,195,247,0.2); border-left: 4px solid #4fc3f7; border-radius: 8px; padding: 15px; background: rgba(79,195,247,0.03); box-shadow: 0 4px 6px rgba(0,0,0,0.2);'>
         <div style='font-size: 0.85em; color: gray; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;'>Güncel Portföy Büyüklüğü</div>
-        <div style='font-size: 1.8em; font-weight: bold; color: #4fc3f7; font-family: Consolas, monospace;'>{genel_guncel_toplam:,.2f} TL</div>
+        <div style='font-size: 1.8em; font-weight: bold; color: #4fc3f7; font-family: Consolas, monospace;'>{fmt_guncel} TL</div>
     </div>
     <div style='border: 1px solid rgba(255,255,255,0.05); border-left: 4px solid {renk_ana}; border-radius: 8px; padding: 15px; background: rgba(10,10,10,0.6); box-shadow: 0 4px 6px rgba(0,0,0,0.2);'>
         <div style='font-size: 0.85em; color: gray; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;'>Net Kâr / Zarar Durumu</div>
         <div style='display: flex; align-items: baseline; gap: 10px;'>
-            <div style='font-size: 1.6em; font-weight: bold; color: {renk_ana}; font-family: Consolas, monospace;'>{isaret_ana}{genel_kz_tl:,.2f} TL</div>
-            <div style='font-size: 1.1em; font-weight: bold; color: {renk_ana}; background: rgba({255 if genel_kz_tl < 0 else 0},{255 if genel_kz_tl >= 0 else 0},0,0.1); padding: 2px 8px; border-radius: 4px;'>{isaret_ana}%{genel_kz_yuzde:.2f}</div>
+            <div style='font-size: 1.6em; font-weight: bold; color: {renk_ana}; font-family: Consolas, monospace;'>{isaret_ana}{fmt_kz} TL</div>
+            <div style='font-size: 1.1em; font-weight: bold; color: {renk_ana}; background: rgba({255 if genel_kz_tl < 0 else 0},{255 if genel_kz_tl >= 0 else 0},0,0.1); padding: 2px 8px; border-radius: 4px;'>{isaret_ana}%{fmt_yuzde}</div>
         </div>
     </div>
 </div>
@@ -2871,84 +2877,6 @@ else:
             # 3. ALT BLOK: DÖVİZ İŞLEMLERİ (TAM GENİŞLİK)
             # ==========================================
             doviz_islem_modulu(k_adi, "portfoy_tab2")   
-
-            # ==========================================
-            # 4. ALT BLOK: AKILLI İPTAL MOTORU (OTOMATİK)
-            # ==========================================
-            st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 15px; margin-bottom: 15px;'>", unsafe_allow_html=True)
-            with st.expander("Hatalı İşlemi İptal Et (Akıllı Motor)"):
-                st.markdown("<div style='color: #888; font-size: 0.9em; margin-bottom: 15px;'>Sistemdeki son borsa işlemleriniz aşağıdadır. İptal etmek istediğinizi seçtiğinizde ilgili kayıtlar veritabanından nokta atışı silinerek bakiyeler otomatik iade edilir.</div>", unsafe_allow_html=True)
-                
-                conn = get_db()
-                try:
-                    sorgu = "SELECT id, tarih, islem_tipi, detay, tutar FROM islem_gecmisi WHERE kullanici_adi = %s AND (islem_tipi LIKE 'BORSA%%' OR islem_tipi LIKE 'FON%%') AND islem_tipi NOT LIKE '%%İPTAL%%' ORDER BY tarih DESC LIMIT 20"
-                    df_iptal = pd.read_sql_query(sorgu, conn, params=(k_adi,))
-                finally:
-                    release_db(conn)
-
-                if not df_iptal.empty:
-                    iptal_map = {}
-                    for _, r in df_iptal.iterrows():
-                        tarih_str = pd.to_datetime(r['tarih']).strftime('%d.%m.%Y %H:%M')
-                        metin = f"{tarih_str} | {r['islem_tipi']} | {r['detay']}"
-                        iptal_map[metin] = r
-
-                    secilen_metin = st.selectbox("Geri Alınacak İşlemi Seçin:", list(iptal_map.keys()))
-                    secilen_islem = iptal_map[secilen_metin]
-                    
-                    import re
-                    match = re.search(r'([0-9\.,]+)\s*lot\s+([A-Za-z0-9\.\-\=]+)', secilen_islem['detay'], re.IGNORECASE)
-                    p_lot = float(match.group(1).replace(',', '')) if match else 0.0
-                    p_ticker = match.group(2).upper() if match else ""
-                    p_tutar = float(secilen_islem['tutar'])
-                    p_tip = secilen_islem['islem_tipi']
-                    p_id = secilen_islem['id']
-
-                    if p_lot > 0 and p_ticker:
-                        st.info(f"**Tespit Edilen:** İşlem: **{p_tip}** | Varlık: **{p_lot} Lot {p_ticker}** | Bakiye Etkisi: **{p_tutar:,.2f} TL**")
-                        
-                        if st.button("Seçili İşlemi Geri Al", type="primary", use_container_width=True):
-                            conn = get_db()
-                            try:
-                                c = conn.cursor()
-                                kasa_adi = 'Yatırım Hesabı (USD)' if 'USD' in p_tip or 'USD' in secilen_islem['detay'] else 'Yatırım Hesabı'
-
-                                if "ALIM" in p_tip:
-                                    # KUSURSUZ İPTAL: Portföydeki o spesifik 'alım' satırını bulup siliyoruz.
-                                    c.execute("DELETE FROM portfoy WHERE id IN (SELECT id FROM portfoy WHERE kullanici_adi = %s AND varlik_adi = %s AND lot = %s ORDER BY id DESC LIMIT 1)", (k_adi, p_ticker, p_lot))
-                                    
-                                    iade = abs(p_tutar)
-                                    c.execute("UPDATE hesaplar SET bakiye = bakiye + %s WHERE kullanici_adi = %s AND hesap_adi = %s", (iade, k_adi, kasa_adi))
-                                    if kasa_adi == 'Yatırım Hesabı': c.execute("UPDATE bakiyeler SET bakiye = bakiye + %s WHERE kullanici_adi = %s", (iade, k_adi))
-                                    if "FON" in p_tip: c.execute("DELETE FROM takas_bekleyen_islemler WHERE kullanici_adi = %s AND varlik = %s AND islem_yonu = 'ALIM' AND durum = 'Bekliyor'", (k_adi, p_ticker))
-
-                                elif "SATIM" in p_tip:
-                                    # KUSURSUZ İPTAL: Portföydeki o spesifik 'satım' (negatif) satırını bulup siliyoruz.
-                                    c.execute("DELETE FROM portfoy WHERE id IN (SELECT id FROM portfoy WHERE kullanici_adi = %s AND varlik_adi = %s AND lot = %s ORDER BY id DESC LIMIT 1)", (k_adi, p_ticker, -p_lot))
-                                    
-                                    dus = abs(p_tutar)
-                                    if "T+2" in p_tip or "Takas" in p_tip:
-                                        c.execute("DELETE FROM takas_bekleyen_islemler WHERE id IN (SELECT id FROM takas_bekleyen_islemler WHERE kullanici_adi = %s AND varlik = %s AND islem_yonu = 'SATIM' AND durum = 'Bekliyor' ORDER BY id DESC LIMIT 1)", (k_adi, p_ticker))
-                                    else:
-                                        c.execute("UPDATE hesaplar SET bakiye = bakiye - %s WHERE kullanici_adi = %s AND hesap_adi = %s", (dus, k_adi, kasa_adi))
-                                        if kasa_adi == 'Yatırım Hesabı': c.execute("UPDATE bakiyeler SET bakiye = bakiye - %s WHERE kullanici_adi = %s", (dus, k_adi))
-
-                                c.execute("DELETE FROM islem_gecmisi WHERE id = %s", (p_id,))
-                                c.execute("INSERT INTO islem_gecmisi (kullanici_adi, islem_tipi, detay, tutar) VALUES (%s, 'SİSTEM İPTALİ', %s, 0.0)", (k_adi, f"İptal Edildi: {p_tip} ({p_ticker})"))
-                                conn.commit()
-                                st.success("İşlem başarıyla geri alındı, her şey eski haline döndü!")
-                                time.sleep(1.5)
-                                st.rerun()
-                            except Exception as e: st.error(f"Hata: {e}")
-                            finally: release_db(conn)
-                    else:
-                        st.warning("Bu işlemin formatı otomatik okunamadı. Elle veritabanı düzeltmesi gerekebilir.")
-                else:
-                    st.info("İptal edilebilecek son borsa işleminiz bulunmuyor.")
-
-
-        with tab3: 
-            st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #e2e8f0; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(226, 232, 240, 0.5);'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>TRANSFER İŞLEMLERİ</div></div>", unsafe_allow_html=True)   
 
         with tab3: 
             st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #e2e8f0; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(226, 232, 240, 0.5);'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>TRANSFER İŞLEMLERİ</div></div>", unsafe_allow_html=True)

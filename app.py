@@ -23,7 +23,7 @@ import extra_streamlit_components as stx
 try:
     st.set_page_config(
         page_title="Mergen Finans",
-        page_icon="logo.ico", # KLASÖRDEKİ logo.ico DOSYASINI OKUR
+        page_icon="dis_logo.png", # KLASÖRDEKİ logo.ico DOSYASINI OKUR
         layout="wide",
         initial_sidebar_state="expanded"
     )
@@ -194,7 +194,7 @@ st.markdown("""
         content: "";
         display: block;
         /* Animasyonlu logonun URL'si (Gif formatında olduğunu varsayıyorum) */
-        background-image: url('https://raw.githubusercontent.com/ozdemirhub06/mergen-proje/main/logo.gif');
+        display: none !important; /* Eski internet logosunu iptal ettik */
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
@@ -268,8 +268,8 @@ st.markdown("""
         background: rgba(10, 10, 10, 0.45) !important; 
         backdrop-filter: blur(25px) saturate(150%) !important; 
         -webkit-backdrop-filter: blur(25px) saturate(150%) !important; 
-        border-right: 1px solid rgba(0, 255, 0, 0.15) !important;
-        box-shadow: inset -2px 0px 15px rgba(0, 255, 0, 0.03) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: inset -2px 0px 15px rgba(255, 255, 255, 0.02) !important;
         padding-bottom: 0px !important; /* BOŞLUK MİLİMETRİK OLARAK SIFIRLANDI */
         overflow: hidden !important; /* İç astarın kayma motoru felç edildi */
     }
@@ -299,9 +299,9 @@ st.markdown("""
     }
     }
     
-    /* Sidebar'daki ayırıcı çizgileri (hr) hafif yeşil yapıyoruz */
+    /* Sidebar'daki ayırıcı çizgileri (hr) hafif beyaz yapıyoruz */
     [data-testid="stSidebar"] hr {
-        border-bottom: 1px solid rgba(0, 255, 0, 0.15) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
     }
 
     /* --- ANA MENÜ TASARIMI (SİBER BLOKLAR) --- */
@@ -326,8 +326,8 @@ st.markdown("""
     
     /* 3. Hover (Fareyle Üzerine Gelince) */
     [data-testid="stSidebar"] div[role="radiogroup"] label:hover {
-        background: rgba(0, 255, 0, 0.05) !important;
-        border-color: rgba(0, 255, 0, 0.3) !important;
+        background: rgba(226, 232, 240, 0.05) !important;
+        border-color: rgba(226, 232, 240, 0.3) !important;
     }
     
     /* 4. SEÇİLİ OLAN MENÜ (Akıllı Seçici) */
@@ -367,13 +367,17 @@ st.markdown("""
     }
     
     /* --- BUTONLARI GECE MAVİSİ GRADİENT YAPMA --- */
-    button[kind="primary"], button[kind="secondary"] {
+    button[kind="primary"], button[kind="secondary"],
+    button[kind="primaryFormSubmit"], button[kind="secondaryFormSubmit"],
+    [data-testid="baseButton-primary"], [data-testid="baseButton-secondary"] {
         background: linear-gradient(145deg, #001b3b 0%, #050505 100%) !important;
         color: #e2e8f0 !important; 
         border: 1px solid rgba(226, 232, 240, 0.1) !important;
         font-weight: bold !important; transition: all 0.3s ease !important;
     }
-    button[kind="primary"]:hover, button[kind="secondary"]:hover {
+    button[kind="primary"]:hover, button[kind="secondary"]:hover,
+    button[kind="primaryFormSubmit"]:hover, button[kind="secondaryFormSubmit"]:hover,
+    [data-testid="baseButton-primary"]:hover, [data-testid="baseButton-secondary"]:hover {
         background: linear-gradient(145deg, #002855 0%, #0a0a0a 100%) !important; 
         border: 1px solid rgba(226, 232, 240, 0.3) !important; color: #ffffff !important;
     }
@@ -437,13 +441,13 @@ st.markdown("""
     }
 
     @keyframes float-logo { 
-        0% { transform: translateY(0px); filter: drop-shadow(0 0 5px rgba(0,255,0,0.3)); } 
-        50% { transform: translateY(-10px); filter: drop-shadow(0 0 15px rgba(0,255,0,0.6)); } 
-        100% { transform: translateY(0px); filter: drop-shadow(0 0 5px rgba(0,255,0,0.3)); } 
+        0% { transform: translateY(0px); filter: drop-shadow(0 0 5px rgba(226,232,240,0.2)); } 
+        50% { transform: translateY(-10px); filter: drop-shadow(0 0 15px rgba(226,232,240,0.5)); } 
+        100% { transform: translateY(0px); filter: drop-shadow(0 0 5px rgba(226,232,240,0.2)); } 
     }
     @keyframes green-particles {
         0% { box-shadow: 0 0 0 transparent, 0 0 0 transparent, 0 0 0 transparent; }
-        50% { box-shadow: -20px -30px 4px rgba(0,255,0,0.5), 30px -10px 6px rgba(0,255,0,0.4), -10px 30px 4px rgba(0,255,0,0.6); }
+        50% { box-shadow: -20px -30px 4px rgba(226,232,240,0.4), 30px -10px 6px rgba(226,232,240,0.3), -10px 30px 4px rgba(226,232,240,0.5); }
         100% { box-shadow: -40px -60px 0 transparent, 60px -20px 0 transparent, -20px 60px 0 transparent; }
     }
     @keyframes slide-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
@@ -455,17 +459,17 @@ st.markdown("""
     /* 1. Metin İçi Küçük Yükleme Çarkları (Veri Hesaplanıyor vs.) */
     div[data-testid="stSpinner"] div[class*="spinner"] {
         border-width: 4px !important;
-        border-color: rgba(0, 255, 0, 0.1) !important;
-        border-top-color: #00FF00 !important;
-        border-left-color: rgba(0, 255, 0, 0.2) !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        border-top-color: #ffffff !important;
+        border-left-color: rgba(255, 255, 255, 0.4) !important;
     }
     div[data-testid="stSpinner"] div[class*="stMarkdown"] p,
     div[data-testid="stSpinner"] span,
     [data-testid="stSpinner"] p {
-        color: #00FF00 !important;
+        color: #ffffff !important;
         font-family: 'Consolas', monospace !important;
         font-weight: bold !important;
-        text-shadow: 0 0 8px rgba(0, 255, 0, 0.5) !important;
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.5) !important;
     }
 
     /* 2. Sağ Üstteki Koşan Adamı İptal Edip, Merkeze Dev Neon Halka Ekleme */
@@ -480,12 +484,12 @@ st.markdown("""
         left: 50%;
         width: 50px;
         height: 50px;
-        border: 4px solid rgba(0, 255, 0, 0.1);
-        border-left-color: #00ff00;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-left-color: #ffffff;
         border-radius: 50%;
         animation: siber-spin 0.8s linear infinite;
         z-index: 99999;
-        box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
     }
     @keyframes siber-spin {
         0% { transform: translate(-50%, -50%) rotate(0deg); }
@@ -571,7 +575,6 @@ def islem_onay_dialog(baslik, mesaj, basari_mesaji, sorgular):
 
 
 # --- KULLANICI BİLGİLERİ PANELİ STİLLERİ ---
-# --- KULLANICI BİLGİLERİ PANELİ STİLLERİ ---
 def apply_card_style():
     st.markdown("""
         <style>
@@ -580,15 +583,15 @@ def apply_card_style():
             border-radius: 6px;
             background: rgba(15, 15, 15, 0.95);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            border-left: 3px solid #00ff00;
+            border-left: 3px solid #4fc3f7;
             margin-bottom: 10px; 
         }
-        .kart-baslik { color: #00ff00; margin-top: 0; margin-bottom: 10px; font-family: Consolas, monospace; font-size: 0.9em; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; text-transform: uppercase;}
+        .kart-baslik { color: #4fc3f7; margin-top: 0; margin-bottom: 10px; font-family: Consolas, monospace; font-size: 0.9em; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; text-transform: uppercase;}
         .kart-veri { color: white; font-weight: bold; font-size: 1.1em; font-family: Consolas, monospace; }
         .kart-etiket { color: gray; font-size: 0.8em; font-family: Consolas, monospace; }
         .analiz-metni { color: #d0d0d0; font-size: 0.85em; line-height: 1.5; font-family: Consolas, monospace; }
         .hedef-bar-bg { width: 100%; background: rgba(255,255,255,0.1); border-radius: 4px; height: 8px; margin-top: 5px; }
-        .hedef-bar-fg { background: #00ff00; height: 100%; border-radius: 4px; box-shadow: 0 0 8px rgba(0,255,0,0.5); }
+        .hedef-bar-fg { background: #4fc3f7; height: 100%; border-radius: 4px; box-shadow: 0 0 8px rgba(79,195,247,0.5); }
         </style>
     """, unsafe_allow_html=True)
 
@@ -737,20 +740,21 @@ def kullanici_bilgileri_sayfasi(k_adi):
         oran_ham = (toplam_varlik / hedef_tutar) * 100 if hedef_tutar > 0 else 0
         tamamlanma = min(max(oran_ham, 0), 100)
 
+        
         # 1. SATIR: PROFİL BİLGİLERİ
         c_profil, c_bilgi = st.columns([1, 4])
         with c_profil:
             bas_harf = k_bilgi['isim_soyisim'][0].upper() if k_bilgi['isim_soyisim'] else "U"
             if k_bilgi['profil_fotosu']:
-                try: st.markdown(f"<img src='data:image/png;base64,{k_bilgi['profil_fotosu']}' style='width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 2px solid #00ff00; padding: 3px;'>", unsafe_allow_html=True)
-                except: st.markdown(f"<div style='width: 90px; height: 90px; border: 2px solid #00ff00; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #00ff00; font-size: 2em; font-family: Consolas;'>{bas_harf}</div>", unsafe_allow_html=True)
-            else: st.markdown(f"<div style='width: 90px; height: 90px; border: 2px solid #00ff00; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #00ff00; font-size: 2em; font-family: Consolas;'>{bas_harf}</div>", unsafe_allow_html=True)
+                try: st.markdown(f"<img src='data:image/png;base64,{k_bilgi['profil_fotosu']}' style='width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 2px solid #4fc3f7; padding: 3px;'>", unsafe_allow_html=True)
+                except: st.markdown(f"<div style='width: 90px; height: 90px; border: 2px solid #4fc3f7; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #4fc3f7; font-size: 2em; font-family: Consolas;'>{bas_harf}</div>", unsafe_allow_html=True)
+            else: st.markdown(f"<div style='width: 90px; height: 90px; border: 2px solid #4fc3f7; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #4fc3f7; font-size: 2em; font-family: Consolas;'>{bas_harf}</div>", unsafe_allow_html=True)
         
         with c_bilgi:
             isim = k_bilgi['isim_soyisim'] if k_bilgi['isim_soyisim'] else "Kullanıcı"
             st.markdown(f"<div style='font-size: 1.5em; font-weight: bold; color: white; font-family: Consolas;'>{isim}</div>", unsafe_allow_html=True)
             st.markdown(f"<div style='color: gray; font-size: 0.85em; font-family: Consolas; margin-bottom: 5px;'>@{k_adi} | Yaş: {yas} | {meslek}</div>", unsafe_allow_html=True)
-            st.markdown(f"<div style='color: #00ff00; font-family: Consolas;'>Aylık Gelir: {gelir:,.0f} TL</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='color: #4fc3f7; font-family: Consolas;'>Aylık Gelir: {gelir:,.0f} TL</div>", unsafe_allow_html=True)
 
         st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin: 10px 0;'>", unsafe_allow_html=True)
 
@@ -761,7 +765,7 @@ def kullanici_bilgileri_sayfasi(k_adi):
             <div class='bilgi-karti'>
                 <div class='kart-baslik'>BİRİKİM HEDEFİ: {hedef_adi}</div>
                 <div style='display: flex; justify-content: space-between;'>
-                    <div><div class='kart-etiket'>Mevcut</div><div class='kart-veri' style='color:#00ff00;'>{toplam_varlik:,.0f} ₺</div></div>
+                    <div><div class='kart-etiket'>Mevcut</div><div class='kart-veri' style='color:#4fc3f7;'>{toplam_varlik:,.0f} ₺</div></div>
                     <div style='text-align:right;'><div class='kart-etiket'>Hedef</div><div class='kart-veri'>{hedef_tutar:,.0f} ₺</div></div>
                 </div>
                 <div style='margin-top:10px;'>
@@ -776,7 +780,7 @@ def kullanici_bilgileri_sayfasi(k_adi):
             analiz = f"<span style='color: white; font-weight: bold;'>Profil: {profil} Yatırımcı</span><br>"
             
             if oran_hisse > 0:
-                analiz += f"• <span style='color:#00ff00;'>İyi Yapılanlar:</span> Borsa/Fon varlıkları tutuluyor.<br>"
+                analiz += f"• <span style='color:#4fc3f7;'>İyi Yapılanlar:</span> Borsa/Fon varlıkları tutuluyor.<br>"
             if oran_emtia < 5:
                 analiz += f"• <span style='color:#FF5252;'>Dikkat:</span> Emtia (%{oran_emtia:.1f}) çok düşük, risk dağıtımı yetersiz.<br>"
             if net_kazanc < 0:
@@ -802,8 +806,8 @@ def kullanici_bilgileri_sayfasi(k_adi):
                 dagilim = dagilim[dagilim['Oran'] > 0]
                 if not dagilim.empty:
                     import plotly.express as px
-                    # Temaya uygun tamamen siber/neon yeşil tonları
-                    siber_yesiller = ['#00ff00', '#00cc00', '#009900', '#006600']
+                    # Gece Mavisi (#001b3b) ve Alt/Üst Tonları
+                    siber_yesiller = ['#4d88ff', '#1a8cff', '#0073f0', '#005fcb', '#004da6', '#003b80', '#002b5e', '#001b3b']
                     
                     fig = px.pie(dagilim, values='Oran', names='Varlık', hole=0.6, color_discrete_sequence=siber_yesiller)
                     
@@ -837,7 +841,7 @@ def kullanici_bilgileri_sayfasi(k_adi):
             st.markdown("</div>", unsafe_allow_html=True)
 
         with col4:
-            r_renk = "#00ff00" if net_kazanc >= 0 else "#FF5252"
+            r_renk = "#4fc3f7" if net_kazanc >= 0 else "#FF5252"
             r_is = "+" if net_kazanc >= 0 else ""
             st.markdown(f"""
             <div class='bilgi-karti' style='height: 195px;'>
@@ -906,7 +910,9 @@ def kutuphane_hazirla():
             "ALTER TABLE kullanicilar ADD COLUMN aylik_gelir DOUBLE PRECISION DEFAULT 0.0",
             "ALTER TABLE kullanicilar ADD COLUMN hedef_adi TEXT DEFAULT 'Hedef Belirlenmedi'",
             "ALTER TABLE kullanicilar ADD COLUMN hedef_tutar DOUBLE PRECISION DEFAULT 100000.0",
-            "ALTER TABLE kullanicilar ADD COLUMN pin_kodu TEXT DEFAULT ''"
+            "ALTER TABLE kullanicilar ADD COLUMN pin_kodu TEXT DEFAULT ''",
+            "ALTER TABLE kullanicilar ADD COLUMN ana_harcama_karti TEXT DEFAULT ''",
+            "ALTER TABLE kullanicilar ADD COLUMN ozel_harcama_limiti DOUBLE PRECISION DEFAULT 0.0"
         ]
         for q in sorgular:
             try: 
@@ -1211,7 +1217,7 @@ def emtia_fiyat_hesapla(maden_turu, anlik_usd_kuru):
 
 def doviz_islem_modulu(k_adi, sayfa_key):
     st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 10px; margin-bottom: 15px;'>", unsafe_allow_html=True)
-    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00bcd4; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00bcd4;'></div><div style='color: #00bcd4; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>DÖVİZ İŞLEM TERMİNALİ</div></div>", unsafe_allow_html=True)
+    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #e2e8f0; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(226, 232, 240, 0.5);'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>DÖVİZ İŞLEM TERMİNALİ</div></div>", unsafe_allow_html=True)
     
     conn = get_db()
     try:
@@ -1238,9 +1244,9 @@ def doviz_islem_modulu(k_adi, sayfa_key):
         
         with c_ust2:
             st.markdown(f"""
-            <div style='background: rgba(10,10,10,0.8); border-left: 4px solid #00bcd4; padding: 15px; border-radius: 6px; box-shadow: inset 0 0 15px rgba(0, 188, 212, 0.05); height: 100%; display: flex; flex-direction: column; justify-content: center;'>
+            <div style='background: rgba(10,10,10,0.8); border-left: 4px solid #FFFFFF; padding: 15px; border-radius: 6px; box-shadow: inset 0 0 15px rgba(0, 188, 212, 0.05); height: 100%; display: flex; flex-direction: column; justify-content: center;'>
                 <div style='color: gray; font-size: 0.8em; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px;'>CANLI PİYASA KURU</div>
-                <div style='color: #00bcd4; font-size: 1.6em; font-weight: bold; font-family: Consolas;'>1 {d_para_birimi} = {canli_kur:,.4f} ₺</div>
+                <div style='color: #FFFFFF; font-size: 1.6em; font-weight: bold; font-family: Consolas;'>1 {d_para_birimi} = {canli_kur:,.4f} ₺</div>
             </div>
             """, unsafe_allow_html=True)
             
@@ -1310,7 +1316,7 @@ def doviz_islem_modulu(k_adi, sayfa_key):
 # --- 4. GİRİŞ VE SİSTEM DÖNGÜSÜ ---
 def akilli_hisse_analiz_motoru(key_prefix):
     with st.container(border=True):
-        st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff00;'></div><div style='color: #00ff00; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>QUANT ANALİZ RADARI</div></div>", unsafe_allow_html=True)
+        st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #e2e8f0; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(226, 232, 240, 0.5);'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>QUANT ANALİZ RADARI</div></div>", unsafe_allow_html=True)
         c1, c2, c3 = st.columns([1, 1.5, 1])
         # WIDGET KEY'LERİ DEĞİŞTİRİLDİ (ÇAKIŞMA HATASI GİDERİLDİ)
         secili_borsa = c1.selectbox("Piyasa", ["BİST", "NASDAQ", "S&P 500", "KRİPTO"], key=f"q_ui_borsa_{key_prefix}", label_visibility="collapsed")
@@ -1440,7 +1446,7 @@ if not st.session_state.iceride_mi:
     
     # --- GİRİŞ EKRANI SÜZÜLEN LOGO VE 360 DERECE PARTİKÜL EFEKTİ ---
     logo_b64, logo_mime = "", "png"
-    for img_file in ["logo.png", "logo.jpg", "logo.ico"]:
+    for img_file in ["ic_logo.png"]:
         if os.path.exists(img_file):
             try:
                 with open(img_file, "rb") as f:
@@ -1460,10 +1466,10 @@ if not st.session_state.iceride_mi:
             z-index: 9999; pointer-events: none;
             animation: logo-pulse-float 4s ease-in-out infinite;
         }}
-        @keyframes logo-pulse-float {{
-            0% {{ transform: translateY(0px) scale(1); filter: drop-shadow(0 0 10px rgba(0,255,0,0.2)); }}
-            50% {{ transform: translateY(-20px) scale(1.1); filter: drop-shadow(0 0 35px rgba(0,255,0,0.9)); }}
-            100% {{ transform: translateY(0px) scale(1); filter: drop-shadow(0 0 10px rgba(0,255,0,0.2)); }}
+        @keyframes logo-pulse-float {{ 
+            0% {{ transform: translateY(0px) scale(1); filter: drop-shadow(0 0 5px rgba(226,232,240,0.1)); }} 
+            50% {{ transform: translateY(-20px) scale(1.1); filter: drop-shadow(0 0 20px rgba(226,232,240,0.4)); }} 
+            100% {{ transform: translateY(0px) scale(1); filter: drop-shadow(0 0 5px rgba(226,232,240,0.1)); }} 
         }}
         .giris-logo-anim::before, .giris-logo-anim::after {{
             content: ''; position: absolute; top: 50%; left: 50%;
@@ -1477,7 +1483,7 @@ if not st.session_state.iceride_mi:
         }}
         @keyframes burst {{
             0% {{ box-shadow: 0 0 0 transparent; opacity: 1; transform: translate(-50%, -50%) scale(0.1); }}
-            40% {{ box-shadow: -100px -100px 4px #00ff00, 100px 100px 6px rgba(0,255,0,0.8), 100px -100px 4px rgba(0,255,0,0.6), -100px 100px 5px rgba(0,255,0,0.9), 0px -140px 4px #00ff00, 0px 140px 6px rgba(0,255,0,0.7), -140px 0px 5px rgba(0,255,0,0.8), 140px 0px 4px rgba(0,255,0,0.9), -70px -150px 3px #00ff00, 150px 70px 4px rgba(0,255,0,0.7); opacity: 0.9; }}
+            40% {{ box-shadow: -100px -100px 4px #e2e8f0, 100px 100px 6px rgba(226,232,240,0.5), 100px -100px 4px rgba(226,232,240,0.3), -100px 100px 5px rgba(226,232,240,0.6), 0px -140px 4px #e2e8f0, 0px 140px 6px rgba(226,232,240,0.4), -140px 0px 5px rgba(226,232,240,0.5), 140px 0px 4px rgba(226,232,240,0.6), -70px -150px 3px #e2e8f0, 150px 70px 4px rgba(226,232,240,0.4); opacity: 0.6; }}
             100% {{ box-shadow: -250px -250px 0 transparent, 250px 250px 0 transparent, 250px -250px 0 transparent, -250px 250px 0 transparent, 0px -300px 0 transparent, 0px 300px 0 transparent, -300px 0px 0 transparent, 300px 0px 0 transparent, -150px -350px 0 transparent, 350px 150px 0 transparent; opacity: 0; transform: translate(-50%, -50%) scale(1.5); }}
         }}
         </style>
@@ -1598,7 +1604,7 @@ else:
     @st.dialog("Sistem Bildirim Merkezi")
     def asistan_paneli_ac(k_adi):
         # 1. BAŞLIK VE YENİ HESAP MAKİNESİ MODÜLÜ
-        st.markdown("<span style='color: #00ff00; font-weight: bold; font-size: 1.1em;'>Sistem Analizleri ve Araçlar</span>", unsafe_allow_html=True)
+        st.markdown("<span style='color: white; font-weight: bold; font-size: 1.1em;'>Sistem Analizleri ve Araçlar</span>", unsafe_allow_html=True)
         
         with st.expander("Hesap Makinesi"):
             hesap_makinesi_html = """
@@ -1607,14 +1613,14 @@ else:
             <head>
             <style>
                 body { background-color: transparent; font-family: Consolas, monospace; display: flex; justify-content: center; margin: 0; color: white; user-select: none; }
-                .calc { background: rgba(15,15,15,0.9); border: 1px solid rgba(0,255,0,0.3); border-radius: 8px; padding: 15px; width: 100%; box-shadow: inset 0 0 20px rgba(0,255,0,0.05); }
-                .display { background: rgba(5,5,5,0.9); border: 1px solid rgba(0,255,0,0.2); border-radius: 4px; height: 45px; text-align: right; padding: 10px; font-size: 1.6em; margin-bottom: 15px; color: #00ff00; text-shadow: 0 0 8px rgba(0,255,0,0.4); overflow: hidden; white-space: nowrap; letter-spacing: 2px; }
+                .calc { background: rgba(15,15,15,0.9); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 15px; width: 100%; box-shadow: inset 0 0 20px rgba(255,255,255,0.05); }
+                .display { background: rgba(5,5,5,0.9); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; height: 45px; text-align: right; padding: 10px; font-size: 1.6em; margin-bottom: 15px; color: #ffffff; text-shadow: 0 0 8px rgba(255,255,255,0.3); overflow: hidden; white-space: nowrap; letter-spacing: 2px; }
                 .keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
                 button { background: rgba(25,25,25,0.9); border: 1px solid rgba(255,255,255,0.05); color: white; padding: 12px 0; font-size: 1.3em; border-radius: 4px; cursor: pointer; transition: all 0.1s; font-family: Consolas, monospace; font-weight: bold; }
-                button:active { transform: scale(0.95); background: rgba(0,255,0,0.2); }
+                button:active { transform: scale(0.95); background: rgba(255,255,255,0.15); }
                 .op { color: #00bcd4; background: rgba(0, 188, 212, 0.05); border-color: rgba(0, 188, 212, 0.2); }
                 .clear { color: #FF5252; background: rgba(255, 82, 82, 0.05); border-color: rgba(255, 82, 82, 0.2); }
-                .eq { background: rgba(0,255,0,0.15); color: #00ff00; border-color: rgba(0,255,0,0.4); box-shadow: 0 0 10px rgba(0,255,0,0.2); }
+                .eq { background: rgba(255,255,255,0.1); color: #ffffff; border-color: rgba(255,255,255,0.3); box-shadow: 0 0 10px rgba(255,255,255,0.1); }
             </style>
             </head>
             <body>
@@ -1710,7 +1716,7 @@ else:
                 for b in bildirimler:
                     tarih_str = b[2].strftime("%d.%m.%Y %H:%M")
                     st.markdown(f"""
-                    <div style='border-left: 3px solid #00ff00; background: rgba(0,255,0,0.05); padding: 12px; margin-bottom: 12px; border-radius: 0 5px 5px 0;'>
+                    <div style='border-left: 3px solid #ffffff; background: rgba(255,255,255,0.05); padding: 12px; margin-bottom: 12px; border-radius: 0 5px 5px 0;'>
                         <div style='font-size: 0.8em; color: gray; margin-bottom: 2px;'>{tarih_str}</div>
                         <div style='font-weight: bold; color: white; margin-bottom: 4px;'>{b[0]}</div>
                         <div style='font-size: 0.95em; color: #d0d0d0; line-height: 1.4;'>{b[1]}</div>
@@ -1732,7 +1738,7 @@ else:
     finally: release_db(conn)
 
     logo_b64, logo_mime = "", "png"
-    for img_file in ["logo.png", "logo.jpg", "logo.ico"]:
+    for img_file in ["ic_logo.png"]:
         if os.path.exists(img_file):
             try:
                 with open(img_file, "rb") as f:
@@ -1750,11 +1756,11 @@ else:
     # Bildirim varsa Konuşma Balonunu (Speech Bubble) ekrana basıyoruz
     if okunmamis > 0 and son_mesaj:
         bubble_html = f"""
-        <div id="asistan-bubble" style="position: fixed; bottom: 45px; right: 110px; width: 300px; background: rgba(12,12,12,0.95); border: 1px solid rgba(0,255,0,0.3); border-radius: 8px; padding: 15px; box-shadow: 0 5px 15px rgba(0,255,0,0.1); z-index: 99998; animation: slide-in 0.3s ease-out; transition: opacity 0.5s ease;">
+        <div id="asistan-bubble" style="position: fixed; bottom: 45px; right: 110px; width: 300px; background: rgba(12,12,12,0.95); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 15px; box-shadow: 0 5px 15px rgba(255,255,255,0.05); z-index: 99998; animation: slide-in 0.3s ease-out; transition: opacity 0.5s ease;">
             <div id="asistan-close-btn" style="position: absolute; top: 5px; right: 12px; color: #888; font-size: 18px; font-weight: bold; cursor: pointer; transition: color 0.3s ease;">×</div>
-            <div style="color: #00ff00; font-size: 0.75em; font-weight: bold; letter-spacing: 1px; margin-bottom: 8px; border-bottom: 1px solid rgba(0,255,0,0.1); padding-bottom: 4px; padding-right: 15px;">SİSTEM BİLDİRİMİ ({okunmamis})</div>
+            <div style="color: #ffffff; font-size: 0.75em; font-weight: bold; letter-spacing: 1px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px; padding-right: 15px;">SİSTEM BİLDİRİMİ ({okunmamis})</div>
             <div style="color: #e0e0e0; font-size: 0.9em; line-height: 1.4; font-family: 'system-ui', sans-serif;">{son_mesaj}</div>
-            <div style="position: absolute; right: -6px; bottom: 15px; width: 10px; height: 10px; background: rgba(12,12,12,0.95); border-right: 1px solid rgba(0,255,0,0.3); border-bottom: 1px solid rgba(0,255,0,0.3); transform: rotate(-45deg);"></div>
+            <div style="position: absolute; right: -6px; bottom: 15px; width: 10px; height: 10px; background: rgba(12,12,12,0.95); border-right: 1px solid rgba(255,255,255,0.2); border-bottom: 1px solid rgba(255,255,255,0.2); transform: rotate(-45deg);"></div>
         </div>
         """
         st.markdown(bubble_html, unsafe_allow_html=True)
@@ -1769,8 +1775,8 @@ else:
                 const closeBtn = doc.getElementById('asistan-close-btn');
                 
                 if (bubble && closeBtn) {
-                    // Çarpının üzerine gelince neon yeşil yap
-                    closeBtn.onmouseover = () => { closeBtn.style.color = '#00ff00'; };
+                    // Çarpının üzerine gelince beyaz yap
+                    closeBtn.onmouseover = () => { closeBtn.style.color = '#ffffff'; };
                     closeBtn.onmouseout = () => { closeBtn.style.color = '#888'; };
                     
                     // Çarpıya tıklanınca anında kapat
@@ -2013,31 +2019,31 @@ else:
             st.markdown("##### Nakit Bakiye ve Alım Gücü")
             
             is_ghost = st.session_state.get('hayalet_modu', False)
-            # --- 1. NAKİT BAKİYE KARTLARI (EMOJİSİZ SİBER TASARIM) ---
+            # --- 1. NAKİT BAKİYE KARTLARI (BEYAZ SİBER TASARIM VE YENİ İKONLAR) ---
             nakit_kartlari = [
                 {"isim": "TL Alım Gücü" if net_takas_tl > 0 else "TL Kasası", "alt": "Türk Lirası", 
-                 "deger": H_MASK if is_ghost else f"{alim_gucu_tl:,.2f} TL", "renk": "#4CAF50", 
-                 "detay": (H_MASK if is_ghost else f"Nakit: {nakit_tl:,.2f} | Net Takas: {net_takas_tl:,.2f}") if net_takas_tl > 0 else "Kullanılabilir Nakit", "ikon": "TL"},
+                 "deger": H_MASK if is_ghost else f"{alim_gucu_tl:,.2f} TL", "renk": "#e2e8f0", 
+                 "detay": (H_MASK if is_ghost else f"Nakit: {nakit_tl:,.2f} | Net Takas: {net_takas_tl:,.2f}") if net_takas_tl > 0 else "Kullanılabilir Nakit", "ikon": "TL", "sembol": "₺"},
                 {"isim": "USD Kasası", "alt": "Amerikan Doları", 
-                 "deger": H_MASK if is_ghost else f"{nakit_usd:,.2f} $", "renk": "#4CAF50", 
-                 "detay": f"Anlık Kur: {anlik_dolar:.2f} TL", "ikon": "USD"},
+                 "deger": H_MASK if is_ghost else f"{nakit_usd:,.2f} $", "renk": "#e2e8f0", 
+                 "detay": f"Anlık Kur: {anlik_dolar:.2f} TL", "ikon": "USD", "sembol": "$"},
                 {"isim": "Toplam TL Karşılığı", "alt": "Tüm Varlıklar", 
-                 "deger": H_MASK if is_ghost else f"{toplam_nakit_tl:,.2f} TL", "renk": "#00ff00", 
-                 "detay": "T+2 ve Döviz Dahil", "ikon": "TOPLAM"}
+                 "deger": H_MASK if is_ghost else f"{toplam_nakit_tl:,.2f} TL", "renk": "#e2e8f0", 
+                 "detay": "T+2 ve Döviz Dahil", "ikon": "TOPLAM", "sembol": "+"}
             ]
             
             cols_n = st.columns(3)
             for idx, kart in enumerate(nakit_kartlari):
                 with cols_n[idx]:
-                    bas_harf = kart['ikon'][0]
-                    img_html = f"<div style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(0,255,0,0.4); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #00ff00; background: rgba(0,255,0,0.05); font-size: 16px;'>{bas_harf}</div>"
+                    sembol = kart['sembol']
+                    img_html = f"<div style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(226,232,240,0.6); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #e2e8f0; background: transparent; font-size: 18px;'>{sembol}</div>"
                     
                     for ext in ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG']:
                         p = f"Banka Logoları/{kart['ikon']}{ext}"
                         if os.path.exists(p):
                             with open(p, "rb") as f:
                                 b64 = base64.b64encode(f.read()).decode()
-                                img_html = f"<img src='data:image/png;base64,{b64}' style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(0,255,0,0.4); padding: 3px; object-fit: contain; background: #ffffff;'>"
+                                img_html = f"<img src='data:image/png;base64,{b64}' style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(226,232,240,0.6); padding: 3px; object-fit: contain; background: transparent;'>"
                             break
                             
                     kart_html = f"""
@@ -2389,8 +2395,7 @@ else:
                             df_dagilim = pd.DataFrame(dagilim_data)
                             
                             # Sadece Bizim Neon Yeşilimiz ve Diğer Yeşil Tonları
-                            siber_renkler = ['#00ff00', '#00cc00', '#009900', '#006600', '#4d4d4d', '#808080', '#cccccc']
-                            
+                            siber_renkler = ['#4d88ff', '#1a8cff', '#0073f0', '#005fcb', '#004da6', '#003b80', '#002b5e', '#001b3b', '#001024', '#000812', '#80b3ff', '#b3d9ff', '#e6f2ff', '#3366cc', '#193366', '#4d4d4d', '#808080', '#cccccc']
                             # hole=0.75 ile daha şık, ince bir siber-halka (donut) yapısına dönüştü
                             fig = px.pie(df_dagilim, values='Değer', names='Varlık', hole=0.75, color_discrete_sequence=siber_renkler)
                             fig.update_traces(
@@ -2425,9 +2430,9 @@ else:
         <div style='font-size: 0.85em; color: gray; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;'>Toplam Maliyet (Yatırılan)</div>
         <div style='font-size: 1.6em; font-weight: bold; color: white; font-family: Consolas, monospace;'>{genel_maliyet_toplami:,.2f} TL</div>
     </div>
-    <div style='border: 1px solid rgba(0,255,0,0.15); border-left: 4px solid #00ff00; border-radius: 8px; padding: 15px; background: rgba(0,255,0,0.02); box-shadow: 0 4px 6px rgba(0,0,0,0.2);'>
+    <div style='border: 1px solid rgba(79,195,247,0.2); border-left: 4px solid #4fc3f7; border-radius: 8px; padding: 15px; background: rgba(79,195,247,0.03); box-shadow: 0 4px 6px rgba(0,0,0,0.2);'>
         <div style='font-size: 0.85em; color: gray; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;'>Güncel Portföy Büyüklüğü</div>
-        <div style='font-size: 1.8em; font-weight: bold; color: #00ff00; font-family: Consolas, monospace;'>{genel_guncel_toplam:,.2f} TL</div>
+        <div style='font-size: 1.8em; font-weight: bold; color: #4fc3f7; font-family: Consolas, monospace;'>{genel_guncel_toplam:,.2f} TL</div>
     </div>
     <div style='border: 1px solid rgba(255,255,255,0.05); border-left: 4px solid {renk_ana}; border-radius: 8px; padding: 15px; background: rgba(10,10,10,0.6); box-shadow: 0 4px 6px rgba(0,0,0,0.2);'>
         <div style='font-size: 0.85em; color: gray; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;'>Net Kâr / Zarar Durumu</div>
@@ -2439,9 +2444,89 @@ else:
 </div>
 """
                     st.markdown(ozet_html, unsafe_allow_html=True)
+# ==========================================================
+            # KAPANAN POZİSYONLAR (REALİZE EDİLMİŞ İŞLEMLER)
+            # ==========================================================
+            st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 15px; margin-bottom: 15px;'>", unsafe_allow_html=True)
+            st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #e2e8f0; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(226, 232, 240, 0.5);'></div><div style='color: white; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>REALİZE EDİLEN İŞLEMLER</div></div>", unsafe_allow_html=True)
+            
+            conn = get_db()
+            try:
+                sorgu_kapanan = """
+                SELECT 
+                    p.varlik_adi, 
+                    p.borsa,
+                    SUM(CASE WHEN p.lot > 0 THEN p.lot * p.maliyet ELSE 0 END) as toplam_maliyet,
+                    SUM(CASE WHEN p.lot < 0 THEN ABS(p.lot) * p.maliyet ELSE 0 END) as toplam_gelir,
+                    SUM(CASE WHEN p.lot > 0 THEN p.lot * p.maliyet ELSE 0 END) / NULLIF(SUM(CASE WHEN p.lot > 0 THEN p.lot ELSE 0 END), 0) as ort_alis,
+                    SUM(CASE WHEN p.lot < 0 THEN ABS(p.lot) * p.maliyet ELSE 0 END) / NULLIF(SUM(CASE WHEN p.lot < 0 THEN ABS(p.lot) ELSE 0 END), 0) as ort_satis,
+                    (SELECT MAX(tarih) FROM islem_gecmisi ig WHERE ig.kullanici_adi = p.kullanici_adi AND ig.detay LIKE CONCAT('%%', p.varlik_adi, '%%') AND ig.islem_tipi LIKE '%%SATIM%%') as son_islem_tarihi
+                FROM portfoy p
+                WHERE p.kullanici_adi = %s 
+                GROUP BY p.varlik_adi, p.borsa, p.kullanici_adi
+                HAVING ABS(SUM(p.lot)) <= 0.0001 AND COUNT(p.lot) > 1
+                ORDER BY son_islem_tarihi DESC NULLS LAST
+                """
+                df_kapanan_gorsel = pd.read_sql_query(sorgu_kapanan, conn, params=(k_adi,))
+            finally:
+                release_db(conn)
 
-            # --- 4. AKILLI KÂR/ZARAR OPTİMİZASYON MOTORU ---
-            st.markdown("---")
+            if not df_kapanan_gorsel.empty:
+                # Tarihleri gün.ay.yıl formatına çevirip yeni bir sütuna ekliyoruz
+                df_kapanan_gorsel['tarih_str'] = pd.to_datetime(df_kapanan_gorsel['son_islem_tarihi']).dt.strftime('%d.%m.%Y').fillna("Bilinmiyor")
+                
+                # Sadece var olan günleri (sayfaları) listeye alıyoruz
+                benzersiz_tarihler = df_kapanan_gorsel['tarih_str'].unique()
+                
+                # Araya küçük bir tarih seçici (Sayfalama) ekliyoruz
+                st.markdown("<div style='font-size: 0.85em; color: gray; margin-bottom: 5px;'>İşlem Tarihine Göre Sayfala:</div>", unsafe_allow_html=True)
+                secilen_tarih = st.selectbox("Tarih Seç", benzersiz_tarihler, label_visibility="collapsed", key="kapanan_tarih_sayfalama")
+                
+                # SADECE SEÇİLEN TARİHTEKİ (Sayfadaki) İŞLEMLERİ EKRANA BASIYORUZ
+                df_filtrelenmis = df_kapanan_gorsel[df_kapanan_gorsel['tarih_str'] == secilen_tarih]
+                
+                for idx, r in df_filtrelenmis.iterrows():
+                    v_adi = r['varlik_adi']
+                    v_borsa = r['borsa']
+                    t_maliyet = r['toplam_maliyet']
+                    t_gelir = r['toplam_gelir']
+                    ort_alis = r['ort_alis'] if pd.notnull(r['ort_alis']) else 0.0
+                    ort_satis = r['ort_satis'] if pd.notnull(r['ort_satis']) else 0.0
+                    tarih_str = r['tarih_str']
+                    
+                    net_kar = t_gelir - t_maliyet
+                    kar_orani = (net_kar / t_maliyet) * 100 if t_maliyet > 0 else 0
+                    
+                    # Kâr rengini şık bir yeşile (#00e676), Zarar rengini kırmızıya çevirdik
+                    renk = "#00e676" if net_kar >= 0 else "#FF5252"
+                    r_rgb = "0,230,118" if net_kar >= 0 else "255,82,82"
+                    
+                    isaret = "+" if net_kar >= 0 else ""
+                    kz_metin = "KAZANÇ" if net_kar >= 0 else "ZARAR"
+                    pb = "$" if v_borsa in ["NASDAQ", "S&P 500", "KRİPTO", "EMTİA", "ETF"] else "₺"
+                    
+                    bas_harf = v_adi[0].upper()
+                    
+                    kart_html = (
+                        f"<div style='background: rgba(10,10,10,0.6); border: 1px solid rgba(255,255,255,0.05); border-left: 3px solid {renk}; border-radius: 6px; padding: 12px 15px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; transition: background 0.3s ease;'>"
+                        f"<div style='display: flex; align-items: center; width: 35%;'>"
+                        f"<div style='min-width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #e2e8f0; font-size: 15px;'>{bas_harf}</div>"
+                        f"<div style='margin-left: 15px; line-height: 1.4;'>"
+                        f"<div style='font-size: 1.05em; font-weight: bold; color: white; letter-spacing: 0.5px;'>{v_adi} <span style='font-size: 0.7em; color: gray; font-weight: normal; padding-left: 5px;'>{v_borsa}</span></div>"
+                        f"<div style='font-size: 0.8em; color: #888; font-family: Consolas;'>Kapanış: {tarih_str}</div>"
+                        f"</div></div>"
+                        f"<div style='width: 35%; display: flex; justify-content: space-around; border-left: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); padding: 0 15px;'>"
+                        f"<div style='text-align: center;'><div style='font-size: 0.7em; color: gray; text-transform: uppercase;'>Ort. Maliyet</div><div style='font-size: 0.95em; color: #e2e8f0; font-family: Consolas;'>{ort_alis:,.4f} {pb}</div></div>"
+                        f"<div style='text-align: center;'><div style='font-size: 0.7em; color: gray; text-transform: uppercase;'>Satış Fiyatı</div><div style='font-size: 0.95em; color: #e2e8f0; font-family: Consolas;'>{ort_satis:,.4f} {pb}</div></div>"
+                        f"</div>"
+                        f"<div style='width: 30%; text-align: right; line-height: 1.4;'>"
+                        f"<div style='font-size: 0.75em; color: gray; text-transform: uppercase;'>Net {kz_metin}</div>"
+                        f"<div style='font-size: 1.1em; font-weight: bold; color: {renk}; font-family: Consolas;'>{isaret}{net_kar:,.2f} {pb} <span style='font-size: 0.8em; background: rgba({r_rgb},0.1); padding: 2px 6px; border-radius: 4px; margin-left: 5px;'>{isaret}%{kar_orani:.2f}</span></div>"
+                        f"</div></div>"
+                    )
+                    st.markdown(kart_html, unsafe_allow_html=True)
+            else:
+                st.info("Kapanmış bir pozisyon bulunmuyor.")
             # --- 4. AKILLI KÂR/ZARAR OPTİMİZASYON MOTORU ---
             st.markdown("---")
             with st.expander(" Kâr-Zarar Optimizasyonu"):
@@ -2492,7 +2577,7 @@ else:
             # 1. SOL BLOK: BORSA VE FON İŞLEMLERİ
             # ==========================================
             with c_borsa:
-                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff00;'></div><div style='color: #00ff00; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>BORSA VE FON İŞLEMLERİ</div></div>", unsafe_allow_html=True)
+                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #e2e8f0; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(226, 232, 240, 0.5);'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>BORSA VE FON İŞLEMLERİ</div></div>", unsafe_allow_html=True)
                 with st.container(border=True):
                     st.markdown("<span style='color: gray; font-size: 0.85em;'>İşlem Yönü:</span>", unsafe_allow_html=True)
                     tip = st.radio("İşlem Yönü (Borsa):", ["ALIM", "SATIM"], horizontal=True, label_visibility="collapsed")
@@ -2695,7 +2780,7 @@ else:
             # 2. SAĞ BLOK: KIYMETLİ MADEN İŞLEMLERİ
             # ==========================================
             with c_maden:
-                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #FFD700; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #FFD700;'></div><div style='color: #FFD700; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>KIYMETLİ MADEN İŞLEMLERİ</div></div>", unsafe_allow_html=True)
+                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #e2e8f0; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(226, 232, 240, 0.5);'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>KIYMETLİ MADEN İŞLEMLERİ</div></div>", unsafe_allow_html=True)
                 with st.container(border=True):
                     st.markdown("<span style='color: gray; font-size: 0.85em;'>İşlem Yönü:</span>", unsafe_allow_html=True)
                     e_islem_tipi = st.radio("İşlem Yönü (Maden):", ["ALIM", "SATIM"], horizontal=True, key="emtia_islem_tipi", label_visibility="collapsed")
@@ -2788,7 +2873,7 @@ else:
             doviz_islem_modulu(k_adi, "portfoy_tab2")   
 
         with tab3: 
-            st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff00;'></div><div style='color: #00ff00; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>TRANSFER İŞLEMLERİ</div></div>", unsafe_allow_html=True)
+            st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #e2e8f0; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(226, 232, 240, 0.5);'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>TRANSFER İŞLEMLERİ</div></div>", unsafe_allow_html=True)
             
             conn = get_db()
             try:
@@ -2879,7 +2964,7 @@ else:
                         finally: release_db(conn)
             
         with tab4: 
-            st.markdown("<div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;'><div style='display: flex; align-items: center;'><div style='width: 10px; height: 10px; background: #ffb300; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #ffb300;'></div><div style='color: #ffb300; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>PORTFÖY İŞLEM LOGLARI</div></div></div>", unsafe_allow_html=True)
+            st.markdown("<div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;'><div style='display: flex; align-items: center;'><div style='width: 10px; height: 10px; background: #e2e8f0; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(226, 232, 240, 0.5);'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>PORTFÖY İŞLEM LOGLARI</div></div></div>", unsafe_allow_html=True)
             
             zaman_filtresi_yat = st.selectbox("Zaman Aralığı:", ["Bugün", "Son 24 Saat", "Son 7 Gün", "Son 15 Gün", "Son 1 Ay", "Tümü"], index=2)
             st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 5px; margin-bottom: 15px;'>", unsafe_allow_html=True)
@@ -3080,7 +3165,7 @@ else:
                         # Kartın altındaki ufak yazı (Borç veya Nakit durumu)
                         alt_yazi = "Nakit Kasa"
                         alt_renk = "gray"
-                        bakiye_renk = "#4CAF50" # Neon Yeşil
+                        bakiye_renk = "#e2e8f0" # Soft Beyaz
                         
                         if item['tur'] == "Kart":
                             gosterilen_borc = H_MASK if is_ghost else f"{item['borc']:,.2f}"
@@ -3130,8 +3215,10 @@ else:
                 
                 tum_kategoriler = sorted(list(set(["Yemek", "Market", "Sigara", "Yurt Gideri", "Atıştırmalık", "Zaruri İhtiyaç", "Kişisel Bakım", "Telefon Faturası", "Ulaşım", "Eğitim", "Giyim", "Kahve", "Diğer"] + oz_kat)))
 
+                
+
                 # --- HARCAMA TERMİNALİ TASARIMI ---
-                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff00;'></div><div style='color: #00ff00; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>HARCAMA İŞLEME TERMİNALİ</div></div>", unsafe_allow_html=True)
+                st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #e2e8f0; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(226, 232, 240, 0.5);'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>HARCAMA İŞLEME TERMİNALİ</div></div>", unsafe_allow_html=True)
 
                 with st.container(border=True):
                     st.markdown("<div style='background: rgba(255, 82, 82, 0.05); padding: 10px 15px; border-radius: 6px; border: 1px solid rgba(255, 82, 82, 0.2); margin-bottom: 20px; font-size: 0.85em; color: #e0e0e0;'>Günlük harcamalarınızı ve kart işlemlerinizi buradan sisteme kaydedin. Çıkışlar doğrudan seçtiğiniz kaynaktan düşülecektir.</div>", unsafe_allow_html=True)
@@ -3151,7 +3238,87 @@ else:
                     h_taksit = 1
                     h_faiz = 0.0
                     islem_tarihi_str = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    # =====================================================================
+                    # HARCAMA RADARI (YENİ VE GÜNCEL: ANA KART + ÖZEL LİMİT + MİLİMETRİK HESAP)
+                    # =====================================================================
+                    st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin: 15px 0;'>", unsafe_allow_html=True)
                     
+                    conn = get_db()
+                    try:
+                        c = conn.cursor()
+                        c.execute("SELECT ana_harcama_karti, ozel_harcama_limiti FROM kullanicilar WHERE kullanici_adi = %s", (k_adi,))
+                        user_prefs = c.fetchone()
+                        ana_kart_isim = user_prefs[0] if user_prefs and user_prefs[0] else ""
+                        ozel_limit = user_prefs[1] if user_prefs and user_prefs[1] else 0.0
+
+                        # Ana kart kişisel limitini çek (Banka limiti değil, belirlediğimiz Bütçe Sınırı)
+                        ana_kart_limiti = 10000.0 
+                        if ana_kart_isim:
+                            c.execute("SELECT kisisel_limit, limit_tutari FROM kredi_kartlari WHERE kullanici_adi = %s AND kart_adi = %s", (k_adi, ana_kart_isim))
+                            kart_limit_res = c.fetchone()
+                            if kart_limit_res:
+                                ana_kart_limiti = kart_limit_res[0] if kart_limit_res[0] > 0 else kart_limit_res[1]
+
+                        aktif_limit = ozel_limit if ozel_limit > 0 else ana_kart_limiti
+
+                        # Analiz sekmesiyle milimi milimine AYNI "Bu Ay" Toplam Harcama hesabı
+                        df_h_aylik = pd.read_sql_query("SELECT tutar, tarih FROM harcamalar WHERE kullanici_adi = %s", conn, params=(k_adi,))
+                    finally:
+                        release_db(conn)
+
+                    bu_ayki_toplam_harcama = 0.0
+                    if not df_h_aylik.empty:
+                        df_h_aylik['GercekTarih'] = pd.to_datetime(df_h_aylik['tarih'])
+                        bugun_gauge = pd.Timestamp.today()
+                        bas_tarih_gauge = bugun_gauge.replace(day=1) # Ayın 1'inden bugüne
+                        bu_ayki_toplam_harcama = df_h_aylik[df_h_aylik['GercekTarih'] >= bas_tarih_gauge]['tutar'].sum()
+
+                    # --- Kutu İçinde Grafik ve Alt Köşede Özel Limit ---
+                    with st.container(border=True):
+                        st.markdown("<span style='color: gray; font-size: 0.85em; text-transform: uppercase;'>Aylık Harcama Radarı (Tüm Kaynaklar)</span>", unsafe_allow_html=True)
+                        
+                        fig_genel_butce = go.Figure(go.Indicator(
+                            mode = "gauge+number",
+                            value = bu_ayki_toplam_harcama,
+                            domain = {'x': [0, 1], 'y': [0, 1]},
+                            number = {'valueformat': ",.2f", 'suffix': " ₺", 'font': {'size': 26, 'color': '#e2e8f0'}},
+                            gauge = {
+                                'axis': {'range': [None, aktif_limit], 'tickwidth': 1, 'tickcolor': "rgba(226,232,240,0.2)"},
+                                'bar': {'color': "#4fc3f7"}, 
+                                'bgcolor': "rgba(79,195,247,0.05)",
+                                'borderwidth': 0,
+                                'steps': [
+                                    {'range': [0, aktif_limit * 0.8], 'color': "rgba(79, 195, 247, 0.1)"},
+                                    {'range': [aktif_limit * 0.8, aktif_limit], 'color': "rgba(255, 82, 82, 0.15)"} 
+                                ],
+                                'threshold': {
+                                    'line': {'color': "#FF5252", 'width': 3},
+                                    'thickness': 0.75,
+                                    'value': aktif_limit
+                                }
+                            }
+                        ))
+                        # Yükseklik kısıldı, boşluklar daraltıldı (Kafası kesilmez)
+                        fig_genel_butce.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font={'family': "Consolas"}, height=180, margin=dict(l=10, r=10, t=10, b=0))
+                        st.plotly_chart(fig_genel_butce, use_container_width=True, config={'displayModeBar': False})
+                        
+                        # Kalan bütçe (Sol alt) ve Özel Limit Expander (Sağ alt)
+                        c_bilgi, c_ayar = st.columns([2.5, 1.5])
+                        
+                        with c_bilgi:
+                            kalan_b = aktif_limit - bu_ayki_toplam_harcama
+                            k_renk = "#FF5252" if kalan_b < 0 else "#e2e8f0"
+                            lbl = "Özel Limit Devrede" if ozel_limit > 0 else (f"Ana Kart ({ana_kart_isim})" if ana_kart_isim else "Varsayılan Limit")
+                            st.markdown(f"<div style='margin-top: 15px; color: gray; font-size: 0.85em;'>Baz Alınan: {lbl}<br>Kalan Bütçe: <b style='color: {k_renk}; font-size: 1.1em;'>{kalan_b:,.2f} ₺</b></div>", unsafe_allow_html=True)
+                            
+                        with c_ayar:
+                            with st.expander("Özel Limit", expanded=False):
+                                yeni_ozel = st.number_input("Limit (TL)", value=float(ozel_limit), step=1000.0, label_visibility="collapsed")
+                                if st.button("Uygula", type="primary", use_container_width=True):
+                                    conn = get_db(); c = conn.cursor()
+                                    c.execute("UPDATE kullanicilar SET ozel_harcama_limiti = %s WHERE kullanici_adi = %s", (yeni_ozel, k_adi))
+                                    conn.commit(); release_db(conn); st.rerun()
+                    # =====================================================================
                     if "Kart:" in h_kaynak:
                         st.markdown("<hr style='margin: 15px 0px 5px 0px; border-color: rgba(255,255,255,0.05);'>", unsafe_allow_html=True)
                         
@@ -3298,10 +3465,10 @@ else:
                     with c_grafik:
                         # Yükseklik tam 420px olarak betonlandı
                         with st.container(border=True, height=420):
-                            st.markdown("<span style='color: #00ff00; font-weight: bold;'>Kategori Dağılımı</span>", unsafe_allow_html=True)
+                            st.markdown("<span style='color: #e2e8f0; font-weight: bold;'>Kategori Dağılımı</span>", unsafe_allow_html=True)
                             df_grup = df_filtreli.groupby('kategori')['tutar'].sum().reset_index()
                             
-                            siber_renkler = ['#00ff00', '#00cc00', '#009900', '#4d4d4d', '#262626', '#808080', '#006600', '#1a1a1a']
+                            siber_renkler = ['#4d88ff', '#1a8cff', '#0073f0', '#005fcb', '#004da6', '#003b80', '#002b5e', '#001b3b', '#001024', '#000812', '#80b3ff', '#b3d9ff', '#e6f2ff', '#3366cc', '#193366', '#4d4d4d', '#808080', '#cccccc']
                             
                             fig = px.pie(df_grup, values='tutar', names='kategori', hole=0.6, color_discrete_sequence=siber_renkler)
                             fig.update_traces(
@@ -3324,7 +3491,7 @@ else:
                     with c_liste:
                         # Kaybolan liste geri geldi ve yüksekliği 420px olarak betonlandı
                         with st.container(border=True, height=420):
-                            st.markdown("<span style='color: #00ff00; font-weight: bold;'>İşlem Dökümü</span>", unsafe_allow_html=True)
+                            st.markdown("<span style='color: #e2e8f0; font-weight: bold;'>İşlem Dökümü</span>", unsafe_allow_html=True)
                             for _, r in df_filtreli.iterrows():
                                 with st.container(border=True):
                                     c_d1, c_d2 = st.columns([3, 2])
@@ -3395,7 +3562,7 @@ else:
                 with c_trend:
                     # YÜKSEKLİK SABİTLENDİ (height=400)
                     with st.container(border=True, height=400):
-                        st.markdown("<span style='color: #00ff00; font-weight: bold;'>Trend Grafiği</span>", unsafe_allow_html=True)
+                        st.markdown("<span style='color: #e2e8f0; font-weight: bold;'>Trend Grafiği</span>", unsafe_allow_html=True)
                         if not df_t.empty:
                             df_grup = df_t.groupby('GosterimTarihi', sort=False)['tutar'].sum().reset_index()
 
@@ -3403,9 +3570,9 @@ else:
                             fig_bar.update_traces(
                                 texttemplate='%{text:,.0f} ₺',
                                 textposition='outside',
-                                textfont=dict(color='#00ff00', size=11),
-                                marker_color='rgba(0, 255, 0, 0.10)',
-                                marker_line_color='#00ff00',
+                                textfont=dict(color='#4fc3f7', size=11),
+                                marker_color='rgba(79, 195, 247, 0.10)',
+                                marker_line_color='#4fc3f7',
                                 marker_line_width=1.5,
                                 width=0.35,
                                 hoverinfo="x+y"
@@ -3431,7 +3598,7 @@ else:
                 with c_yan:
                     # YÜKSEKLİK SABİTLENDİ (height=400) -> Eşit nizami duruş
                     with st.container(border=True, height=400):
-                        st.markdown("<span style='color: #00ff00; font-weight: bold;'>Gün / Dönem Analizi</span>", unsafe_allow_html=True)
+                        st.markdown("<span style='color: #e2e8f0; font-weight: bold;'>Gün / Dönem Analizi</span>", unsafe_allow_html=True)
                         if not df_t.empty:
                             secenekler = df_grup[df_grup['tutar'] > 0]['GosterimTarihi'].tolist()
                             if not secenekler: secenekler = ["Veri Yok"]
@@ -3447,7 +3614,7 @@ else:
                                     cat_g = cat_g.sort_values(by='tutar', ascending=False)
                                     for _, r in cat_g.iterrows():
                                         st.markdown(f"<div style='display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 4px 0;'><span style='color: gray; font-size: 0.9em;'>{r['kategori']}</span> <b style='color: #FF5252; font-size: 0.9em;'>{r['tutar']:,.2f} ₺</b></div>", unsafe_allow_html=True)
-                                    st.markdown(f"<div style='text-align: right; margin-top: 10px; font-weight: bold;'>Toplam: <span style='color: #00ff00;'>{df_sec['tutar'].sum():,.2f} ₺</span></div>", unsafe_allow_html=True)
+                                    st.markdown(f"<div style='text-align: right; margin-top: 10px; font-weight: bold;'>Toplam: <span style='color: #e2e8f0;'>{df_sec['tutar'].sum():,.2f} ₺</span></div>", unsafe_allow_html=True)
                                 else:
                                     st.caption("Bu tarihte işlem yok.")
                         else:
@@ -3520,36 +3687,25 @@ else:
 
                     # Logoyu HTML olarak hazırla
                     bas_harf = b_adi[0].upper()
-                    img_html = f"<div style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(0,255,0,0.4); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #00ff00; background: rgba(0,255,0,0.05); font-size: 16px;'>{bas_harf}</div>"
+                    img_html = f"<div style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(226,232,240,0.6); display: flex; align-items: center; justify-content: center; font-weight: bold; color: #e2e8f0; background: transparent; font-size: 16px;'>{bas_harf}</div>"
                     
                     for ext in ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG']:
                         p = f"Banka Logoları/{b_adi}{ext}"
                         if os.path.exists(p):
                             with open(p, "rb") as f: b64 = base64.b64encode(f.read()).decode()
-                            img_html = f"<img src='data:image/png;base64,{b64}' style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(0,255,0,0.4); padding: 3px; object-fit: contain; background: #ffffff;'>"
+                            img_html = f"<img src='data:image/png;base64,{b64}' style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(226,232,240,0.6); padding: 3px; object-fit: contain; background: #ffffff;'>"
                             break
                             
-                    border_color = "#00ff00" if is_active else "rgba(255,255,255,0.08)"
-                    bg_color = "rgba(0, 255, 0, 0.05)" if is_active else "rgba(10,10,10,0.5)"
-                    
-                    varlik_satir = f"<div style='font-size: 0.80em; color: #4CAF50; font-weight: bold; font-family: Consolas;'>Varlık: {gosterilen_varlik} ₺</div>" if kurum_varlik > 0 else "<div></div>"
-                    borc_satir = f"<div style='font-size: 0.80em; color: #FF5252; font-weight: bold; font-family: Consolas;'>Borç: -{gosterilen_borc} ₺</div>" if kurum_borc > 0 else "<div></div>"
-                    
-                    if kurum_varlik == 0 and kurum_borc == 0:
-                        varlik_satir = f"<div style='font-size: 0.80em; color: gray; font-weight: bold; font-family: Consolas;'>Bakiye Yok</div>"
+                    # --- SİBER TEMA BEYAZ VE BAKİYE GİZLEME ---
+                    border_color = "#e2e8f0" if is_active else "rgba(255,255,255,0.08)"
+                    bg_color = "rgba(226, 232, 240, 0.05)" if is_active else "rgba(10,10,10,0.5)"
                     
                     kart_html = f"""
-                    <div style='border: 1px solid {border_color}; border-radius: 10px; padding: 15px; background: {bg_color}; margin-bottom: -15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); height: 110px; display: flex; flex-direction: column; justify-content: space-between;'>
-                        <div style='display: flex; align-items: center;'>
-                            <div>{img_html}</div>
-                            <div style='margin-left: 12px; line-height: 1.2;'>
-                                <div style='font-size: 0.65em; color: gray; text-transform: uppercase; letter-spacing: 0.5px;'>KURUM</div>
-                                <div style='font-size: 0.9em; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; color: white;'>{b_adi}</div>
-                            </div>
-                        </div>
-                        <div style='display: flex; justify-content: space-between; align-items: flex-end;'>
-                            {varlik_satir}
-                            {borc_satir}
+                    <div style='border: 1px solid {border_color}; border-radius: 10px; padding: 15px; background: {bg_color}; margin-bottom: -15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); height: 75px; display: flex; align-items: center;'>
+                        <div>{img_html}</div>
+                        <div style='margin-left: 12px; line-height: 1.2;'>
+                            <div style='font-size: 0.65em; color: gray; text-transform: uppercase; letter-spacing: 0.5px;'>KURUM</div>
+                            <div style='font-size: 0.9em; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; color: white;'>{b_adi}</div>
                         </div>
                     </div>
                     """
@@ -3583,14 +3739,14 @@ else:
                         gosterilen_bakiye = H_MASK if is_ghost else f"{r['bakiye']:,.2f}"
                         
                         vd_html = f"""
-                        <div style='background: linear-gradient(135deg, rgba(20,20,20,0.9) 0%, rgba(5,5,5,0.95) 100%); border: 1px solid rgba(0,255,0,0.2); border-left: 4px solid #00ff00; border-radius: 8px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;'>
+                        <div style='background: linear-gradient(135deg, rgba(20,20,20,0.9) 0%, rgba(5,5,5,0.95) 100%); border: 1px solid rgba(226,232,240,0.2); border-left: 4px solid #e2e8f0; border-radius: 8px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;'>
                             <div>
                                 <div style='color: gray; font-size: 0.75em; letter-spacing: 1px; margin-bottom: 3px;'>VADESİZ TL HESABI</div>
                                 <div style='color: white; font-size: 1.15em; font-weight: bold; font-family: Consolas, monospace;'>{r['hesap_adi']}</div>
                             </div>
                             <div style='text-align: right;'>
                                 <div style='color: gray; font-size: 0.75em; letter-spacing: 1px; margin-bottom: 3px;'>KULLANILABİLİR BAKİYE</div>
-                                <div style='color: #00ff00; font-size: 1.4em; font-weight: bold; font-family: Consolas, monospace;'>{gosterilen_bakiye} ₺</div>
+                                <div style='color: #e2e8f0; font-size: 1.4em; font-weight: bold; font-family: Consolas, monospace;'>{gosterilen_bakiye} ₺</div>
                             </div>
                         </div>
                         """
@@ -3630,18 +3786,18 @@ else:
                             gosterilen_bakiye = H_MASK if is_ghost else f"{bakiye:,.2f}"
                             gosterilen_faiz = H_MASK if is_ghost else f"{son_yatan_net:,.2f}"
                             
-                            faiz_etiketi = f"<div style='color: #FFD700; font-size: 0.85em; font-weight: bold; margin-top: 4px;'>+ {gosterilen_faiz} ₺ Son Yatan Faiz</div>" if son_yatan_net > 0 else ""
+                            faiz_etiketi = f"<div style='color: #4fc3f7; font-size: 0.85em; font-weight: bold; margin-top: 4px;'>+ {gosterilen_faiz} ₺ Son Yatan Faiz</div>" if son_yatan_net > 0 else ""
 
                             vl_html = f"""
-                            <div style='background: linear-gradient(135deg, rgba(20,20,20,0.9) 0%, rgba(5,5,5,0.95) 100%); border: 1px solid rgba(255,215,0,0.2); border-left: 4px solid #FFD700; border-radius: 8px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;'>
+                            <div style='background: linear-gradient(135deg, rgba(20,20,20,0.9) 0%, rgba(5,5,5,0.95) 100%); border: 1px solid rgba(79,195,247,0.2); border-left: 4px solid #4fc3f7; border-radius: 8px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease;'>
                                 <div>
                                     <div style='color: gray; font-size: 0.75em; letter-spacing: 1px; margin-bottom: 3px;'>VADELİ MEVDUAT HESABI</div>
                                     <div style='color: white; font-size: 1.15em; font-weight: bold; font-family: Consolas, monospace;'>{r['hesap_adi']}</div>
-                                    <div style='color: #FFD700; font-size: 0.9em; margin-top: 4px; font-family: Consolas, monospace;'>Brüt Faiz: %{faiz}</div>
+                                    <div style='color: #4fc3f7; font-size: 0.9em; margin-top: 4px; font-family: Consolas, monospace;'>Brüt Faiz: %{faiz}</div>
                                 </div>
                                 <div style='text-align: right;'>
                                     <div style='color: gray; font-size: 0.75em; letter-spacing: 1px; margin-bottom: 3px;'>GÜNCEL BAKİYE</div>
-                                    <div style='color: #4CAF50; font-size: 1.4em; font-weight: bold; font-family: Consolas, monospace;'>{gosterilen_bakiye} ₺</div>
+                                    <div style='color: #4fc3f7; font-size: 1.4em; font-weight: bold; font-family: Consolas, monospace;'>{gosterilen_bakiye} ₺</div>
                                     {faiz_etiketi}
                                 </div>
                             </div>
@@ -3703,8 +3859,13 @@ else:
                     df_taksitler = pd.read_sql_query("SELECT kart_adi, aciklama, aylik_tutar, toplam_taksit, odenen_taksit FROM taksitli_islemler WHERE kullanici_adi = %s AND odenen_taksit < toplam_taksit", conn, params=(k_adi,))
                     df_harcamalar = pd.read_sql_query("SELECT id, tarih, kategori, aciklama, tutar, kaynak_hesap FROM harcamalar WHERE kullanici_adi = %s AND kaynak_hesap LIKE 'Kart:%%' ORDER BY tarih DESC", conn, params=(k_adi,))
                     df_gecmis_ekstreler = pd.read_sql_query("SELECT id, kart_adi, donem_adi, toplam_borc, kesim_tarihi, son_odeme_tarihi, durum FROM gecmis_ekstreler WHERE kullanici_adi = %s ORDER BY kesim_tarihi DESC", conn, params=(k_adi,))
+                    
+                    c = conn.cursor()
+                    c.execute("SELECT ana_harcama_karti FROM kullanicilar WHERE kullanici_adi = %s", (k_adi,))
+                    ana_k_res = c.fetchone()
+                    ana_k = ana_k_res[0] if ana_k_res else ""
                 except:
-                    df_taksitler, df_harcamalar, df_gecmis_ekstreler = pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+                    df_taksitler, df_harcamalar, df_gecmis_ekstreler, ana_k = pd.DataFrame(), pd.DataFrame(), pd.DataFrame(), ""
                 finally: release_db(conn)
 
                 if not df_bk.empty:
@@ -3775,115 +3936,101 @@ else:
                                             b64 = base64.b64encode(f.read()).decode()
                                             kart_logo = f"<img src='data:image/png;base64,{b64}' style='height: 25px; border-radius: 4px; background: white; padding: 2px;'>"
                                         break
+                                        
+                                # --- YENİ GECE MAVİSİ KART TASARIMI ---
+                                # HTML KIRILMASINI ENGELLEMEK İÇİN STRING BİRLEŞTİRME YÖNTEMİ
+                                ana_kart_badge = ""
+                                if ana_k == kart_adi:
+                                    ana_kart_badge = "<div style='color: #4fc3f7; font-size: 0.65em; font-weight: bold; border: 1px solid rgba(79,195,247,0.5); background: rgba(79, 195, 247, 0.1); padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 5px;'>★ ANA KART</div>"
                                 
-                                st.markdown(f"""
-                                <div style='background: linear-gradient(135deg, rgba(20,20,20,0.95) 0%, rgba(5,5,5,0.98) 100%); border: 1px solid rgba(0,255,0,0.3); border-radius: 12px; padding: 20px; box-shadow: 0 8px 16px rgba(0,0,0,0.5), inset 0 0 15px rgba(0,255,0,0.05); position: relative; height: 210px; display: flex; flex-direction: column; justify-content: space-between;'>
-                                    <div style='width: 35px; height: 25px; background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%); border-radius: 4px; position: absolute; top: 20px; left: 20px; box-shadow: inset 1px 1px 3px rgba(255,255,255,0.5);'></div>
-                                    <div style='text-align: right; position: absolute; top: 15px; right: 20px;'>{kart_logo}</div>
-                                    <div style='margin-top: 45px;'>
-                                        <div style='color: gray; font-size: 0.7em; letter-spacing: 2px;'>KART TANIMI</div>
-                                        <div style='color: white; font-size: 1.1em; font-weight: bold; letter-spacing: 1px; font-family: monospace;'>{kart_adi.upper()}</div>
-                                    </div>
-                                    <div style='display: flex; justify-content: space-between; align-items: flex-end;'>
-                                        <div>
-                                            <div style='color: gray; font-size: 0.6em; letter-spacing: 1px;'>KULLANICI</div>
-                                            <div style='color: #00ff00; font-size: 0.85em; font-weight: bold;'>{k_isim}</div>
-                                        </div>
-                                        <div style='text-align: right;'>
-                                            <div style='color: gray; font-size: 0.6em; letter-spacing: 1px;'>TOPLAM LİMİT</div>
-                                            <div style='color: white; font-size: 1.1em; font-weight: bold; font-family: monospace;'>{limit:,.0f} ₺</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                """, unsafe_allow_html=True)
+                                kalan_gun_renk = "#FF5252" if kalan_gun <= 3 else "#e2e8f0"
                                 
-                                # Tarihler şimdi tek satırda ve tam olarak yazacak
+                                kart_html = (
+                                    "<div style='background: linear-gradient(135deg, #001b3b 0%, #050505 100%); border: 1px solid rgba(255,255,255,0.3); border-radius: 12px; padding: 20px; box-shadow: 0 8px 16px rgba(0,0,0,0.5); position: relative; height: 210px; display: flex; flex-direction: column; justify-content: space-between;'>"
+                                    "<div style='width: 35px; height: 25px; background: linear-gradient(135deg, #FFD700 0%, #B8860B 100%); border-radius: 4px; position: absolute; top: 20px; left: 20px; box-shadow: inset 1px 1px 3px rgba(255,255,255,0.5);'></div>"
+                                    f"<div style='text-align: right; position: absolute; top: 15px; right: 20px;'>{kart_logo}</div>"
+                                    "<div style='margin-top: 35px;'>"
+                                    f"{ana_kart_badge}"
+                                    "<div style='color: #e2e8f0; font-size: 0.7em; letter-spacing: 2px;'>KART TANIMI</div>"
+                                    f"<div style='color: white; font-size: 1.1em; font-weight: bold; letter-spacing: 1px; font-family: monospace;'>{kart_adi.upper()}</div>"
+                                    "</div>"
+                                    "<div style='display: flex; justify-content: space-between; align-items: flex-end;'>"
+                                    "<div>"
+                                    "<div style='color: #e2e8f0; font-size: 0.6em; letter-spacing: 1px;'>KULLANICI</div>"
+                                    f"<div style='color: white; font-size: 0.85em; font-weight: bold;'>{k_isim}</div>"
+                                    "</div>"
+                                    "<div style='text-align: right;'>"
+                                    "<div style='color: #e2e8f0; font-size: 0.6em; letter-spacing: 1px;'>TOPLAM LİMİT</div>"
+                                    f"<div style='color: white; font-size: 1.1em; font-weight: bold; font-family: monospace;'>{limit:,.0f} ₺</div>"
+                                    "</div>"
+                                    "</div>"
+                                    "</div>"
+                                )
+                                st.markdown(kart_html, unsafe_allow_html=True)
+                                
+                                # Tarihler kısmı artık hatasız ve temiz
                                 st.markdown(f"""
                                 <div style='text-align: center; margin-top: 12px; font-size: 0.85em; color: gray;'>
                                     Dönem: <b style='color: white;'>{donem_yazisi}</b> | 
                                     Kesim: <b style='color: white;'>{gercek_kesim.strftime('%d.%m.%Y')}</b> 
-                                    (<b style='color: {'#FF5252' if kalan_gun <= 3 else '#00ff00'};'>{kalan_gun} Gün</b>) | 
+                                    (<b style='color: {kalan_gun_renk};'>{kalan_gun} Gün</b>) | 
                                     Ödeme: <b style='color: white;'>{gercek_odeme.strftime('%d.%m.%Y')}</b>
                                 </div>
                                 """, unsafe_allow_html=True)
 
                             with c_grafik:
                                 cg1, cg2 = st.columns(2)
+                                
                                 with cg1:
                                     oran1 = (borc / limit) * 100 if limit > 0 else 0
-                                    r1 = "#00ff00" if oran1 < 50 else ("#ffb300" if oran1 < 80 else "#FF5252")
+                                    
+                                    # SADECE DOLAN BARIN KENDİ RENGİ (Limite yaklaştıkça koyulaşır)
+                                    if oran1 < 33: bar_renk1 = "#81d4fa"      # Açık Mavi
+                                    elif oran1 < 66: bar_renk1 = "#0288d1"    # Orta Mavi
+                                    elif oran1 < 90: bar_renk1 = "#003b80"    # Koyu Mavi
+                                    else: bar_renk1 = "#001b3b"               # En Koyu (Gece Mavisi)
+                                    
                                     fig1 = go.Figure(go.Indicator(mode="gauge+number", value=borc, title={'text': "Banka Limiti", 'font': {'size': 13, 'color': 'gray'}},
                                         number={'valueformat': ",.0f", 'suffix': " ₺", 'font': {'size': 20, 'color': 'white'}},
-                                        gauge={'axis': {'range': [None, limit], 'tickcolor': "rgba(255,255,255,0.1)"}, 'bar': {'color': r1},
-                                        'bgcolor': "rgba(255,255,255,0.05)", 'borderwidth': 0,
-                                        'steps': [{'range': [0, limit*0.5], 'color': "rgba(0,255,0,0.05)"}, {'range': [limit*0.5, limit*0.8], 'color': "rgba(255,179,0,0.05)"}, {'range': [limit*0.8, limit], 'color': "rgba(255,82,82,0.05)"}]}))
+                                        gauge={'axis': {'range': [None, limit], 'tickcolor': "rgba(255,255,255,0.1)"}, 
+                                        'bar': {'color': bar_renk1}, # <-- İŞTE BURASI: Sadece dolan kısım renkleniyor
+                                        'bgcolor': "rgba(255,255,255,0.05)", 'borderwidth': 0})) # Arka plan sade
                                     
-                                    # Yükseklik ve tepe boşluğu artırıldı ki kafası kesilmesin
                                     fig1.update_layout(height=210, margin=dict(t=45, b=0, l=15, r=15), paper_bgcolor="rgba(0,0,0,0)", font=dict(family="Consolas"))
                                     st.plotly_chart(fig1, use_container_width=True, config={'displayModeBar': False})
-                                    st.markdown(f"<div style='text-align: center; color: gray; font-size: 0.85em; margin-top: -20px;'>Kalan: <b style='color: {r1};'>{(limit-borc):,.2f} ₺</b></div>", unsafe_allow_html=True)
+                                    st.markdown(f"<div style='text-align: center; color: gray; font-size: 0.85em; margin-top: -20px;'>Kalan: <b style='color: {bar_renk1};'>{(limit-borc):,.2f} ₺</b></div>", unsafe_allow_html=True)
                                 
                                 with cg2:
                                     oran2 = (borc / kisisel_limit) * 100 if kisisel_limit > 0 else 0
-                                    r2 = "#00bcd4" if oran2 < 75 else "#FF5252"
+                                    
+                                    # SADECE DOLAN BARIN KENDİ RENGİ
+                                    if oran2 < 33: bar_renk2 = "#81d4fa"
+                                    elif oran2 < 66: bar_renk2 = "#0288d1"
+                                    elif oran2 < 90: bar_renk2 = "#003b80"
+                                    else: bar_renk2 = "#001b3b"
+                                    
                                     fig2 = go.Figure(go.Indicator(mode="gauge+number", value=borc, title={'text': "Kişisel Bütçe Sınırı", 'font': {'size': 13, 'color': 'gray'}},
                                         number={'valueformat': ",.0f", 'suffix': " ₺", 'font': {'size': 20, 'color': 'white'}},
-                                        gauge={'axis': {'range': [None, kisisel_limit], 'tickcolor': "rgba(255,255,255,0.1)"}, 'bar': {'color': r2},
+                                        gauge={'axis': {'range': [None, kisisel_limit], 'tickcolor': "rgba(255,255,255,0.1)"}, 
+                                        'bar': {'color': bar_renk2},
                                         'bgcolor': "rgba(255,255,255,0.05)", 'borderwidth': 0}))
                                     
-                                    # Yükseklik ve tepe boşluğu artırıldı
                                     fig2.update_layout(height=210, margin=dict(t=45, b=0, l=15, r=15), paper_bgcolor="rgba(0,0,0,0)", font=dict(family="Consolas"))
                                     st.plotly_chart(fig2, use_container_width=True, config={'displayModeBar': False})
-                                    st.markdown(f"<div style='text-align: center; color: gray; font-size: 0.85em; margin-top: -20px;'>Kalan Bütçe: <b style='color: {r2};'>{(kisisel_limit-borc):,.2f} ₺</b></div>", unsafe_allow_html=True)
-
-                        # --- SEKME İÇİ SİBER LİSTELER ---
-                        st.markdown("<br>", unsafe_allow_html=True)
-                        t_aktif, t_taksit, t_gecmis = st.tabs(["Dönemiçi Harcamalar", "Aktif Taksitler", "Geçmiş Ekstreler"])
+                                    st.markdown(f"<div style='text-align: center; color: gray; font-size: 0.85em; margin-top: -20px;'>Kalan Bütçe: <b style='color: {bar_renk2};'>{(kisisel_limit-borc):,.2f} ₺</b></div>", unsafe_allow_html=True)
+# --- KART YÖNETİMİ (6'LI SÜTUN - ANA KART EKLENDİ) ---
+                        st.markdown("---")
+                        c_ana, c_ode, c_blim, c_klim, c_borc, c_sil = st.columns(6)
                         
-                        with t_aktif:
-                            with st.container(height=350, border=True):
-                                kart_harcamalari = df_harcamalar[df_harcamalar['kaynak_hesap'] == f"Kart: {kart_adi}"] if not df_harcamalar.empty else pd.DataFrame()
-                                if not kart_harcamalari.empty:
-                                    st.markdown(f"<div style='color: #00ff00; font-size: 0.9em; font-weight: bold; margin-bottom: 10px;'>{donem_yazisi} Dönemi İçi Aktif Hareketler</div>", unsafe_allow_html=True)
-                                    for _, h in kart_harcamalari.iterrows():
-                                        st.markdown(f"<div style='display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 8px 0;'><div><div style='font-weight: bold; color: #e0e0e0; font-size: 0.95em;'>{h['kategori']}</div><div style='color: gray; font-size: 0.75em;'>{pd.to_datetime(h['tarih']).strftime('%d.%m.%Y %H:%M')} | {h['aciklama']}</div></div><div style='color: #FF5252; font-weight: bold; font-family: Consolas;'>-{h['tutar']:,.2f} ₺</div></div>", unsafe_allow_html=True)
-                                else: st.info("Bu dönem için karta ait harcama kaydı bulunmuyor.")
-
-                        with t_taksit:
-                            with st.container(height=350, border=True):
-                                kartin_taksitleri = df_taksitler[df_taksitler['kart_adi'] == kart_adi] if not df_taksitler.empty else pd.DataFrame()
-                                if not kartin_taksitleri.empty:
-                                    st.markdown(f"<div style='color: #00ff00; font-size: 0.9em; font-weight: bold; margin-bottom: 10px;'>Bu Ay Ekstreye Yansıyacak Toplam Taksit: {kartin_taksitleri['aylik_tutar'].sum():,.2f} ₺</div>", unsafe_allow_html=True)
-                                    for _, taksit in kartin_taksitleri.iterrows():
-                                        st.markdown(f"<div style='display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 8px 0;'><div><div style='font-weight: bold; color: #e0e0e0; font-size: 0.9em;'>{taksit['aciklama']}</div><div style='color: gray; font-size: 0.75em;'>Kalan: {taksit['toplam_taksit'] - taksit['odenen_taksit']} Ay</div></div><div style='text-align: right;'><div style='color: #FF5252; font-weight: bold; font-size: 1.1em;'>{taksit['aylik_tutar']:,.2f} ₺</div><div style='background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.75em; color: gray;'>Taksit: {taksit['odenen_taksit'] + 1} / {taksit['toplam_taksit']}</div></div></div>", unsafe_allow_html=True)
-                                else: st.info("Bu karta ait devam eden taksitli işlem bulunmuyor.")
-
-                        with t_gecmis:
-                            with st.container(height=350, border=True):
-                                kartin_gecmisi = df_gecmis_ekstreler[df_gecmis_ekstreler['kart_adi'] == kart_adi] if not df_gecmis_ekstreler.empty else pd.DataFrame()
-                                if not kartin_gecmisi.empty:
-                                    for _, ekstre in kartin_gecmisi.iterrows():
-                                        e_durum = ekstre['durum']
-                                        d_renk = "#00ff00" if e_durum == "Ödendi" else "#FF5252"
-                                        with st.container(border=True):
-                                            st.markdown(f"<div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;'><div><div style='font-weight: bold; color: white; font-size: 1.1em;'>{ekstre['donem_adi']} Ekstresi</div><div style='color: gray; font-size: 0.8em;'>Son Ödeme: {pd.to_datetime(ekstre['son_odeme_tarihi']).strftime('%d.%m.%Y')}</div></div><div style='text-align: right;'><div style='color: {d_renk}; font-weight: bold; font-size: 1.2em;'>{ekstre['toplam_borc']:,.2f} ₺</div><div style='color: {d_renk}; font-size: 0.75em; border: 1px solid {d_renk}; border-radius: 4px; padding: 2px 5px;'>{e_durum.upper()}</div></div></div>", unsafe_allow_html=True)
-                                            c_ode, c_indir = st.columns(2)
-                                            if e_durum == "Ödenmedi":
-                                                if c_ode.button(f"Ekstreyi Öde", key=f"ode_{ekstre['id']}", use_container_width=True):
-                                                    conn = get_db()
-                                                    try:
-                                                        c = conn.cursor()
-                                                        c.execute("UPDATE gecmis_ekstreler SET durum = 'Ödendi' WHERE id = %s", (ekstre['id'],))
-                                                        c.execute("UPDATE kredi_kartlari SET guncel_borc = GREATEST(0, guncel_borc - %s) WHERE kullanici_adi = %s AND kart_adi = %s", (ekstre['toplam_borc'], k_adi, kart_adi))
-                                                        conn.commit()
-                                                    finally: release_db(conn)
-                                                    st.success("Ödendi işaretlendi!"); time.sleep(1); st.rerun()
-                                            dekont_metni = f"# EKSTRE DEKONTU\nKart: {kart_adi}\nDönem: {ekstre['donem_adi']}\nToplam Borç: {ekstre['toplam_borc']:,.2f} TL\nKesim Tarihi: {pd.to_datetime(ekstre['kesim_tarihi']).strftime('%d.%m.%Y')}\n"
-                                            c_indir.download_button("Dekont İndir", dekont_metni, file_name=f"Dekont_{ekstre['donem_adi']}.md", key=f"dl_{ekstre['id']}", use_container_width=True)
-                                else: st.info("Geçmiş ekstre bulunmuyor.")
-                                st.markdown("---")
-                        # --- KART YÖNETİMİ (5'Lİ SÜTUN - KART BORCU ÖDEME EKLENDİ) ---
-                        c_ode, c_blim, c_klim, c_borc, c_sil = st.columns(5)
+                        with c_ana:
+                            with st.expander("Ana Kart"):
+                                if ana_k == kart_adi:
+                                    st.success("Aktif")
+                                else:
+                                    if st.button("Ayarla", key=f"anabtn_{kart_adi}", type="primary"):
+                                        conn = get_db(); c = conn.cursor()
+                                        c.execute("UPDATE kullanicilar SET ana_harcama_karti = %s WHERE kullanici_adi = %s", (kart_adi, k_adi))
+                                        conn.commit(); release_db(conn); st.rerun()
                         
                         with c_ode:
                             with st.expander("Borç Öde"):
@@ -3920,23 +4067,70 @@ else:
                                 yeni_blim = st.number_input("Yeni Banka Limiti (TL)", value=float(limit), step=1000.0, key=f"blim_{kart_adi}")
                                 if st.button("Güncelle", key=f"bbtn_{kart_adi}", type="primary"):
                                     conn = get_db(); c = conn.cursor(); c.execute("UPDATE kredi_kartlari SET limit_tutari = %s WHERE kullanici_adi = %s AND kart_adi = %s", (yeni_blim, k_adi, kart_adi)); conn.commit(); release_db(conn); st.rerun()
-                                    
+                                
                         with c_klim:
                             with st.expander("Bütçe Sınırı"):
                                 yeni_klim = st.number_input("Yeni Bütçe Sınırı (TL)", value=float(kisisel_limit), step=500.0, key=f"ylim_{kart_adi}")
                                 if st.button("Güncelle ", key=f"ubtn_{kart_adi}", type="primary"):
                                     conn = get_db(); c = conn.cursor(); c.execute("UPDATE kredi_kartlari SET kisisel_limit = %s WHERE kullanici_adi = %s AND kart_adi = %s", (yeni_klim, k_adi, kart_adi)); conn.commit(); release_db(conn); st.rerun()
-                                    
+                                
                         with c_borc:
                             with st.expander("Borç Düzelt"):
                                 yeni_borc = st.number_input("Gerçek Borç Tutarı (TL)", value=float(borc), step=100.0, key=f"gborc_{kart_adi}")
                                 if st.button("Eşitle", key=f"borcbtn_{kart_adi}", type="primary"):
                                     conn = get_db(); c = conn.cursor(); c.execute("UPDATE kredi_kartlari SET guncel_borc = %s WHERE kullanici_adi = %s AND kart_adi = %s", (yeni_borc, k_adi, kart_adi)); conn.commit(); release_db(conn); st.rerun()
-                                    
+                                
                         with c_sil:
                             with st.expander("Kartı Sil"):
                                 if st.button("Kalıcı Sil", key=f"del_{kart_adi}"):
                                     conn = get_db(); c = conn.cursor(); c.execute("DELETE FROM kredi_kartlari WHERE kullanici_adi = %s AND kart_adi = %s", (k_adi, kart_adi)); conn.commit(); release_db(conn); st.rerun()
+                        # --- SEKME İÇİ SİBER LİSTELER ---
+                        st.markdown("<br>", unsafe_allow_html=True)
+                        t_aktif, t_taksit, t_gecmis = st.tabs(["Dönemiçi Harcamalar", "Aktif Taksitler", "Geçmiş Ekstreler"])
+                        
+                        with t_aktif:
+                            with st.container(height=350, border=True):
+                                kart_harcamalari = df_harcamalar[df_harcamalar['kaynak_hesap'] == f"Kart: {kart_adi}"] if not df_harcamalar.empty else pd.DataFrame()
+                                if not kart_harcamalari.empty:
+                                    st.markdown(f"<div style='color: white; font-size: 0.9em; font-weight: bold; margin-bottom: 10px;'>{donem_yazisi} Dönemi İçi Aktif Hareketler</div>", unsafe_allow_html=True)
+                                    for _, h in kart_harcamalari.iterrows():
+                                        st.markdown(f"<div style='display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 8px 0;'><div><div style='font-weight: bold; color: #e0e0e0; font-size: 0.95em;'>{h['kategori']}</div><div style='color: gray; font-size: 0.75em;'>{pd.to_datetime(h['tarih']).strftime('%d.%m.%Y %H:%M')} | {h['aciklama']}</div></div><div style='color: #FF5252; font-weight: bold; font-family: Consolas;'>-{h['tutar']:,.2f} ₺</div></div>", unsafe_allow_html=True)
+                                else: st.info("Bu dönem için karta ait harcama kaydı bulunmuyor.")
+
+                        with t_taksit:
+                            with st.container(height=350, border=True):
+                                kartin_taksitleri = df_taksitler[df_taksitler['kart_adi'] == kart_adi] if not df_taksitler.empty else pd.DataFrame()
+                                if not kartin_taksitleri.empty:
+                                    st.markdown(f"<div style='color: white; font-size: 0.9em; font-weight: bold; margin-bottom: 10px;'>Bu Ay Ekstreye Yansıyacak Toplam Taksit: {kartin_taksitleri['aylik_tutar'].sum():,.2f} ₺</div>", unsafe_allow_html=True)
+                                    for _, taksit in kartin_taksitleri.iterrows():
+                                        st.markdown(f"<div style='display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 8px 0;'><div><div style='font-weight: bold; color: #e0e0e0; font-size: 0.9em;'>{taksit['aciklama']}</div><div style='color: gray; font-size: 0.75em;'>Kalan: {taksit['toplam_taksit'] - taksit['odenen_taksit']} Ay</div></div><div style='text-align: right;'><div style='color: #FF5252; font-weight: bold; font-size: 1.1em;'>{taksit['aylik_tutar']:,.2f} ₺</div><div style='background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.75em; color: gray;'>Taksit: {taksit['odenen_taksit'] + 1} / {taksit['toplam_taksit']}</div></div></div>", unsafe_allow_html=True)
+                                else: st.info("Bu karta ait devam eden taksitli işlem bulunmuyor.")
+
+                        with t_gecmis:
+                            with st.container(height=350, border=True):
+                                kartin_gecmisi = df_gecmis_ekstreler[df_gecmis_ekstreler['kart_adi'] == kart_adi] if not df_gecmis_ekstreler.empty else pd.DataFrame()
+                                if not kartin_gecmisi.empty:
+                                    for _, ekstre in kartin_gecmisi.iterrows():
+                                        e_durum = ekstre['durum']
+                                        d_renk = "#00ff00" if e_durum == "Ödendi" else "#FF5252"
+                                        with st.container(border=True):
+                                            st.markdown(f"<div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;'><div><div style='font-weight: bold; color: white; font-size: 1.1em;'>{ekstre['donem_adi']} Ekstresi</div><div style='color: gray; font-size: 0.8em;'>Son Ödeme: {pd.to_datetime(ekstre['son_odeme_tarihi']).strftime('%d.%m.%Y')}</div></div><div style='text-align: right;'><div style='color: {d_renk}; font-weight: bold; font-size: 1.2em;'>{ekstre['toplam_borc']:,.2f} ₺</div><div style='color: {d_renk}; font-size: 0.75em; border: 1px solid {d_renk}; border-radius: 4px; padding: 2px 5px;'>{e_durum.upper()}</div></div></div>", unsafe_allow_html=True)
+                                            c_ode, c_indir = st.columns(2)
+                                            if e_durum == "Ödenmedi":
+                                                if c_ode.button(f"Ekstreyi Öde", key=f"ode_{ekstre['id']}", use_container_width=True):
+                                                    conn = get_db()
+                                                    try:
+                                                        c = conn.cursor()
+                                                        c.execute("UPDATE gecmis_ekstreler SET durum = 'Ödendi' WHERE id = %s", (ekstre['id'],))
+                                                        c.execute("UPDATE kredi_kartlari SET guncel_borc = GREATEST(0, guncel_borc - %s) WHERE kullanici_adi = %s AND kart_adi = %s", (ekstre['toplam_borc'], k_adi, kart_adi))
+                                                        conn.commit()
+                                                    finally: release_db(conn)
+                                                    st.success("Ödendi işaretlendi!"); time.sleep(1); st.rerun()
+                                            dekont_metni = f"# EKSTRE DEKONTU\nKart: {kart_adi}\nDönem: {ekstre['donem_adi']}\nToplam Borç: {ekstre['toplam_borc']:,.2f} TL\nKesim Tarihi: {pd.to_datetime(ekstre['kesim_tarihi']).strftime('%d.%m.%Y')}\n"
+                                            c_indir.download_button("Dekont İndir", dekont_metni, file_name=f"Dekont_{ekstre['donem_adi']}.md", key=f"dl_{ekstre['id']}", use_container_width=True)
+                                else: st.info("Geçmiş ekstre bulunmuyor.")
+                                st.markdown("---")
+                            
                 else: st.info("Kayıtlı kredi kartı bulunamadı.")
             
             with t_gh:
@@ -4413,7 +4607,7 @@ else:
             # ================= SOL KARE: QUANT ANALİZ =================
             with ana_sol:
                 with st.container(border=True):
-                    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff00;'></div><div style='color: #00ff00; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>QUANT ANALİZ RADARI</div></div>", unsafe_allow_html=True)
+                    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #e2e8f0; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(226, 232, 240, 0.5);'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>QUANT ANALİZ RADARI</div></div>", unsafe_allow_html=True)
                     
                     c1, c2, c3 = st.columns([1.2, 1.5, 1.3])
                     secili_borsa = c1.selectbox("Piyasa", ["BİST", "NASDAQ", "S&P 500", "KRİPTO"], key="q_borsa", label_visibility="collapsed")
@@ -4523,7 +4717,7 @@ else:
             # ================= SAĞ KARE: PİYASA ENDEKSLERİ =================
             with ana_sag:
                 with st.container(border=True):
-                    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff00;'></div><div style='color: #00ff00; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>PİYASA ENDEKSLERİ</div></div>", unsafe_allow_html=True)
+                    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #e2e8f0; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(226, 232, 240, 0.5);'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>PİYASA ENDEKSLERİ</div></div>", unsafe_allow_html=True)
                     
                     if 'e_sec_state' not in st.session_state: st.session_state['e_sec_state'] = "Seçiniz..."
                     
@@ -4655,7 +4849,7 @@ else:
                             
                             with c_sol:
                                 with st.container(border=True):
-                                    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00bcd4; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00bcd4;'></div><div style='color: #00bcd4; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>DESTEK VE DİRENÇ SEVİYELERİ</div></div>", unsafe_allow_html=True)
+                                    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #e2e8f0; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(226, 232, 240, 0.5);'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>DESTEK VE DİRENÇ SEVİYELERİ</div></div>", unsafe_allow_html=True)
                                     st.markdown(f"<div style='color: gray; font-size: 0.85em; margin-bottom: 10px;'>Güncel Fiyat: <b style='color: white; font-size: 1.2em;'>{son_kapanis:,.2f}</b></div>", unsafe_allow_html=True)
                                     
                                     def satir_ciz(etiket, deger, renk):
@@ -4675,7 +4869,7 @@ else:
                                     
                             with c_sag:
                                 with st.container(border=True):
-                                    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #bb86fc; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #bb86fc;'></div><div style='color: #bb86fc; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>FIBONACCI GERİ ÇEKİLME (1Y)</div></div>", unsafe_allow_html=True)
+                                    st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #e2e8f0; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(226, 232, 240, 0.5);'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>FIBONACCI GERİ ÇEKİLME (1Y)</div></div>", unsafe_allow_html=True)
                                     st.markdown(f"<div style='color: gray; font-size: 0.85em; margin-bottom: 10px;'>Zirve: <b style='color: white;'>{f_high:,.2f}</b> | Dip: <b style='color: white;'>{f_low:,.2f}</b></div>", unsafe_allow_html=True)
                                     
                                     html_fib = ""
@@ -4722,7 +4916,7 @@ else:
                             fib_yorumu = f"Orta/uzun vadeli (1Y) projeksiyonda varlık, <b>FIB {aktif_fib_isim}</b> seviyesine ({aktif_fib_deger:,.2f}) yakın işlem görmektedir. Fiyat anlık olarak bu majör seviyenin {fib_konum}. Bu bölgenin hacimli kırılımı, bir sonraki Fibonacci durağına kadar yeni bir trend bandı açabilir."
 
                             with st.container(border=True):
-                                st.markdown(f"<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #FFC107; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #FFC107;'></div><div style='color: #FFC107; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>{a_kod} - AKTİF SEVİYE ANALİZİ</div></div>", unsafe_allow_html=True)
+                                st.markdown(f"<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #e2e8f0; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(226, 232, 240, 0.5);'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>{a_kod} - AKTİF SEVİYE ANALİZİ</div></div>", unsafe_allow_html=True)
                                 
                                 st.markdown(f"""
                                 <div style='color: #e0e0e0; font-family: Consolas, monospace; font-size: 0.95em; line-height: 1.6; padding: 5px 10px;'>
@@ -5259,7 +5453,7 @@ else:
                     except Exception as e:
                         st.error(f"Sistem Hatası: Mevsimsellik motoru çalıştırılırken hata oluştu. {e}")
         with t_varlik:
-            st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #00ff00; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px #00ff00;'></div><div style='color: #00ff00; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>VARLIK VE PERFORMANS TAKİP TERMİNALİ</div></div>", unsafe_allow_html=True)
+            st.markdown("<div style='display: flex; align-items: center; margin-bottom: 15px;'><div style='width: 10px; height: 10px; background: #e2e8f0; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 8px rgba(226, 232, 240, 0.5);'></div><div style='color: #e2e8f0; font-size: 1.1em; font-weight: 700; letter-spacing: 1px; font-family: Consolas;'>VARLIK VE PERFORMANS TAKİP TERMİNALİ</div></div>", unsafe_allow_html=True)
 
             import plotly.graph_objects as go
             import pandas as pd
@@ -5450,7 +5644,7 @@ else:
             col1, col2 = st.columns(2)
             with col1:
                 with st.container(border=True):
-                    fig1 = draw_neon_area_chart(df_f, 'Toplam_Varlik', '#00ff00', 'TOPLAM VARLIK BÜYÜMESİ')
+                    fig1 = draw_neon_area_chart(df_f, 'Toplam_Varlik', '#ffffff', 'TOPLAM VARLIK BÜYÜMESİ')
                     st.plotly_chart(fig1, use_container_width=True, config={'displayModeBar': False})
 
             with col2:
@@ -5462,11 +5656,11 @@ else:
             
             # --- PASTA GRAFİKLER (HARCAMA SEKMESİ TASARIMI) ---
             col3, col4 = st.columns(2)
-            siber_renkler = ['#00ff00', '#00cc00', '#009900', '#4d4d4d', '#262626', '#808080']
+            siber_renkler = ['#4d88ff', '#1a8cff', '#0073f0', '#005fcb', '#004da6', '#003b80', '#002b5e', '#001b3b', '#001024', '#000812', '#80b3ff', '#b3d9ff', '#e6f2ff', '#3366cc', '#193366', '#4d4d4d', '#808080', '#cccccc']
 
             with col3:
                 with st.container(border=True, height=360):
-                    st.markdown("<span style='color: #00ff00; font-weight: bold;'>Güncel Varlık Dağılımı</span>", unsafe_allow_html=True)
+                    st.markdown("<span style='color: white; font-weight: bold;'>Güncel Varlık Dağılımı</span>", unsafe_allow_html=True)
                     if varlik_dagilimi:
                         fig_varlik_pie = go.Figure(data=[go.Pie(
                             labels=list(varlik_dagilimi.keys()), values=list(varlik_dagilimi.values()), hole=.6, 
@@ -5480,7 +5674,7 @@ else:
 
             with col4:
                 with st.container(border=True, height=360):
-                    st.markdown("<span style='color: #00ff00; font-weight: bold;'>Kâr Kaynağı Dağılımı</span>", unsafe_allow_html=True)
+                    st.markdown("<span style='color: white; font-weight: bold;'>Kâr Kaynağı Dağılımı</span>", unsafe_allow_html=True)
                     if kar_dagilimi:
                         fig_kar_pie = go.Figure(data=[go.Pie(
                             labels=list(kar_dagilimi.keys()), values=list(kar_dagilimi.values()), hole=.6, 
@@ -5495,7 +5689,7 @@ else:
             st.markdown("<hr style='border-color: rgba(255,255,255,0.05); margin-top: 15px; margin-bottom: 15px;'>", unsafe_allow_html=True)
             
             # --- 5. ALT KATEGORİ BÜYÜMELERİ ---
-            st.markdown("<h5 style='color: #00ff00; text-align: center; padding-bottom: 10px;'>Alt Kategori Büyüme Raporları</h5>", unsafe_allow_html=True)
+            st.markdown("<h5 style='color: white; text-align: center; padding-bottom: 10px;'>Alt Kategori Büyüme Raporları</h5>", unsafe_allow_html=True)
             tab_vborsa, tab_vfaiz, tab_vppf = st.tabs(["Borsa İşlemleri", "Faiz / Vadeli", "PPF Fonları"])
 
             with tab_vborsa:
@@ -5520,7 +5714,7 @@ else:
         t_davet, t_kullanici = st.tabs(["Davetiye Yönetimi", "Kayıtlı Kullanıcılar"])
         with t_davet:
             with st.container(border=True):
-                st.markdown("<span style='color: #00ff00; font-weight: bold;'>Yeni Davetiye Kodu Üret (Max 2 Kişilik)</span>", unsafe_allow_html=True)
+                st.markdown("<span style='color: white; font-weight: bold;'>Yeni Davetiye Kodu Üret (Max 2 Kişilik)</span>", unsafe_allow_html=True)
                 import random
                 import string
                 
@@ -5563,7 +5757,7 @@ else:
                     cols = st.columns(3)
                     for i, (d_kod, d_hak) in enumerate(davetiyeler):
                         with cols[i % 3]:
-                            renk = "#00ff00" if d_hak > 0 else "#FF5252"
+                            renk = "#ffffff" if d_hak > 0 else "#FF5252"
                             durum_yazi = "Aktif" if d_hak > 0 else "Tükendi"
                             
                             kart_html = f"""
@@ -5612,15 +5806,15 @@ else:
                             bas_harf = k_isim[0].upper() if k_isim else k_kod[0].upper()
                             
                             if k_foto:
-                                img_html = f"<img src='data:image/png;base64,{k_foto}' style='width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #00ff00; padding: 3px; background: rgba(0,255,0,0.05);'>"
+                                img_html = f"<img src='data:image/png;base64,{k_foto}' style='width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid #ffffff; padding: 3px; background: rgba(255,255,255,0.05);'>"
                             else:
-                                img_html = f"<div style='width: 70px; height: 70px; border-radius: 50%; border: 2px solid #00ff00; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; color: #00ff00; background: rgba(0,255,0,0.05); font-family: Consolas;'>{bas_harf}</div>"
+                                img_html = f"<div style='width: 70px; height: 70px; border-radius: 50%; border: 2px solid #ffffff; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: bold; color: #ffffff; background: rgba(255,255,255,0.05); font-family: Consolas;'>{bas_harf}</div>"
                             
                             isim_goster = k_isim if k_isim else "İsimsiz Kullanıcı"
                             
                             # Siber tasarımlı Kullanıcı Kartı HTML'i
                             kart_html = f"""
-                            <div style='background: rgba(15,15,15,0.8); border: 1px solid rgba(0,255,0,0.2); border-radius: 12px; padding: 20px 10px; text-align: center; margin-bottom: 15px; box-shadow: 0 6px 12px rgba(0,0,0,0.4); border-bottom: 3px solid #00ff00;'>
+                            <div style='background: rgba(15,15,15,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px 10px; text-align: center; margin-bottom: 15px; box-shadow: 0 6px 12px rgba(0,0,0,0.4); border-bottom: 3px solid #ffffff;'>
                                 <div style='display: flex; justify-content: center; margin-bottom: 12px;'>
                                     {img_html}
                                 </div>

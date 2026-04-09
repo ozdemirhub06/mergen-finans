@@ -539,6 +539,7 @@ SVG_GOZ_IKONU = """
 </svg>
 """
 
+
 # --- 2. VERİTABANI VE YARDIMCI MOTORLAR (ZIRHLI BAĞLANTI) ---
 
 def get_db():

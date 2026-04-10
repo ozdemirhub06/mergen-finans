@@ -1804,33 +1804,45 @@ else:
         asistan_paneli_ac(k_adi)
 
     with st.sidebar:
-        
-
-        # --- 1. TARİH VE GÜN MODÜLÜ (TÜRKİYE SAATİ VE CANLI AKIŞ) ---
-        tr_tz = pytz.timezone('Europe/Istanbul')
-        simdi = datetime.datetime.now(tr_tz)
-        
-        aylar = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
-        gunler = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"]
-        gun_index = simdi.isoweekday() % 7 
-        
-        st.markdown(f"""
-            <div style='text-align: center; color: #e2e8f0; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px;'>
-                <div style='font-size: 1.6em; font-weight: bold; color: #ffffff; font-family: Consolas, monospace; letter-spacing: 2px;'>
-                    {simdi.strftime('%H:%M:%S')}
-                </div>
-                <div style='font-size: 1.1rem; font-family: monospace; font-weight: bold;'>
-                    {simdi.day} {aylar[simdi.month]} {simdi.year}
-                </div>
-                <div style='font-size: 0.9rem; color: gray;'>
-                    {gunler[gun_index]}
-                </div>
+        # --- CANLI SAAT VE TARİH MOTORU (JAVASCRIPT İLE SİSTEMİ YORMAZ) ---
+        import streamlit.components.v1 as components
+        components.html(
+            """
+            <div id="clock-container" style="text-align: center; color: #e2e8f0; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px; font-family: sans-serif;">
+                <div id="time-display" style="font-size: 1.6em; font-weight: bold; color: #ffffff; font-family: Consolas, monospace; letter-spacing: 2px;"></div>
+                <div id="date-display" style="font-size: 1.1rem; font-family: monospace; font-weight: bold; margin-top: 5px;"></div>
+                <div id="day-display" style="font-size: 0.9rem; color: gray;"></div>
             </div>
-        """, unsafe_allow_html=True)
+
+            <script>
+                const aylar = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+                const gunler = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
+
+                function updateClock() {
+                    const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Istanbul"}));
+                    
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    const seconds = String(now.getSeconds()).padStart(2, '0');
+                    
+                    const day = now.getDate();
+                    const month = aylar[now.getMonth() + 1];
+                    const year = now.getFullYear();
+                    const dayName = gunler[now.getDay()];
+
+                    document.getElementById('time-display').innerText = hours + ':' + minutes + ':' + seconds;
+                    document.getElementById('date-display').innerText = day + ' ' + month + ' ' + year;
+                    document.getElementById('day-display').innerText = dayName;
+                }
+
+                setInterval(updateClock, 1000); 
+                updateClock(); 
+            </script>
+            """,
+            height=110
+        )
+
         
-        # Saatin saniye saniye akması için ekranı yenileme motoru
-        time.sleep(1)
-        st.rerun()
 
         # --- 2. PROFİL KISMI ---
         k_bilgi = kullanici_bilgileri_getir(k_adi)

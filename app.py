@@ -9,6 +9,7 @@ import plotly.graph_objects as go
 import requests 
 import datetime
 import warnings
+import pytz
 import os
 import time
 import base64
@@ -1805,11 +1806,31 @@ else:
     with st.sidebar:
         
 
-        # --- 1. TARİH VE GÜN MODÜLÜ ---
+        # --- 1. TARİH VE GÜN MODÜLÜ (TÜRKİYE SAATİ VE CANLI AKIŞ) ---
+        tr_tz = pytz.timezone('Europe/Istanbul')
+        simdi = datetime.datetime.now(tr_tz)
+        
         aylar = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"]
-        gunler = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"]
-        simdi = datetime.datetime.now()
-        st.markdown(f"<div style='text-align: center; color: #e2e8f0; font-family: monospace; font-size: 1.1rem; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px;'><b>{simdi.day} {aylar[simdi.month]} {simdi.year}</b><br><span style='font-size: 0.9rem; color: gray;'>{gunler[simdi.weekday()]}</span></div>", unsafe_allow_html=True)
+        gunler = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"]
+        gun_index = simdi.isoweekday() % 7 
+        
+        st.markdown(f"""
+            <div style='text-align: center; color: #e2e8f0; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px;'>
+                <div style='font-size: 1.6em; font-weight: bold; color: #00ff00; font-family: Consolas, monospace; letter-spacing: 2px;'>
+                    {simdi.strftime('%H:%M:%S')}
+                </div>
+                <div style='font-size: 1.1rem; font-family: monospace; font-weight: bold;'>
+                    {simdi.day} {aylar[simdi.month]} {simdi.year}
+                </div>
+                <div style='font-size: 0.9rem; color: gray;'>
+                    {gunler[gun_index]}
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # Saatin saniye saniye akması için ekranı yenileme motoru
+        time.sleep(1)
+        st.rerun()
 
         # --- 2. PROFİL KISMI ---
         k_bilgi = kullanici_bilgileri_getir(k_adi)

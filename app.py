@@ -1816,7 +1816,7 @@ else:
         
         st.markdown(f"""
             <div style='text-align: center; color: #e2e8f0; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px;'>
-                <div style='font-size: 1.6em; font-weight: bold; color: #00ff00; font-family: Consolas, monospace; letter-spacing: 2px;'>
+                <div style='font-size: 1.6em; font-weight: bold; color: #ffffff; font-family: Consolas, monospace; letter-spacing: 2px;'>
                     {simdi.strftime('%H:%M:%S')}
                 </div>
                 <div style='font-size: 1.1rem; font-family: monospace; font-weight: bold;'>

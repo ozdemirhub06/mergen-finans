@@ -1577,11 +1577,16 @@ else:
         # 1. ÖNCE VERİTABANINI GÜNCELLE (EKSİK SÜTUNLARI AÇAR)
         kutuphane_hazirla()
         
-        # SİBER MAYMUNCUK: Takasta hapis kalan PPF paralarını anında serbest bırakır
+        # SİBER MAYMUNCUK: Takasta hapis kalan PPF paralarını anında serbest bırakır ve Bütçe Patlatan Kart Ödemelerini Siler
         conn = get_db()
         try:
             c = conn.cursor()
             c.execute("UPDATE takas_bekleyen_islemler SET takas_tarihi = CURRENT_DATE - INTERVAL '1 day' WHERE durum = 'Bekliyor' AND varlik = 'TP2'")
+            
+            # --- GEÇMİŞ HATALI KART HARCAMALARINI GRAFİKTEN VE RADARDAN TEMİZLE ---
+            c.execute("DELETE FROM harcamalar WHERE kategori = 'Kredi Kartı Ödemesi' AND kullanici_adi = %s", (k_adi,))
+            c.execute("DELETE FROM islem_gecmisi WHERE islem_tipi = 'HARCAMA (-)' AND detay LIKE '%%Kredi Kartı Ödemesi%%' AND kullanici_adi = %s", (k_adi,))
+            
             conn.commit()
         except: pass
         finally: release_db(conn)

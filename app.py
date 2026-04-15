@@ -1808,45 +1808,36 @@ else:
     if st.button("ASISTAN_LOGO"):
         asistan_paneli_ac(k_adi)
 
-    with st.sidebar:
-        # --- CANLI SAAT VE TARİH MOTORU (JAVASCRIPT İLE SİSTEMİ YORMAZ) ---
-        import streamlit.components.v1 as components
-        components.html(
-            """
-            <div id="clock-container" style="text-align: center; color: #e2e8f0; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px; font-family: sans-serif;">
-                <div id="time-display" style="font-size: 1.6em; font-weight: bold; color: #ffffff; font-family: Consolas, monospace; letter-spacing: 2px;"></div>
-                <div id="date-display" style="font-size: 1.1rem; font-family: monospace; font-weight: bold; margin-top: 5px;"></div>
-                <div id="day-display" style="font-size: 0.9rem; color: gray;"></div>
-            </div>
-
-            <script>
-                const aylar = ["", "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
-                const gunler = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
-
-                function updateClock() {
-                    const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Istanbul"}));
-                    
-                    const hours = String(now.getHours()).padStart(2, '0');
-                    const minutes = String(now.getMinutes()).padStart(2, '0');
-                    const seconds = String(now.getSeconds()).padStart(2, '0');
-                    
-                    const day = now.getDate();
-                    const month = aylar[now.getMonth() + 1];
-                    const year = now.getFullYear();
-                    const dayName = gunler[now.getDay()];
-
-                    document.getElementById('time-display').innerText = hours + ':' + minutes + ':' + seconds;
-                    document.getElementById('date-display').innerText = day + ' ' + month + ' ' + year;
-                    document.getElementById('day-display').innerText = dayName;
-                }
-
-                setInterval(updateClock, 1000); 
-                updateClock(); 
-            </script>
-            """,
-            height=110
-        )
-
+    # --- 1. BLOK: KİMLİK VE ZAMAN (İNCELTİLMİŞ KOMPAKT SAAT) ---
+        with st.container():
+            import streamlit.components.v1 as components
+            components.html(
+                """
+                <style>body { margin: 0; padding: 0; overflow: hidden; }</style>
+                <div style="background: linear-gradient(145deg, #001b3b 0%, #050505 100%); border: 1px solid rgba(255,255,255,0.05); border-left: 3px solid #ffffff; border-radius: 6px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; font-family: sans-serif; box-shadow: 0 4px 6px rgba(0,0,0,0.3); width: 100%; box-sizing: border-box;">
+                    <div style="text-align: left; line-height: 1.1;">
+                        <div id="date-display" style="font-size: 0.75rem; color: #e2e8f0; font-weight: bold; letter-spacing: 0.5px;"></div>
+                        <div id="day-display" style="font-size: 0.65rem; color: #888; text-transform: uppercase;"></div>
+                    </div>
+                    <div id="time-display" style="font-size: 1.15rem; font-weight: bold; color: #ffffff; font-family: Consolas, monospace; letter-spacing: 1px;"></div>
+                </div>
+                <script>
+                    const aylar = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+                    const gunler = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
+                    function updateClock() {
+                        const now = new Date(new Date().toLocaleString("en-US", {timeZone: "Europe/Istanbul"}));
+                        const h = String(now.getHours()).padStart(2, '0');
+                        const m = String(now.getMinutes()).padStart(2, '0');
+                        const s = String(now.getSeconds()).padStart(2, '0');
+                        document.getElementById('time-display').innerText = h + ':' + m + ':' + s;
+                        document.getElementById('date-display').innerText = now.getDate() + ' ' + aylar[now.getMonth()] + ' ' + now.getFullYear();
+                        document.getElementById('day-display').innerText = gunler[now.getDay()];
+                    }
+                    setInterval(updateClock, 1000); 
+                    updateClock(); 
+                </script>
+                """, height=55
+            )
         
 
         # --- 2. PROFİL KISMI ---

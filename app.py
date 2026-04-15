@@ -1809,18 +1809,18 @@ else:
         asistan_paneli_ac(k_adi)
 
     with st.sidebar:
-        # --- BLOK 1: KİMLİK VE ZAMAN (İNCELTİLMİŞ KOMPAKT SAAT) ---
+        # --- BLOK 1: KİMLİK VE ZAMAN (BÜYÜTÜLMÜŞ TOK SAAT) ---
         with st.container():
             import streamlit.components.v1 as components
             components.html(
                 """
                 <style>body { margin: 0; padding: 0; overflow: hidden; }</style>
-                <div style="background: linear-gradient(145deg, #001b3b 0%, #050505 100%); border: 1px solid rgba(255,255,255,0.05); border-left: 3px solid #ffffff; border-radius: 6px; padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; font-family: sans-serif; box-shadow: 0 4px 6px rgba(0,0,0,0.3); width: 100%; box-sizing: border-box;">
-                    <div style="text-align: left; line-height: 1.1;">
-                        <div id="date-display" style="font-size: 0.75rem; color: #e2e8f0; font-weight: bold; letter-spacing: 0.5px;"></div>
-                        <div id="day-display" style="font-size: 0.65rem; color: #888; text-transform: uppercase;"></div>
+                <div style="background: linear-gradient(145deg, #001b3b 0%, #050505 100%); border: 1px solid rgba(255,255,255,0.05); border-left: 3px solid #ffffff; border-radius: 8px; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; font-family: sans-serif; box-shadow: 0 4px 6px rgba(0,0,0,0.3); width: 100%; box-sizing: border-box;">
+                    <div style="text-align: left; line-height: 1.2;">
+                        <div id="date-display" style="font-size: 0.9rem; color: #e2e8f0; font-weight: bold; letter-spacing: 0.5px;"></div>
+                        <div id="day-display" style="font-size: 0.8rem; color: #888; text-transform: uppercase;"></div>
                     </div>
-                    <div id="time-display" style="font-size: 1.15rem; font-weight: bold; color: #ffffff; font-family: Consolas, monospace; letter-spacing: 1px;"></div>
+                    <div id="time-display" style="font-size: 1.5rem; font-weight: bold; color: #ffffff; font-family: Consolas, monospace; letter-spacing: 1px;"></div>
                 </div>
                 <script>
                     const aylar = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
@@ -1837,7 +1837,7 @@ else:
                     setInterval(updateClock, 1000); 
                     updateClock(); 
                 </script>
-                """, height=55
+                """, height=75
             )
 
             k_bilgi = kullanici_bilgileri_getir(k_adi)
@@ -1845,16 +1845,16 @@ else:
             bas_harf = isim_yazi[0].upper() if isim_yazi != "Bilinmeyen Kullanıcı" else k_adi[0].upper()
             
             if k_bilgi['profil_fotosu']:
-                img_html = f"<img src='data:image/png;base64,{k_bilgi['profil_fotosu']}' style='width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1);'>"
+                img_html = f"<img src='data:image/png;base64,{k_bilgi['profil_fotosu']}' style='width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1);'>"
             else:
-                img_html = f"<div style='width: 45px; height: 45px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; color: #fff; background: rgba(255,255,255,0.05);'>{bas_harf}</div>"
+                img_html = f"<div style='width: 55px; height: 55px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; color: #fff; background: rgba(255,255,255,0.05);'>{bas_harf}</div>"
 
             st.markdown(f"""
-            <div style="display: flex; align-items: center; background: linear-gradient(145deg, #001b3b 0%, #050505 100%); padding: 10px 15px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); border-left: 3px solid #ffffff; box-shadow: 0 4px 6px rgba(0,0,0,0.3); width: 100%; box-sizing: border-box; margin-bottom: 5px;">
+            <div style="display: flex; align-items: center; background: linear-gradient(145deg, #001b3b 0%, #050505 100%); padding: 12px 18px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); border-left: 3px solid #ffffff; box-shadow: 0 4px 6px rgba(0,0,0,0.3); width: 100%; box-sizing: border-box; margin-bottom: 8px;">
                 {img_html}
                 <div style="margin-left: 15px; line-height: 1.3;">
-                    <div style="color: white; font-weight: bold; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px;">{isim_yazi}</div>
-                    <div style="color: #888; font-size: 0.8rem; font-family: Consolas;">Kod: {k_adi}</div>
+                    <div style="color: white; font-weight: bold; font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">{isim_yazi}</div>
+                    <div style="color: #888; font-size: 0.9rem; font-family: Consolas;">Kod: {k_adi}</div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -1865,7 +1865,7 @@ else:
         # --- BLOK 2: MENÜLER (ORTA KISIM) ---
         with st.container():
             st.markdown("<hr style='margin: 0px 0; border-color: rgba(255,255,255,0.05);'>", unsafe_allow_html=True)
-            st.markdown("<div style='color: gray; font-size: 0.75rem; font-weight: bold; letter-spacing: 1px; margin-bottom: -10px;'>ANA TERMİNAL</div>", unsafe_allow_html=True)
+            st.markdown("<div style='color: gray; font-size: 0.85rem; font-weight: bold; letter-spacing: 1px; margin-bottom: -10px;'>ANA TERMİNAL</div>", unsafe_allow_html=True)
             
             ADMIN_KULLANICILAR = ["oguzhan", "admin", "mergen"]
             menu_secenekleri = ["Portföy Yönetimi", "Banka ve Bütçe", "Piyasa Analiz"]
@@ -1877,7 +1877,7 @@ else:
         # --- BLOK 3: SİSTEM KONTROLLERİ (ALT KISIM) ---
         with st.container():
             st.markdown("<hr style='margin: 0px 0; border-color: rgba(255,255,255,0.05);'>", unsafe_allow_html=True)
-            st.markdown("<div style='color: gray; font-size: 0.75rem; font-weight: bold; letter-spacing: 1px; margin-bottom: -10px;'>SİSTEM</div>", unsafe_allow_html=True)
+            st.markdown("<div style='color: gray; font-size: 0.85rem; font-weight: bold; letter-spacing: 1px; margin-bottom: -10px;'>SİSTEM</div>", unsafe_allow_html=True)
             
             if st.button("Yenile", use_container_width=True): 
                 st.rerun()
@@ -2277,6 +2277,25 @@ else:
                 button[kind="tertiary"]:active p {
                     color: #ffffff !important;
                 }
+                /* --- SİDEBAR ELEMANLARINI BÜYÜTME (TOK GÖRÜNÜM) --- */
+    [data-testid="stSidebar"] div[role="radiogroup"] label {
+        padding: 10px 15px !important; 
+        margin-bottom: 6px !important; 
+        min-height: 45px !important; /* Butonları yükseltir */
+    }
+    [data-testid="stSidebar"] div[role="radiogroup"] label p {
+        font-size: 1.05rem !important; /* Menü yazılarını büyütür */
+    }
+    [data-testid="stSidebar"] button {
+        min-height: 45px !important;
+    }
+    [data-testid="stSidebar"] button p {
+        font-size: 1.05rem !important; /* Yenile, Çıkış gibi butonların yazılarını büyütür */
+    }
+    /* Kutular arası genel boşluğu biraz açıyoruz ki ferah dursun */
+    [data-testid="stSidebarUserContent"] > div[data-testid="stVerticalBlock"] {
+        gap: 1.2rem !important; 
+    }            
                 </style>
                 """, unsafe_allow_html=True)
 

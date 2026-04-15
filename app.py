@@ -1808,7 +1808,8 @@ else:
     if st.button("ASISTAN_LOGO"):
         asistan_paneli_ac(k_adi)
 
-    # --- 1. BLOK: KİMLİK VE ZAMAN (İNCELTİLMİŞ KOMPAKT SAAT) ---
+    with st.sidebar:
+        # --- BLOK 1: KİMLİK VE ZAMAN (İNCELTİLMİŞ KOMPAKT SAAT) ---
         with st.container():
             import streamlit.components.v1 as components
             components.html(
@@ -1838,67 +1839,64 @@ else:
                 </script>
                 """, height=55
             )
-        
 
-        # --- 2. PROFİL KISMI ---
-        k_bilgi = kullanici_bilgileri_getir(k_adi)
-        c1, c2, c3 = st.columns([1,2,1])
-        with c2:
+            k_bilgi = kullanici_bilgileri_getir(k_adi)
+            isim_yazi = k_bilgi['isim_soyisim'] if k_bilgi['isim_soyisim'] else "Bilinmeyen Kullanıcı"
+            bas_harf = isim_yazi[0].upper() if isim_yazi != "Bilinmeyen Kullanıcı" else k_adi[0].upper()
+            
             if k_bilgi['profil_fotosu']:
-                try:
-                    g_data = base64.b64decode(k_bilgi['profil_fotosu'])
-                    st.image(g_data, use_container_width=True)
-                except:
-                    st.markdown("<div style='width: 100%; aspect-ratio: 1/1; border: 2px solid #00ff00; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #00ff00; font-size: 2em; background: rgba(0,255,0,0.05);'>U</div>", unsafe_allow_html=True)
+                img_html = f"<img src='data:image/png;base64,{k_bilgi['profil_fotosu']}' style='width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.1);'>"
             else:
-                st.markdown("<div style='width: 100%; aspect-ratio: 1/1; border: 2px solid #00ff00; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #00ff00; font-size: 2em; background: rgba(0,255,0,0.05);'>U</div>", unsafe_allow_html=True)
-        
-        isim_yazi = k_bilgi['isim_soyisim'] if k_bilgi['isim_soyisim'] else "Bilinmeyen Kullanıcı"
-        st.markdown(f"<div style='text-align: center; margin-top: 5px;'><h4 style='margin-bottom: 0px;'>{isim_yazi}</h4><span style='color: gray; font-size: 12px;'>Kod: {k_adi}</span></div>", unsafe_allow_html=True)
-        
-        # ... profil fotosu kodları ...
-        st.markdown("<br>", unsafe_allow_html=True)
-        # --- BU SATIRI YENİSİYLE DEĞİŞTİRİYORSUN ---
-        if st.button("Kullanıcı Bilgileri", use_container_width=True):
-            kullanici_bilgileri_sayfasi(k_adi)
-        # ------------------------------------------
-        st.markdown("<hr style='margin-top: 10px; margin-bottom: 10px; border-color: rgba(255,255,255,0.05);'>", unsafe_allow_html=True)
-        # ... menü devamı ...
-        st.markdown("<span style='color: gray; font-size: 12px; font-weight: bold;'>ANA TERMİNAL</span>", unsafe_allow_html=True)
-        
-        # --- GİZLİ YÖNETİCİ MENÜSÜ KONTROLÜ ---
-        ADMIN_KULLANICILAR = ["oguzhan", "admin", "mergen"] # Sisteme kayıt olurken bu isimlerden birini kullan ki admin olasın
-        
-        menu_secenekleri = ["Portföy Yönetimi", "Banka ve Bütçe", "Piyasa Analiz"]
-        if k_adi in ADMIN_KULLANICILAR:
-            menu_secenekleri.append("Yönetici Paneli")
+                img_html = f"<div style='width: 45px; height: 45px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: bold; color: #fff; background: rgba(255,255,255,0.05);'>{bas_harf}</div>"
+
+            st.markdown(f"""
+            <div style="display: flex; align-items: center; background: linear-gradient(145deg, #001b3b 0%, #050505 100%); padding: 10px 15px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); border-left: 3px solid #ffffff; box-shadow: 0 4px 6px rgba(0,0,0,0.3); width: 100%; box-sizing: border-box; margin-bottom: 5px;">
+                {img_html}
+                <div style="margin-left: 15px; line-height: 1.3;">
+                    <div style="color: white; font-weight: bold; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px;">{isim_yazi}</div>
+                    <div style="color: #888; font-size: 0.8rem; font-family: Consolas;">Kod: {k_adi}</div>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
             
-        # Seçim Menüsü
-        secilen_sayfa = st.radio("Menü", menu_secenekleri, label_visibility="collapsed")
-        
-        st.markdown("<hr style='margin-top: 10px; margin-bottom: 10px; border-color: rgba(255,255,255,0.05);'>", unsafe_allow_html=True)
-        st.markdown("<span style='color: gray; font-size: 12px; font-weight: bold;'>SİSTEM</span>", unsafe_allow_html=True)
-        
-        if st.button("Yenile", use_container_width=True): 
-            st.rerun()
+            if st.button("Kullanıcı Bilgileri", use_container_width=True):
+                kullanici_bilgileri_sayfasi(k_adi)
+
+        # --- BLOK 2: MENÜLER (ORTA KISIM) ---
+        with st.container():
+            st.markdown("<hr style='margin: 0px 0; border-color: rgba(255,255,255,0.05);'>", unsafe_allow_html=True)
+            st.markdown("<div style='color: gray; font-size: 0.75rem; font-weight: bold; letter-spacing: 1px; margin-bottom: -10px;'>ANA TERMİNAL</div>", unsafe_allow_html=True)
             
-        if st.button("Güvenli Çıkış", type="primary", use_container_width=True):
-            st.session_state.iceride_mi = False
-            st.session_state.aktif_kullanici = None
+            ADMIN_KULLANICILAR = ["oguzhan", "admin", "mergen"]
+            menu_secenekleri = ["Portföy Yönetimi", "Banka ve Bütçe", "Piyasa Analiz"]
+            if k_adi in ADMIN_KULLANICILAR:
+                menu_secenekleri.append("Yönetici Paneli")
+                
+            secilen_sayfa = st.radio("Menü", menu_secenekleri, label_visibility="collapsed")
+
+        # --- BLOK 3: SİSTEM KONTROLLERİ (ALT KISIM) ---
+        with st.container():
+            st.markdown("<hr style='margin: 0px 0; border-color: rgba(255,255,255,0.05);'>", unsafe_allow_html=True)
+            st.markdown("<div style='color: gray; font-size: 0.75rem; font-weight: bold; letter-spacing: 1px; margin-bottom: -10px;'>SİSTEM</div>", unsafe_allow_html=True)
             
-            try: cookie_manager.delete("mergen_oturum")
-            except: pass
-            
-            # Animasyonsuz, sessizce çerezi silip sayfayı yeniler
-            components.html(
-                """
-                <script>
-                    document.cookie = "mergen_oturum=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-                    window.parent.location.reload();
-                </script>
-                """, height=0, width=0
-            )
-            st.stop()
+            if st.button("Yenile", use_container_width=True): 
+                st.rerun()
+                
+            if st.button("Güvenli Çıkış", type="primary", use_container_width=True):
+                st.session_state.iceride_mi = False
+                st.session_state.aktif_kullanici = None
+                try: cookie_manager.delete("mergen_oturum")
+                except: pass
+                import streamlit.components.v1 as components
+                components.html(
+                    """
+                    <script>
+                        document.cookie = "mergen_oturum=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                        window.parent.location.reload();
+                    </script>
+                    """, height=0, width=0
+                )
+                st.stop()
             
         st.markdown("<br><br>", unsafe_allow_html=True)
             

@@ -76,6 +76,57 @@ components.html(
         manifest.href = 'data:application/manifest+json,{"name":"Mergen Finans","short_name":"Mergen","start_url":"/","display":"standalone","background_color":"#0a0a0a","theme_color":"#0a0a0a","icons":[{"src":"https://i.ibb.co/bX1b0G1/logo.png","sizes":"512x512","type":"image/png"}]}';
         head.appendChild(manifest);
     </script>
+
+    <style>
+        /* ==================================================================== */
+    /* --- SİDEBARI DEVASA YAPMA VE TAM EKRANA YAYMA MOTORU --- */
+    /* ==================================================================== */
+    
+    /* 1. O BOŞTA KALAN 20CM KARELİ ALANI DOLDUR (Tam Ekrana Yay) */
+    [data-testid="stSidebarUserContent"] {
+        padding-top: 1rem !important;
+        padding-bottom: 2rem !important;
+        overflow-y: hidden !important; 
+    }
+    
+    [data-testid="stSidebarUserContent"] > div:first-of-type {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important; /* Blokları yukarı, ortaya ve en aşağıya eşit dağıtır */
+        min-height: 90vh !important; /* Ekranın %90'ını KESİN olarak kaplatır, boşluk bırakmaz */
+    }
+    
+    /* Bloklar arası boşlukları ferahlat */
+    [data-testid="stSidebarUserContent"] > div:first-of-type > div {
+        gap: 6vh !important; 
+    }
+
+    /* 2. ANA TERMİNAL BUTONLARINI EŞŞEK GİBİ BÜYÜT */
+    [data-testid="stSidebar"] div[role="radiogroup"] label {
+        padding: 12px 20px !important;  /* Kutuları kalınlaştırdı */
+        margin-bottom: 8px !important; 
+        min-height: 55px !important; /* Boylarını uzattı */
+    }
+    [data-testid="stSidebar"] div[role="radiogroup"] label p {
+        font-size: 1.15rem !important; /* Yazıları kocaman yaptı */
+    }
+
+    /* 3. YENİLE VE GÜVENLİ ÇIKIŞ BUTONLARINI BÜYÜT */
+    [data-testid="stSidebar"] button {
+        min-height: 50px !important; /* Buton kalınlaştı */
+    }
+    [data-testid="stSidebar"] button p {
+        font-size: 1.1rem !important; /* Buton yazısı büyüdü */
+    }
+    /* ==================================================================== */
+    /* --- SİDEBAR KUTULARI ARASINA ORANTILI MESAFE KOYMA (KESİN ÇÖZÜM) --- */
+    /* ==================================================================== */
+    [data-testid="stSidebarUserContent"] > div, 
+    [data-testid="stSidebarUserContent"] > div > div[data-testid="stVerticalBlock"] {
+        gap: 6vh !important; /* İŞTE BÜTÜN SIR BURADA. ARADAKİ MESAFE EKRANIN %6'SI KADAR OLDU */
+        padding-top: 2vh !important;
+    }
+    </script>
     """,
     height=0, width=0
 )
@@ -519,7 +570,7 @@ components.html(
         };
         hideStreamlitJunk();
         setInterval(hideStreamlitJunk, 500);
-    </script>
+    </style>
     """,
     height=0, width=0
 )

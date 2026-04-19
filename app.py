@@ -3387,6 +3387,46 @@ else:
             for _, r in df_kar.iterrows(): 
                 kalan_limit = float(r['kisisel_limit']) - float(r['guncel_borc'])
                 kaynaklar.append(f"Kart: {r['kart_adi']} (Kalan Limit: {kalan_limit:,.2f} TL)")
+                # ===================================================================
+            # --- KULLANIM SIKLIĞINA GÖRE AKILLI SIRALAMA MOTORU (AYLIK RADAR) ---
+            # ===================================================================
+            import datetime
+            su_an = datetime.datetime.now()
+            # Örn: Sistem Nisan 2026'daysa '2026-04-%' üretir ve sadece bu ayki harcamaları filtreler
+            aylik_filtre = su_an.strftime("%Y-%m-%%")
+
+            conn = get_db()
+            try:
+                c = conn.cursor()
+                # DİKKAT: Aşağıdaki 'tarih' yazan yeri kendi veritabanındaki tarih/zaman sütununun
+                # adıyla değiştir! (Örn: islem_tarihi, kayit_zamani vs. olabilir)
+                c.execute("""
+                    SELECT odenen_kaynak, COUNT(*) 
+                    FROM harcamalar 
+                    WHERE kullanici_adi = %s AND CAST(tarih AS TEXT) LIKE %s
+                    GROUP BY odenen_kaynak
+                """, (k_adi, aylik_filtre))
+                kullanim_sayilari = dict(c.fetchall())
+            except:
+                # Sütun adı yanlışsa veya tablo boşsa sistemi çökertme, sessizce geç
+                kullanim_sayilari = {} 
+            finally:
+                release_db(conn)
+
+            def siralama_puani(kaynak_metni):
+                puan = 0
+                temiz_kaynak = kaynak_metni.split(" (")[0].strip() 
+                
+                for db_kaynak, adet in kullanim_sayilari.items():
+                    if db_kaynak:
+                        temiz_db_kaynak = str(db_kaynak).split(" (")[0].strip()
+                        if temiz_db_kaynak == temiz_kaynak:
+                            if adet > puan: puan = adet
+                return puan
+
+            if kullanim_sayilari:
+                kaynaklar.sort(key=siralama_puani, reverse=True)
+            # ===================================================================
             
             if not kaynaklar: st.warning("Sistem Uyarısı: Harcama girebilmek için önce bir Vadesiz Hesap veya Kredi Kartı eklemelisiniz.")
             else:
@@ -6099,4 +6139,3 @@ else:
                     st.info("Sistemde henüz kayıtlı kullanıcı yok.")
             finally:
                 release_db(conn)
-

@@ -3270,18 +3270,41 @@ else:
                 {"banka": "Midas", "isim": "Yatırım Hesabı", "bakiye": mevcut_bakiye, "tur": "Yatirim"},
                 {"banka": "Cüzdan", "isim": "Fiziki Nakit", "bakiye": fiziki_nakit_bakiye, "tur": "Nakit"}
             ]
-            for _, r in df_vad.iterrows(): cuzdan_listesi_ham.append({"banka": r['banka_adi'], "isim": r['hesap_adi'], "bakiye": r['bakiye'], "tur": "Vadesiz"})
-            for _, r in df_kar.iterrows(): cuzdan_listesi_ham.append({"banka": r['banka_adi'], "isim": r['kart_adi'], "bakiye": r['kisisel_limit'] - r['guncel_borc'], "borc": r['guncel_borc'], "tur": "Kart"})
             
-            # --- SIFIR BAKİYELİ HESAPLARI GİZLEME (AKILLI FİLTRE) ---
+            # --- VADELİ / VADESİZ TÜM HESAPLARI ÇEKME MOTORU ---
+            conn = get_db()
+            try:
+                # Sadece vadesizleri değil, kullanıcının bütün banka hesaplarını çekiyoruz
+                df_tum_hesaplar = pd.read_sql_query("SELECT * FROM banka_hesaplari WHERE kullanici_adi = %s", conn, params=(k_adi,))
+            finally: 
+                release_db(conn)
+
+            for _, r in df_tum_hesaplar.iterrows(): 
+                # Hepsini havuza atıyoruz, filtre aşağıda 0 olanları eleyecek
+                cuzdan_listesi_ham.append({"banka": r['banka_adi'], "isim": r['hesap_adi'], "bakiye": r['bakiye'], "tur": "Hesap"})
+                
+            for _, r in df_kar.iterrows(): 
+                cuzdan_listesi_ham.append({"banka": r['banka_adi'], "isim": r['kart_adi'], "bakiye": float(r['kisisel_limit']) - float(r['guncel_borc']), "borc": r['guncel_borc'], "tur": "Kart"})
+            
+            # --- SIFIR BAKİYE VE SIFIR BORÇ GİZLEME (MUTLAK DEĞERLİ KESİN FİLTRE) ---
             cuzdan_listesi = []
             for c in cuzdan_listesi_ham:
-                # Midas ve Kartlar HER ZAMAN kalır. Diğerleri bakiye 0 ise silinir.
-                if c['tur'] == 'Yatirim' or c['tur'] == 'Kart' or float(c['bakiye']) > 0:
+                if c['tur'] == 'Yatirim': 
+                    # Midas (Yatırım) her zaman kalır
                     cuzdan_listesi.append(c)
+                elif c['tur'] == 'Kart':
+                    # Kredi Kartlarında borç 0 ise ekrana çizme!
+                    borc_degeri = abs(float(str(c.get('borc', 0)).strip() or 0))
+                    if borc_degeri >= 0.01:
+                        cuzdan_listesi.append(c)
+                else:
+                    # Vadesiz, Vadeli ve Nakit hesaplarda bakiye 0 ise ekrana çizme!
+                    bakiye_degeri = abs(float(str(c.get('bakiye', 0)).strip() or 0))
+                    if bakiye_degeri >= 0.01:
+                        cuzdan_listesi.append(c)
                     
             if not cuzdan_listesi:
-                cuzdan_listesi = [{"banka": "Sistem", "isim": "Aktif Bakiye Yok", "bakiye": 0.0, "tur": "Vadesiz"}]
+                cuzdan_listesi = [{"banka": "Sistem", "isim": "Aktif Bakiye Yok", "bakiye": 0.0, "tur": "Hesap"}]
 
             # 2. Şık Tasarım İçin Verileri 4'lü Satırlara Bölüyoruz
             satirlar = [cuzdan_listesi[i:i+4] for i in range(0, len(cuzdan_listesi), 4)]
@@ -4595,7 +4618,7 @@ else:
                 conn = get_db()
                 try:
                     df_vad = pd.read_sql_query("SELECT hesap_adi FROM banka_hesaplari WHERE kullanici_adi = %s AND hesap_turu = 'Vadesiz'", conn, params=(k_adi,))
-                    df_kar = pd.read_sql_query("SELECT kart_adi FROM kredi_kartlari WHERE kullanici_adi = %s", conn, params=(k_adi,))
+                    df_kart = pd.read_sql_query("SELECT * FROM kredi_kartlari WHERE kullanici_adi = %s AND ABS(guncel_borc) > 0.01", conn, params=(k_adi,))
                     c = conn.cursor()
                     c.execute("SELECT hesap_adi FROM hesaplar WHERE kullanici_adi = %s AND hesap_adi LIKE '%%Yatırım Hesabı%%'", (k_adi,))
                     y_hesaplar = c.fetchall()

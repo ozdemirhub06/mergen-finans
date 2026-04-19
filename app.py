@@ -104,7 +104,7 @@ components.html(
     /* 2. ANA TERMİNAL BUTONLARINI EŞŞEK GİBİ BÜYÜT */
     [data-testid="stSidebar"] div[role="radiogroup"] label {
         padding: 12px 20px !important;  /* Kutuları kalınlaştırdı */
-        margin-bottom: 8px !important; 
+        margin-bottom: 15px !important; 
         min-height: 55px !important; /* Boylarını uzattı */
     }
     [data-testid="stSidebar"] div[role="radiogroup"] label p {
@@ -119,12 +119,20 @@ components.html(
         font-size: 1.1rem !important; /* Buton yazısı büyüdü */
     }
     /* ==================================================================== */
-    /* --- SİDEBAR KUTULARI ARASINA ORANTILI MESAFE KOYMA (KESİN ÇÖZÜM) --- */
+    /* --- SİDEBAR KUTULARINI YAYMA VE SİSTEMİ EN DİBE YAPIŞTIRMA --- */
     /* ==================================================================== */
-    [data-testid="stSidebarUserContent"] > div, 
     [data-testid="stSidebarUserContent"] > div > div[data-testid="stVerticalBlock"] {
-        gap: 6vh !important; /* İŞTE BÜTÜN SIR BURADA. ARADAKİ MESAFE EKRANIN %6'SI KADAR OLDU */
-        padding-top: 2vh !important;
+        display: flex !important;
+        flex-direction: column !important;
+        min-height: 88vh !important; /* Sidebar'ı ekranın en altına kadar uzatır */
+        gap: 1.5rem !important; /* Üstteki (Profil ve Menü) bloklarına ferah bir nefes aldırır */
+        padding-top: 1vh !important;
+    }
+    
+    /* SİHİRLİ DOKUNUŞ: En son bloğu (SİSTEM) bulur ve kalan tüm boşluğu üstüne verip onu en dibe fırlatır */
+    [data-testid="stSidebarUserContent"] > div > div[data-testid="stVerticalBlock"] > div:last-child {
+        margin-top: auto !important; 
+        padding-bottom: 5px !important;
     }
     </script>
     """,
@@ -1059,45 +1067,79 @@ def hizli_fiyat_cek(ticker):
         return None, None
     
 
-@st.cache_data(ttl=3600) 
+@st.cache_data(ttl=1800) 
 def tefas_fiyat_cek(fon_kod):
-    import urllib3; urllib3.disable_warnings() 
-    # Sistemin bot gibi görünmemesi için gerçek tarayıcı kimliği
+    import requests
+    import urllib.parse
+    import datetime
+    import urllib3
+    import re
+    urllib3.disable_warnings()
+    
+    kod = fon_kod.upper()
+    
+    # 1. GERÇEKÇİ TARAYICI KİMLİĞİ (Cloudflare'ı kandırmak için en güncel Chrome kimliği)
     basliklar = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
         'Accept-Language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7'
     }
     
-    # 1. Deneme: TEFAS Ana Web Sitesi
-    try:
-        r = requests.get(f"https://www.tefas.gov.tr/FonAnaliz.aspx?FonKod={fon_kod.upper()}", headers=basliklar, timeout=10, verify=False)
-        if 'Son Fiyat (TL)' in r.text:
-            fiyat_str = r.text.split('Son Fiyat (TL)')[1].split('<span>')[1].split('</span>')[0].strip()
-            return float(fiyat_str.replace('.', '').replace(',', '.'))
-    except: pass
-    
-    # 2. Deneme: Fonbul.com Yedek
-    try:
-        r = requests.get(f"https://www.fonbul.com/CokluArama/FonDetay?fonKod={fon_kod.upper()}", headers=basliklar, timeout=10, verify=False)
-        if 'Son Fiyat' in r.text:
-            fiyat_str = r.text.split('Son Fiyat')[1].split('</td>')[1].split('>')[-1].strip()
-            return float(fiyat_str.replace('.', '').replace(',', '.'))
-    except: pass
-    
-    # 3. Deneme: TEFAS Gizli API (En sağlamı)
+    # Gelen bozuk sayı formatlarını (virgül/nokta hataları) kesin düzelten motor
+    def temizle_ve_cevir(metin):
+        try:
+            temiz = re.sub(r'<[^>]+>', '', str(metin)).strip()
+            if ',' in temiz and '.' in temiz:
+                if temiz.rfind(',') > temiz.rfind('.'):
+                    temiz = temiz.replace('.', '').replace(',', '.')
+                else:
+                    temiz = temiz.replace(',', '')
+            elif ',' in temiz:
+                temiz = temiz.replace(',', '.')
+            return float(temiz)
+        except: return 0.0
+
+    # --- KATMAN 1: TEFAS API (Doğrudan ve Hızlı) ---
     try:
         api_url = "https://www.tefas.gov.tr/api/DB/BindHistoryInfo"
-        data = {
-            "fontip": "YAT", "sfontur": "", "fonkod": fon_kod.upper(), "fongrup": "", 
-            "bastarih": (datetime.date.today() - datetime.timedelta(days=7)).strftime("%d.%m.%Y"), 
-            "bittarih": datetime.date.today().strftime("%d.%m.%Y")
-        }
-        r = requests.post(api_url, data=data, headers=basliklar, timeout=10, verify=False)
-        json_data = r.json()
-        if json_data and 'data' in json_data and len(json_data['data']) > 0:
-            return float(json_data['data'][-1]['FIYAT'])
+        data = {"fontip": "YAT", "sfontur": "", "fonkod": kod, "fongrup": "", "bastarih": (datetime.date.today() - datetime.timedelta(days=7)).strftime("%d.%m.%Y"), "bittarih": datetime.date.today().strftime("%d.%m.%Y")}
+        h = basliklar.copy()
+        h.update({'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8', 'X-Requested-With': 'XMLHttpRequest', 'Origin': 'https://www.tefas.gov.tr'})
+        r = requests.post(api_url, data=data, headers=h, timeout=5, verify=False)
+        if r.status_code == 200 and 'data' in r.json():
+            val = float(r.json()['data'][-1]['FIYAT'])
+            if val > 0: return val
+    except: pass
+
+    # --- KATMAN 2: FONBUL YEDEK SİSTEMİ (TEFAS engellerse buradan çeker) ---
+    try:
+        r = requests.get(f"https://www.fonbul.com/Vatandas/FonProfil/FonDetay?fonKod={kod}", headers=basliklar, timeout=5, verify=False)
+        if r.status_code == 200 and 'Son Fiyat' in r.text:
+            val_str = r.text.split('Son Fiyat')[1].split('</td>')[1].split('>')[-1]
+            val = temizle_ve_cevir(val_str)
+            if val > 0: return val
+    except: pass
+
+    # --- KATMAN 3: ALLORIGINS GİZLİ PROXY (Render IP Banını Aşmak İçin Köprü) ---
+    # İstek Render'dan değil, başka bir ülkedeki temiz bir IP'den geliyormuş gibi gösterir
+    try:
+        url = f"https://api.allorigins.win/raw?url={urllib.parse.quote(f'https://www.tefas.gov.tr/FonAnaliz.aspx?FonKod={kod}')}"
+        r = requests.get(url, headers=basliklar, timeout=8)
+        if r.status_code == 200 and 'Son Fiyat (TL)' in r.text:
+            val_str = r.text.split('Son Fiyat (TL)')[1].split('<span>')[1].split('</span>')[0]
+            val = temizle_ve_cevir(val_str)
+            if val > 0: return val
     except: pass
     
+    # --- KATMAN 4: CORSPROXY ALTERNATİFİ (Eğer üstteki proxy patlarsa) ---
+    try:
+        url = f"https://corsproxy.io/?{urllib.parse.quote(f'https://www.tefas.gov.tr/FonAnaliz.aspx?FonKod={kod}')}"
+        r = requests.get(url, headers=basliklar, timeout=8)
+        if r.status_code == 200 and 'Son Fiyat (TL)' in r.text:
+            val_str = r.text.split('Son Fiyat (TL)')[1].split('<span>')[1].split('</span>')[0]
+            val = temizle_ve_cevir(val_str)
+            if val > 0: return val
+    except: pass
+
     return None
 
 def t_arti_2_hesapla():
@@ -1915,8 +1957,8 @@ else:
 
         # --- BLOK 2: MENÜLER (ORTA KISIM) ---
         with st.container():
-            st.markdown("<hr style='margin: 0px 0; border-color: rgba(255,255,255,0.05);'>", unsafe_allow_html=True)
-            st.markdown("<div style='color: gray; font-size: 0.85rem; font-weight: bold; letter-spacing: 1px; margin-bottom: -10px;'>ANA TERMİNAL</div>", unsafe_allow_html=True)
+            st.markdown("<div style='margin-top: 25px;'></div><hr style='margin: 0px 0; border-color: rgba(255,255,255,0.05);'>", unsafe_allow_html=True)
+            st.markdown("<div style='color: gray; font-size: 0.85rem; font-weight: bold; letter-spacing: 1px; margin-bottom: 15px;'>ANA TERMİNAL</div>", unsafe_allow_html=True)
             
             ADMIN_KULLANICILAR = ["oguzhan", "admin", "mergen"]
             menu_secenekleri = ["Portföy Yönetimi", "Banka ve Bütçe", "Piyasa Analiz"]
@@ -1928,7 +1970,7 @@ else:
         # --- BLOK 3: SİSTEM KONTROLLERİ (ALT KISIM) ---
         with st.container():
             st.markdown("<hr style='margin: 0px 0; border-color: rgba(255,255,255,0.05);'>", unsafe_allow_html=True)
-            st.markdown("<div style='color: gray; font-size: 0.85rem; font-weight: bold; letter-spacing: 1px; margin-bottom: -10px;'>SİSTEM</div>", unsafe_allow_html=True)
+            st.markdown("<div style='color: gray; font-size: 0.85rem; font-weight: bold; letter-spacing: 1px; margin-bottom: 15px;'>SİSTEM</div>", unsafe_allow_html=True)
             
             if st.button("Yenile", use_container_width=True): 
                 st.rerun()
@@ -4461,9 +4503,18 @@ else:
             
             if tur == "Banka Hesabı":
                 c_s, c_t, c_p = st.columns([3, 2, 2])
-                s_b = c_s.selectbox("Finansal Kurum", bankalar)
+                s_b_secim = c_s.selectbox("Finansal Kurum", bankalar)
                 h_t = c_t.selectbox("Hesap Türü", ["Vadesiz", "Vadeli"])
                 p_b = c_p.selectbox("Para Birimi", ["TL", "USD", "EUR", "GBP"])
+                
+                # --- YENİ KURUM VE LOGO EKLEME MOTORU ---
+                if s_b_secim == "Diğer":
+                    cy1, cy2 = st.columns([3, 2])
+                    s_b = cy1.text_input("Kurum Adı")
+                    yeni_logo = cy2.file_uploader("Kurum Logosu (İsteğe Bağlı)", type=["png", "jpg", "jpeg"], key="logo_b")
+                else:
+                    s_b = s_b_secim
+                    yeni_logo = None
                 
                 with st.form("y_hesap"):
                     h_a = st.text_input("Hesap Tanımı (Örn: Maaş Hesabı)")
@@ -4481,7 +4532,13 @@ else:
                         faiz, stopaj, vade, saat = 0.0, 0.0, 0, "00:00"
                         
                     if st.form_submit_button("Hesabı Sisteme Ekle", type="primary"):
-                        if h_a:
+                        if h_a and s_b:
+                            # Eğer kullanıcı özel logo yüklediyse onu Banka Logoları klasörüne kaydet
+                            if yeni_logo:
+                                os.makedirs("Banka Logoları", exist_ok=True)
+                                with open(f"Banka Logoları/{s_b}.png", "wb") as f:
+                                    f.write(yeni_logo.getbuffer())
+                            
                             s_str = saat.strftime("%H:%M") if h_t == "Vadeli" else "00:00"
                             saat_tam = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                             conn = get_db()
@@ -4491,9 +4548,21 @@ else:
                                 conn.commit()
                             finally: release_db(conn)
                             st.success("Hesap kaydı tamamlandı."); st.rerun()
+                        else:
+                            st.error("Lütfen Kurum Adı ve Hesap Tanımını boş bırakmayın.")
                             
             elif tur == "Kredi Kartı":
-                s_b = st.selectbox("Finansal Kurum", bankalar)
+                s_b_secim = st.selectbox("Finansal Kurum", bankalar)
+                
+                # --- YENİ KURUM VE LOGO EKLEME MOTORU (KART İÇİN) ---
+                if s_b_secim == "Diğer":
+                    cy1, cy2 = st.columns([3, 2])
+                    s_b = cy1.text_input("Kurum Adı (Örn: Papara, Enpara Kredi vb.)", key="diger_kart_ad")
+                    yeni_logo = cy2.file_uploader("Kurum Logosu (İsteğe Bağlı)", type=["png", "jpg", "jpeg"], key="logo_k")
+                else:
+                    s_b = s_b_secim
+                    yeni_logo = None
+
                 with st.form("y_kart"):
                     c1, c2, c3 = st.columns([2,1,1])
                     k_a = c1.text_input("Kart Tanımı")
@@ -4505,7 +4574,13 @@ else:
                     odeme = cx2.number_input("Son Ödeme Günü", min_value=1, max_value=31)
                     
                     if st.form_submit_button("Kartı Sisteme Ekle", type="primary"):
-                        if k_a and b_lim > 0:
+                        if k_a and b_lim > 0 and s_b:
+                            # Özel logoyu kaydet
+                            if yeni_logo:
+                                os.makedirs("Banka Logoları", exist_ok=True)
+                                with open(f"Banka Logoları/{s_b}.png", "wb") as f:
+                                    f.write(yeni_logo.getbuffer())
+
                             conn = get_db()
                             try:
                                 c = conn.cursor()
@@ -4514,8 +4589,8 @@ else:
                             finally: release_db(conn)
                             st.success("Kart kaydı tamamlandı."); st.rerun()
                         else:
-                            st.error("Lütfen geçerli bir kart adı ve limit girin.")
-                            
+                            st.error("Lütfen Kurum Adı, Kart Tanımı ve geçerli bir limit girin.")
+            
             else: 
                 conn = get_db()
                 try:
@@ -4525,6 +4600,48 @@ else:
                     c.execute("SELECT hesap_adi FROM hesaplar WHERE kullanici_adi = %s AND hesap_adi LIKE '%%Yatırım Hesabı%%'", (k_adi,))
                     y_hesaplar = c.fetchall()
                 finally: release_db(conn)
+                
+                s_kaynaklar = [f"Hesap: {r['hesap_adi']}" for _, r in df_vad.iterrows()]
+                for yh in y_hesaplar: s_kaynaklar.append(f"Yatırım: {yh[0]}")
+                s_kartlar = [f"Kart: {r['kart_adi']}" for _, r in df_kar.iterrows()]
+
+                with st.form("y_sabit"):
+                    st.caption("Her ay otomatik işlenecek maaş, kira, fatura gibi düzenli döngülerinizi tanımlayın.")
+                    s_tip = st.selectbox("İşlem Tipi", ["Düzenli Gelir (+)", "Düzenli Gider (-)"])
+                    
+                    if "Gider" in s_tip:
+                        s_hesap = st.selectbox("Çekileceği Kaynak", s_kaynaklar + s_kartlar)
+                    else:
+                        s_hesap = st.selectbox("Yatırılacağı Kaynak", s_kaynaklar)
+                        
+                    s_isim = st.text_input("Açıklama (Örn: Maaş, Kira, Netflix)")
+                    
+                    c1, c2 = st.columns(2)
+                    s_tutar = c1.number_input("Aylık Tutar (TL)", min_value=1.0, step=100.0)
+                    s_gun = c2.number_input("Her Ayın Kaçıncı Günü?", min_value=1, max_value=31, step=1)
+                    
+                    if st.form_submit_button("Otomatik Talimatı Başlat", type="primary"):
+                        if s_isim and s_tutar > 0:
+                            bugun = datetime.date.today()
+                            
+                            # Akıllı Mühür (Eski ayları veya geçilmiş günleri yatırmaz)
+                            if bugun.day >= s_gun:
+                                ilk_damga = f"{bugun.year}-{bugun.month:02d}"
+                            else:
+                                ilk_damga = "Yok"
+                                
+                            conn = get_db()
+                            try:
+                                c = conn.cursor()
+                                c.execute("INSERT INTO sabit_islemler (kullanici_adi, islem_turu, aciklama, tutar, islem_gunu, bagli_hesap, son_islenme_tarihi) VALUES (%s,%s,%s,%s,%s,%s,%s)", 
+                                          (k_adi, "Gelir" if "Gelir" in s_tip else "Gider", s_isim, s_tutar, s_gun, s_hesap, ilk_damga))
+                                conn.commit()
+                            finally: release_db(conn)
+                            st.success(f"Talimat kaydedildi. Sistem bu işlemi her ayın {s_gun}. günü otomatik uygulayacak."); st.rerun()
+                        else:
+                            st.error("Lütfen geçerli bir isim ve tutar girin.")
+                            
+            
                 
                 s_kaynaklar = [f"Hesap: {r['hesap_adi']}" for _, r in df_vad.iterrows()]
                 for yh in y_hesaplar: s_kaynaklar.append(f"Yatırım: {yh[0]}")

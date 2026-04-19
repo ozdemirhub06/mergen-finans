@@ -6,7 +6,7 @@ import pandas as pd
 import yfinance as yf
 import plotly.express as px
 import plotly.graph_objects as go
-import requests 
+import requests
 import datetime
 import warnings
 import pytz
@@ -3327,7 +3327,22 @@ else:
                                     b64 = base64.b64encode(f.read()).decode()
                                     img_html = f"<img src='data:image/png;base64,{b64}' style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(0,255,0,0.4); padding: 3px; object-fit: contain; background: #ffffff;'>"
                                 break
+                        # ... senin mevcut 'for ext in' döngün burada bitiyor ...
                         
+                        # --- EĞER BULUT SUNUCU KLASÖRÜ SİLMİŞSE VERİTABANINDAN ÇEK ---
+                        if "<img" not in img_html: # Eğer klasörde bulamadıysa
+                            conn = get_db()
+                            try:
+                                c = conn.cursor()
+                                c.execute("SELECT logo_data FROM ozel_logolar WHERE banka_adi = %s", (b_adi,))
+                                res = c.fetchone()
+                                if res and res[0]:
+                                    b64 = base64.b64encode(res[0]).decode()
+                                    img_html = f"<img src='data:image/png;base64,{b64}' style='width: 38px; height: 38px; border-radius: 50%; border: 1px solid rgba(0,255,0,0.4); padding: 3px; object-fit: contain; background: #ffffff;'>"
+                            except: 
+                                pass # Tablo henüz oluşmamışsa hata verme
+                            finally: 
+                                release_db(conn)
                         # --- HAYALET MODU MASKELERİ ---
                         is_ghost = st.session_state.get('hayalet_modu', False)
                         
@@ -4558,9 +4573,22 @@ else:
                         if h_a and s_b:
                             # Eğer kullanıcı özel logo yüklediyse onu Banka Logoları klasörüne kaydet
                             if yeni_logo:
+                                logo_bytes = yeni_logo.getvalue()
+                                # 1. Klasöre kaydet (Lokalde anında çalışsın diye)
                                 os.makedirs("Banka Logoları", exist_ok=True)
                                 with open(f"Banka Logoları/{s_b}.png", "wb") as f:
-                                    f.write(yeni_logo.getbuffer())
+                                    f.write(logo_bytes)
+                                
+                                # 2. Veritabanına ÇAK (Bulutta ASLA silinmesin diye)
+                                conn = get_db()
+                                try:
+                                    c = conn.cursor()
+                                    c.execute("CREATE TABLE IF NOT EXISTS ozel_logolar (banka_adi VARCHAR(255) PRIMARY KEY, logo_data BYTEA)")
+                                    import psycopg2
+                                    c.execute("INSERT INTO ozel_logolar (banka_adi, logo_data) VALUES (%s, %s) ON CONFLICT (banka_adi) DO UPDATE SET logo_data = EXCLUDED.logo_data", (s_b, psycopg2.Binary(logo_bytes)))
+                                    conn.commit()
+                                finally: 
+                                    release_db(conn)
                             
                             s_str = saat.strftime("%H:%M") if h_t == "Vadeli" else "00:00"
                             saat_tam = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -6071,3 +6099,4 @@ else:
                     st.info("Sistemde henüz kayıtlı kullanıcı yok.")
             finally:
                 release_db(conn)
+

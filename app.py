@@ -4104,54 +4104,75 @@ else:
                         k_isim = k_bilgi['isim_soyisim'].upper() if k_bilgi['isim_soyisim'] else k_adi.upper()
                         kesim_gunu, odeme_gunu = int(r['hesap_kesim_gunu']), int(r['son_odeme_gunu'])
                         
-                        # --- AKILLI TAKVİM VE DÖNEM GEÇİŞ MOTORU ---
+                        # --- AKILLI TAKVİM VE DÖNEM GEÇİŞ MOTORU (YENİ SİBER MANTIK) ---
                         import calendar
                         son_gun = calendar.monthrange(bugun.year, bugun.month)[1]
-                        h_kesim = datetime.date(bugun.year, bugun.month, min(kesim_gunu, son_gun))
                         
-                        if bugun > h_kesim:
+                        # GEÇMİŞ (SON KESİLEN) EKSTRE TARİHİNİ BULMA
+                        h_gecmis = datetime.date(bugun.year, bugun.month, min(kesim_gunu, son_gun))
+                        if bugun < h_gecmis:
+                            g_ay = bugun.month - 1 if bugun.month > 1 else 12
+                            g_yil = bugun.year if bugun.month > 1 else bugun.year - 1
+                            g_son_gun = calendar.monthrange(g_yil, g_ay)[1]
+                            h_gecmis = datetime.date(g_yil, g_ay, min(kesim_gunu, g_son_gun))
+                        gercek_gecmis_kesim = is_gunune_yuvarla(h_gecmis)
+
+                        # GELECEK (YENİ KESİLECEK) EKSTRE TARİHİNİ BULMA
+                        h_gelecek = datetime.date(bugun.year, bugun.month, min(kesim_gunu, son_gun))
+                        if bugun >= h_gelecek:
                             y_ay = bugun.month + 1 if bugun.month < 12 else 1
                             y_yil = bugun.year if bugun.month < 12 else bugun.year + 1
-                            son_gun = calendar.monthrange(y_yil, y_ay)[1]
-                            h_kesim = datetime.date(y_yil, y_ay, min(kesim_gunu, son_gun))
-
-                        o_ay = h_kesim.month + 1 if odeme_gunu < kesim_gunu else h_kesim.month
-                        o_yil = h_kesim.year + 1 if (odeme_gunu < kesim_gunu and h_kesim.month == 12) else h_kesim.year
+                            y_son_gun = calendar.monthrange(y_yil, y_ay)[1]
+                            h_gelecek = datetime.date(y_yil, y_ay, min(kesim_gunu, y_son_gun))
+                        gercek_gelecek_kesim = is_gunune_yuvarla(h_gelecek)
+                        
+                        o_ay = h_gelecek.month + 1 if odeme_gunu < kesim_gunu else h_gelecek.month
+                        o_yil = h_gelecek.year + 1 if (odeme_gunu < kesim_gunu and h_gelecek.month == 12) else h_gelecek.year
                         o_son_gun = calendar.monthrange(o_yil, o_ay)[1]
-                        h_odeme = datetime.date(o_yil, o_ay, min(odeme_gunu, o_son_gun))
+                        gercek_odeme = is_gunune_yuvarla(datetime.date(o_yil, o_ay, min(odeme_gunu, o_son_gun)))
 
-                        gercek_kesim = is_gunune_yuvarla(h_kesim)
-                        gercek_odeme = is_gunune_yuvarla(h_odeme)
-                        kalan_gun = (gercek_kesim - bugun).days
+                        kalan_gun = (gercek_gelecek_kesim - bugun).days
                         donem_yazisi = f"{aylar_tr[bugun.month - 1]} {bugun.year}"
 
-                        # --- OTOMATİK EKSTRE KESİM TETİKLEYİCİ ---
-                        if kalan_gun < 0:
-                            gecmis_ay = bugun.month - 2 if bugun.month > 1 else 11
-                            gecmis_yil = bugun.year if bugun.month > 1 else bugun.year - 1
-                            gecmis_donem_adi = f"{aylar_tr[gecmis_ay]} {gecmis_yil}"
+                        # --- DÖNEMİÇİ HARCAMA VE EKSTRE BORCU HESAPLAMASI ---
+                        conn = get_db()
+                        try:
+                            c = conn.cursor()
+                            # Sadece son ekstre kesim tarihinden SONRA yapılan harcamaları topluyoruz
+                            c.execute("SELECT SUM(tutar) FROM harcamalar WHERE kullanici_adi = %s AND kaynak_hesap = %s AND tarih >= %s", (k_adi, f"Kart: {kart_adi}", gercek_gecmis_kesim.strftime('%Y-%m-%d 00:00:00')))
+                            donem_ici_res = c.fetchone()
+                            donem_ici_harcama = donem_ici_res[0] if donem_ici_res and donem_ici_res[0] else 0.0
                             
-                            conn = get_db()
-                            try:
-                                c = conn.cursor()
-                                c.execute("INSERT INTO gecmis_ekstreler (kullanici_adi, kart_adi, donem_adi, toplam_borc, kesim_tarihi, son_odeme_tarihi) VALUES (%s,%s,%s,%s,%s,%s)", (k_adi, kart_adi, gecmis_donem_adi, borc, gercek_kesim, gercek_odeme))
+                            # --- OTOMATİK EKSTRE KESİM TETİKLEYİCİ (ZIRHLI) ---
+                            c.execute("SELECT id FROM gecmis_ekstreler WHERE kart_adi = %s AND kesim_tarihi = %s AND kullanici_adi = %s", (kart_adi, gercek_gecmis_kesim, k_adi))
+                            ekstre_kesilmis_mi = c.fetchone()
+                            
+                            if not ekstre_kesilmis_mi and bugun >= gercek_gecmis_kesim:
+                                gecmis_donem_adi = f"{aylar_tr[gercek_gecmis_kesim.month - 1]} {gercek_gecmis_kesim.year}"
+                                
+                                # Kesilmesi gereken gerçek ekstre borcu (Toplam Borç - Yeni Ay Harcamaları)
+                                kesilecek_borc = borc - donem_ici_harcama
+                                if kesilecek_borc < 0: kesilecek_borc = 0.0
+                                
+                                c.execute("INSERT INTO gecmis_ekstreler (kullanici_adi, kart_adi, donem_adi, toplam_borc, kesim_tarihi, son_odeme_tarihi, durum) VALUES (%s,%s,%s,%s,%s,%s,'Ödenmedi')", (k_adi, kart_adi, gecmis_donem_adi, kesilecek_borc, gercek_gecmis_kesim, gercek_odeme))
                                 c.execute("UPDATE taksitli_islemler SET odenen_taksit = odenen_taksit + 1 WHERE kullanici_adi = %s AND kart_adi = %s AND odenen_taksit < toplam_taksit", (k_adi, kart_adi))
                                 c.execute("UPDATE harcamalar SET kaynak_hesap = %s WHERE kullanici_adi = %s AND kaynak_hesap = %s", (f"[Geçmiş] Kart: {kart_adi}", k_adi, f"Kart: {kart_adi}"))
                                 conn.commit()
                                 st.session_state.islem_bildirimi = {"mesaj": f"{kart_adi} ekstreniz kesildi. Yeni döneme geçildi."}
                                 time.sleep(1)
                                 st.rerun()
-                            except: pass
-                            finally: release_db(conn)
+                                
+                        except Exception as e: pass
+                        finally: release_db(conn)
+
+                        # Geçmiş dönemden devreden borç (Eğer varsa)
+                        ekstre_borcu = borc - donem_ici_harcama
+                        if ekstre_borcu < 0: ekstre_borcu = 0.0
 
                         # --- GÖRSEL TASARIM ---
                         with st.container(border=True):
                             c_kart, c_grafik = st.columns([1, 1.5])
-                            # --- GÖRSEL TASARIM ---
-                        with st.container(border=True):
-                            c_kart, c_grafik = st.columns([1, 1.5])
                             with c_kart:
-                                # Logo bul
                                 kart_logo = ""
                                 for ext in ['.png', '.jpg', '.jpeg', '.PNG', '.JPG', '.JPEG']:
                                     p = f"Banka Logoları/{banka_adi}{ext}"
@@ -4161,8 +4182,6 @@ else:
                                             kart_logo = f"<img src='data:image/png;base64,{b64}' style='height: 25px; border-radius: 4px; background: white; padding: 2px;'>"
                                         break
                                         
-                                # --- YENİ GECE MAVİSİ KART TASARIMI ---
-                                # HTML KIRILMASINI ENGELLEMEK İÇİN STRING BİRLEŞTİRME YÖNTEMİ
                                 ana_kart_badge = ""
                                 if ana_k == kart_adi:
                                     ana_kart_badge = "<div style='color: #4fc3f7; font-size: 0.65em; font-weight: bold; border: 1px solid rgba(79,195,247,0.5); background: rgba(79, 195, 247, 0.1); padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 5px;'>★ ANA KART</div>"
@@ -4192,48 +4211,51 @@ else:
                                 )
                                 st.markdown(kart_html, unsafe_allow_html=True)
                                 
-                                # Tarihler kısmı artık hatasız ve temiz
                                 st.markdown(f"""
                                 <div style='text-align: center; margin-top: 12px; font-size: 0.85em; color: gray;'>
                                     Dönem: <b style='color: white;'>{donem_yazisi}</b> | 
-                                    Kesim: <b style='color: white;'>{gercek_kesim.strftime('%d.%m.%Y')}</b> 
+                                    Kesim: <b style='color: white;'>{gercek_gelecek_kesim.strftime('%d.%m.%Y')}</b> 
                                     (<b style='color: {kalan_gun_renk};'>{kalan_gun} Gün</b>) | 
                                     Ödeme: <b style='color: white;'>{gercek_odeme.strftime('%d.%m.%Y')}</b>
                                 </div>
                                 """, unsafe_allow_html=True)
 
                             with c_grafik:
+                                # Ekstre borcu varsa grafiklerin hemen tepesine kırmızı uyarı olarak basar
+                                if ekstre_borcu > 0:
+                                    st.markdown(f"<div style='text-align: center; background: rgba(255,82,82,0.1); border: 1px solid rgba(255,82,82,0.3); border-radius: 6px; padding: 5px; margin-bottom: -15px; margin-top: 10px;'><span style='color: gray; font-size: 0.85em;'>Geçmiş Ekstre (Ödenmesi Gereken) Borcu:</span> <b style='color: #FF5252; font-size: 1.1em;'>{ekstre_borcu:,.2f} ₺</b></div>", unsafe_allow_html=True)
+                                
                                 cg1, cg2 = st.columns(2)
                                 
                                 with cg1:
+                                    # Banka Limiti DOĞRU OLARAK tüm borcu sayar
                                     oran1 = (borc / limit) * 100 if limit > 0 else 0
                                     
-                                    # SADECE DOLAN BARIN KENDİ RENGİ (Limite yaklaştıkça koyulaşır)
-                                    if oran1 < 33: bar_renk1 = "#81d4fa"      # Açık Mavi
-                                    elif oran1 < 66: bar_renk1 = "#0288d1"    # Orta Mavi
-                                    elif oran1 < 90: bar_renk1 = "#003b80"    # Koyu Mavi
-                                    else: bar_renk1 = "#001b3b"               # En Koyu (Gece Mavisi)
+                                    if oran1 < 33: bar_renk1 = "#81d4fa"
+                                    elif oran1 < 66: bar_renk1 = "#0288d1"
+                                    elif oran1 < 90: bar_renk1 = "#003b80"
+                                    else: bar_renk1 = "#001b3b"
                                     
                                     fig1 = go.Figure(go.Indicator(mode="gauge+number", value=borc, title={'text': "Banka Limiti", 'font': {'size': 13, 'color': 'gray'}},
                                         number={'valueformat': ",.0f", 'suffix': " ₺", 'font': {'size': 20, 'color': 'white'}},
                                         gauge={'axis': {'range': [None, limit], 'tickcolor': "rgba(255,255,255,0.1)"}, 
-                                        'bar': {'color': bar_renk1}, # <-- İŞTE BURASI: Sadece dolan kısım renkleniyor
-                                        'bgcolor': "rgba(255,255,255,0.05)", 'borderwidth': 0})) # Arka plan sade
+                                        'bar': {'color': bar_renk1},
+                                        'bgcolor': "rgba(255,255,255,0.05)", 'borderwidth': 0}))
                                     
                                     fig1.update_layout(height=210, margin=dict(t=45, b=0, l=15, r=15), paper_bgcolor="rgba(0,0,0,0)", font=dict(family="Consolas"))
                                     st.plotly_chart(fig1, use_container_width=True, config={'displayModeBar': False})
                                     st.markdown(f"<div style='text-align: center; color: gray; font-size: 0.85em; margin-top: -20px;'>Kalan: <b style='color: {bar_renk1};'>{(limit-borc):,.2f} ₺</b></div>", unsafe_allow_html=True)
                                 
                                 with cg2:
-                                    oran2 = (borc / kisisel_limit) * 100 if kisisel_limit > 0 else 0
+                                    # KİŞİSEL BÜTÇE SADECE CARİ DÖNEM HARCAMASINI SAYAR (Sıfırlanan kısım)
+                                    oran2 = (donem_ici_harcama / kisisel_limit) * 100 if kisisel_limit > 0 else 0
                                     
-                                    # SADECE DOLAN BARIN KENDİ RENGİ
                                     if oran2 < 33: bar_renk2 = "#81d4fa"
                                     elif oran2 < 66: bar_renk2 = "#0288d1"
                                     elif oran2 < 90: bar_renk2 = "#003b80"
                                     else: bar_renk2 = "#001b3b"
                                     
-                                    fig2 = go.Figure(go.Indicator(mode="gauge+number", value=borc, title={'text': "Kişisel Bütçe Sınırı", 'font': {'size': 13, 'color': 'gray'}},
+                                    fig2 = go.Figure(go.Indicator(mode="gauge+number", value=donem_ici_harcama, title={'text': "Cari Bütçe Sınırı (Dönem İçi)", 'font': {'size': 13, 'color': 'gray'}},
                                         number={'valueformat': ",.0f", 'suffix': " ₺", 'font': {'size': 20, 'color': 'white'}},
                                         gauge={'axis': {'range': [None, kisisel_limit], 'tickcolor': "rgba(255,255,255,0.1)"}, 
                                         'bar': {'color': bar_renk2},
@@ -4241,7 +4263,7 @@ else:
                                     
                                     fig2.update_layout(height=210, margin=dict(t=45, b=0, l=15, r=15), paper_bgcolor="rgba(0,0,0,0)", font=dict(family="Consolas"))
                                     st.plotly_chart(fig2, use_container_width=True, config={'displayModeBar': False})
-                                    st.markdown(f"<div style='text-align: center; color: gray; font-size: 0.85em; margin-top: -20px;'>Kalan Bütçe: <b style='color: {bar_renk2};'>{(kisisel_limit-borc):,.2f} ₺</b></div>", unsafe_allow_html=True)
+                                    st.markdown(f"<div style='text-align: center; color: gray; font-size: 0.85em; margin-top: -20px;'>Kalan Bütçe: <b style='color: {bar_renk2};'>{(kisisel_limit-donem_ici_harcama):,.2f} ₺</b></div>", unsafe_allow_html=True)
 # --- KART YÖNETİMİ (6'LI SÜTUN - ANA KART EKLENDİ) ---
                         st.markdown("---")
                         c_ana, c_ode, c_blim, c_klim, c_borc, c_sil = st.columns(6)
